@@ -10,3 +10,4 @@ plugins {
 }
 
 rootProject.name = "kt-blog"
+include("js")

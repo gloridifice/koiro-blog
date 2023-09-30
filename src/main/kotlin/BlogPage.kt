@@ -42,4 +42,7 @@ class BlogPage(val page: Page) {
         }
         return default
     }
+    fun getDate(): String{
+        return date.start.orEmpty()
+    }
 }

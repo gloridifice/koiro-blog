@@ -15,8 +15,8 @@ data class BlogContext(val client: NotionClient, val blogPages: List<BlogPage>) 
 
 }
 
+val outputDirectory = "static/"
 fun main(args: Array<String>) {
-    copyDir(Path("assets"), Path("static/assets"))
     notionClient { client ->
         val blogPages = getBlogPages(client)
         val context = BlogContext(client, blogPages);
@@ -60,7 +60,7 @@ fun getBlogPages(client: NotionClient): List<BlogPage> {
 }
 
 fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {
-    val path = Path("static/${htmlName}.html")
+    val path = Path("${outputDirectory}${htmlName}.html")
     path.createParentDirectories()
     val file = File(path.toUri())
     val isExist = !file.createNewFile()

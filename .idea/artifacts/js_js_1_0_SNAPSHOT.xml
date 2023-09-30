@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="js-js-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/js/build/libs</output-path>
+    <root id="archive" name="js-js-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="kt-blog.js.jsMain" />
+    </root>
+  </artifact>
+</component>

@@ -1,12 +1,10 @@
 package page
 
 import BlogContext
-import asLoc
 import kotlinx.html.*
 import universalHeadSetting
 import component.*
 import linkCSS
-import resourcesServerPath
 import unsafeSVG
 
 fun HTML.home(context: BlogContext){
@@ -18,7 +16,6 @@ fun HTML.home(context: BlogContext){
     body {
         header()
         contents(context)
-
     }
 }
 val titleEN = "Koiro's Cat Café"

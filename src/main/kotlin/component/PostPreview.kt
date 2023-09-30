@@ -2,7 +2,6 @@ package component
 
 import BlogPage
 import kotlinx.html.*
-import notion.api.v1.model.common.Emoji
 import toNormalString
 
 fun FlowContent.postPreview(blogPage: BlogPage) {
@@ -32,7 +31,7 @@ fun FlowContent.postPreview(blogPage: BlogPage) {
             classes += "info"
             p {
                 classes += "date"
-                +blogPage.date.start!!
+                +blogPage.getDate()
             }
             p {
                 classes += "type"

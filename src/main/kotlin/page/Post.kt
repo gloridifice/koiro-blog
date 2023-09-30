@@ -1,7 +1,6 @@
 package page
 
 import BlogPage
-import asLoc
 import colorClass
 import kotlinx.html.*
 import linkCSS
@@ -21,8 +20,29 @@ fun HTML.post(page: BlogPage, client: NotionClient){
     body {
         header()
         div {
-            classes += "page_contents"
-            notionBlocks(blocks)
+            classes += "contents"
+            div{
+                classes += "page_description"
+                h1 {
+                    classes += "title"
+                    +"${page.getEmoji()} ${page.getPlainTitle()}"
+                }
+                div {
+                    classes += "sub_info"
+                    p{
+                        classes += "date"
+                        +page.getDate()
+                    }
+                    p {
+                        classes += "type"
+                        +page.type.name!!
+                    }
+                }
+            }
+            div {
+                classes += "page_contents"
+                notionBlocks(blocks)
+            }
         }
     }
 }

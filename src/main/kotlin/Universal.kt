@@ -7,7 +7,10 @@ fun HEAD.universalHeadSetting() {
     lang = "zh_CN"
     meta {
         httpEquiv = "Content-Type"
-        content = "text/html; charset=utf-8"
+        content = "charset=utf-8"
+    }
+    script {
+        src = "/assets/js/header.js"
     }
     linkCSS("root")
 }
@@ -30,6 +33,7 @@ fun HEAD.linkCSS(vararg cssNames: String) {
 fun resourcesServerPath(loc: Loc): String = "/assets/resources/$loc"
 fun cssServerPath(loc: Loc): String = "/assets/css/$loc" + if (loc.loc.contains(".css")) "" else ".css"
 fun htmlServerPath(loc: Loc): String = "/$loc" + if (loc.loc.contains(".html")) "" else ".html"
+fun jsServerPath(loc: String): String = "/assets/js/$loc" + if (loc.contains(".js")) "" else ".js"
 
 fun String.asLoc(): Loc = Loc(this)
 
@@ -90,6 +94,7 @@ fun colorClass(color: RichTextColor?): String? {
     }
     return null;
 }
+
 fun colorClass(color: BlockColor?): String? {
     if (color != null && color.name != "Default") {
         return "color_${color.name.lowercase()}"

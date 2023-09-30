@@ -1,9 +1,4 @@
-import kotlinx.html.BODY
-import kotlinx.html.classes
-import kotlinx.html.div
-import kotlinx.html.img
 import notion.api.v1.NotionClient
-import notion.api.v1.model.pages.Page
 import notion.api.v1.model.pages.PageProperty
 
 fun notionClient(doAction: (client: NotionClient) -> Unit) {
