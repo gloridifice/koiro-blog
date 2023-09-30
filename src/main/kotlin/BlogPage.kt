@@ -8,7 +8,7 @@ class BlogPage(val page: Page) {
     val pageTitle: List<PageProperty.RichText>
     val icon: Icon
     val slug: List<PageProperty.RichText>
-    val date: PageProperty.Date
+    val date: String?
     val authors: List<String>
     val type: DatabaseProperty.Select.Option
     val tags: List<DatabaseProperty.MultiSelect.Option>
@@ -21,7 +21,7 @@ class BlogPage(val page: Page) {
         type = page.properties["Class"]!!.select!!
         slug = page.properties["Slug"]!!.richText!!
         published = page.properties["Published"]!!.checkbox!!
-        date = page.properties["Date"]!!.date!!
+        date = page.properties["Date"]?.lastEditedTime
         val authorsOption = page.properties["Authors"]!!.people!!
 
         val authorNames = ArrayList<String>()
@@ -31,6 +31,8 @@ class BlogPage(val page: Page) {
     }
 
     val htmlServerPath get() = htmlServerPath(htmlName.asLoc())
+    val htmlGenPath get() = "${outputDirectory}${htmlName}.html"
+    val assetsDirectoryPath get() = "${outputDirectory}${htmlName}/"
     val htmlName get() = "post/${uuid}"
     val uuid get() = page.id;
 
@@ -42,7 +44,10 @@ class BlogPage(val page: Page) {
         }
         return default
     }
-    fun getDate(): String{
-        return date.start.orEmpty()
+    fun getDateDay(): String{
+        date?.let {
+            return it.split('T')[0]
+        }
+        return "No date"
     }
 }

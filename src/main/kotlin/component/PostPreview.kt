@@ -31,7 +31,7 @@ fun FlowContent.postPreview(blogPage: BlogPage) {
             classes += "info"
             p {
                 classes += "date"
-                +blogPage.getDate()
+                +blogPage.getDateDay()
             }
             p {
                 classes += "type"

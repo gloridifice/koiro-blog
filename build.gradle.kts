@@ -21,6 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
     implementation("com.github.seratch:notion-sdk-jvm-core:${notionSdkVersion}")
     implementation("com.github.ajalt.mordant:mordant:${mordantVersion}")
+
 }
 
 tasks.test {
