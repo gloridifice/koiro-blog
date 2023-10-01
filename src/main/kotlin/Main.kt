@@ -1,35 +1,32 @@
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import notion.api.v1.NotionClient
-import page.home
+import htmlgen.page.home
 import com.github.ajalt.mordant.rendering.TextColors.*
-import page.post
+import notion.api.v1.model.databases.Database
+import htmlgen.page.post
+import notiondata.DataDatabase
+import notiondata.notionDataRootPath
+import notiondata.readNotionData
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 
-data class BlogContext(val client: NotionClient, val blogPages: List<BlogPage>) {
+data class BlogContext(val dataDatabase: DataDatabase) {
 
 }
 
 val outputDirectory = "static/"
 fun main(args: Array<String>) {
-    notionClient { client ->
-        val blogPages = getBlogPages(client)
-        val context = BlogContext(client, blogPages);
+    val dataDatabase = readNotionData(Path(notionDataRootPath))
+    val context = BlogContext(dataDatabase);
 
-        createHomePage(context)
-        createPostPages(context)
-    }
-}
-fun copyDir(src: Path, dest: Path) {
-    Files.walk(src).forEach {
-        Files.copy(it, dest.resolve(src.relativize(it)),
-            StandardCopyOption.REPLACE_EXISTING)
-    }
+    createHomePage(context)
+    createPostPages(context)
 }
 
 fun createHomePage(blogContext: BlogContext) {
@@ -38,25 +35,14 @@ fun createHomePage(blogContext: BlogContext) {
     }
 }
 
-fun createPostPages(blogContext: BlogContext) {
-    blogContext.blogPages.forEach { page ->
-        if (!page.published) return@forEach
+fun createPostPages(context: BlogContext) {
+    context.dataDatabase.dataPages.forEach { page ->
+        if (!page.post.published) return@forEach
 
-        createHTML(page.htmlName) {
-            post(page, blogContext.client)
+        createHTML(page.post.htmlName) {
+            post(page, context)
         }
     }
-}
-
-fun getBlogPages(client: NotionClient): List<BlogPage> {
-    val databaseID = "0ed868dbb56445929e8a993ff70b1750"
-    val databasePages = client.queryDatabase(databaseID).results
-    databasePages[0].icon
-    val blogPages: List<BlogPage> = databasePages.map {
-        BlogPage(page = it)
-    }
-    println(yellow("NotionClient: ") + "Getting blog pages finished, page amount: ${blogPages.size}.")
-    return blogPages
 }
 
 fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {

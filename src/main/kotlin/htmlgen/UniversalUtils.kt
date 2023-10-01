@@ -1,12 +1,25 @@
+package htmlgen
+
 import kotlinx.html.*
 import notion.api.v1.model.common.BlockColor
 import notion.api.v1.model.common.RichTextColor
 import notion.api.v1.model.pages.PageProperty
 import java.io.File
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
+fun copyDir(src: Path, dest: Path) {
+    Files.walk(src).forEach {
+        Files.copy(
+            it, dest.resolve(src.relativize(it)),
+            StandardCopyOption.REPLACE_EXISTING
+        )
+    }
+}
 fun HEAD.universalHeadSetting() {
     lang = "zh_CN"
     meta {
@@ -37,6 +50,13 @@ fun HEAD.linkGoogleFont(){
 fun HTMLTag.unsafeSVG(svgString: String) {
     unsafe {
         +svgString
+    }
+}
+fun FlowContent.useSVG(svgHref: String){
+    svg{
+        unsafe {
+            +"<use xlink:href='${svgHref}' />"
+        }
     }
 }
 
@@ -166,4 +186,13 @@ fun findFile(filePath: String): Pair<File, String>{
         var thePath = filePath.replace('%', '_')
         return Pair(File(thePath), thePath);
     }
+}
+
+private fun String.asRichText(): List<PageProperty.RichText> =
+    listOf(PageProperty.RichText(text = PageProperty.RichText.Text(content = this)))
+
+fun List<PageProperty.RichText>.toNormalString(): String{
+    var str = ""
+    this.forEach { str += it.plainText }
+    return str;
 }

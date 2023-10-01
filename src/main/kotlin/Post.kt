@@ -1,10 +1,13 @@
+import htmlgen.asLoc
+import htmlgen.htmlServerPath
+import htmlgen.toNormalString
 import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.common.Icon
 import notion.api.v1.model.databases.DatabaseProperty
 import notion.api.v1.model.pages.Page
 import notion.api.v1.model.pages.PageProperty
 
-class BlogPage(val page: Page) {
+class Post(val page: Page) {
     val pageTitle: List<PageProperty.RichText>
     val icon: Icon
     val slug: List<PageProperty.RichText>

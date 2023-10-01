@@ -1,83 +1,74 @@
-package page
+package htmlgen.page
 
-import BlogPage
-import colorClass
-import downloadImage
+import BlogContext
+import htmlgen.colorClass
+import htmlgen.downloadImage
 import kotlinx.html.*
-import linkCSS
-import notion.api.v1.NotionClient
 import notion.api.v1.model.blocks.*
-import richTexts
-import universalHeadSetting
+import htmlgen.richTexts
+import notiondata.DataBlock
+import notiondata.DataPage
 import java.net.URL
 import java.util.Scanner
 import kotlin.io.path.*
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.post(page: BlogPage, client: NotionClient) {
-    Path(page.assetsDirectoryPath).deleteRecursively()
+fun HTML.post(page: DataPage, context: BlogContext) {
+    Path(page.post.assetsDirectoryPath).deleteRecursively()
 
-    val blocks = client.retrieveBlockChildren(page.page.id).results
+    val post = page.post
 
-    head {
-        universalHeadSetting()
-        linkCSS("layout", "post")
-        title(page.getEmoji() + " " + page.getPlainTitle())
-    }
-    body {
-        header()
+    layout(
+        siteTitle = post.getEmoji() + " " + post.getPlainTitle(),
+        cssNames = arrayOf("post")
+    ) {
         div {
             classes += "contents"
             div {
                 classes += "page_description"
                 h1 {
                     classes += "title"
-                    +"${page.getEmoji()} ${page.getPlainTitle()}"
+                    +"${post.getEmoji()} ${post.getPlainTitle()}"
                 }
                 div {
                     classes += "sub_info"
                     p {
                         classes += "date"
-                        +page.getDateDay()
+                        +post.getDateDay()
                     }
                     p {
                         classes += "type"
-                        +page.type.name!!
+                        +post.type.name!!
                     }
                 }
             }
             div {
                 classes += "page_contents"
-                notionBlocks(blocks,page, client)
+                page.dataBlocks?.let { notionBlocks(it, page, context) }
             }
         }
     }
 }
 
-fun FlowContent.tryGenChildren(block: Block, page: BlogPage, client: NotionClient) {
-    if (block.hasChildren == true) {
-        block.id?.let { blockId ->
-            client.retrieveBlockChildren(blockId).results.forEach {
-                notionBlock(it, page, client)
-            }
-        }
-    }
+fun FlowContent.tryGenChildren(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext) {
+    dataBlock.children?.let { notionBlocks(it, dataPage, context) }
+    
 }
 
-fun FlowContent.notionBlocks(block: List<Block>, page: BlogPage, client: NotionClient) {
-    block.forEach {
-        notionBlock(it, page, client)
-    }
+fun FlowContent.notionBlocks(block: List<DataBlock>, page: DataPage, context: BlogContext) {
+    block.forEach { notionBlock(it, page, context) }
 }
 
-fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) {
+fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext) {
+    val block = dataBlock.block
+    val post = dataPage.post
     when {
         //todo
         block is ParagraphBlock -> {
             p {
                 block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
                 richTexts(block.paragraph.richText)
-                tryGenChildren(block, page, client)
+                tryGenChildren(dataBlock, dataPage, context)
             }
         }
 
@@ -114,7 +105,7 @@ fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) 
                 li {
                     block.bulletedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.bulletedListItem.richText)
-                    tryGenChildren(block, page, client)
+                    tryGenChildren(dataBlock, dataPage, context)
                 }
             }
         }
@@ -125,7 +116,7 @@ fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) 
                 li {
                     block.numberedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.numberedListItem.richText)
-                    tryGenChildren(block, page, client)
+                    tryGenChildren(dataBlock, dataPage, context)
                 }
             }
         }
@@ -133,14 +124,14 @@ fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) 
         block is ColumnListBlock -> {
             div {
                 classes += "column_list"
-                tryGenChildren(block, page, client)
+                tryGenChildren(dataBlock, dataPage, context)
             }
         }
 
         block is ColumnBlock -> {
             div {
                 classes += "column"
-                tryGenChildren(block, page, client)
+                tryGenChildren(dataBlock, dataPage, context)
             }
         }
 
@@ -168,14 +159,14 @@ fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) 
         block is ImageBlock -> {
             block.image?.let { image ->
                 image.file?.url?.let {
-                    val imgName = downloadImage(it, page.assetsDirectoryPath)
+                    val imgName = downloadImage(it, post.assetsDirectoryPath)
 
                     div {
                         classes += "image_wrapper"
                         img {
-                            src = "/${page.htmlName}/${imgName}"
+                            src = "/${post.htmlName}/${imgName}"
                         }
-                        div{
+                        div {
                             classes += "caption"
                             image.caption?.let { richTexts(it) }
                         }
@@ -198,7 +189,7 @@ fun FlowContent.notionBlock(block: Block, page: BlogPage, client: NotionClient) 
                             +titleText
                         }
 
-                        if (title != null){
+                        if (title != null) {
                             div {
                                 classes += "url_detail"
                             }

@@ -1,15 +1,15 @@
-package component
+package htmlgen.component
 
-import BlogPage
+import Post
 import kotlinx.html.*
-import toNormalString
+import htmlgen.toNormalString
 
-fun FlowContent.postPreview(blogPage: BlogPage) {
+fun FlowContent.postPreview(post: Post) {
     div {
         classes += "post_preview"
-        onClick = "location.href='${blogPage.htmlServerPath}';"
+        onClick = "location.href='${post.htmlServerPath}';"
 
-        val emoji = blogPage.getEmoji()
+        val emoji = post.getEmoji()
         div {
             classes += "emoji"
             +emoji
@@ -19,11 +19,11 @@ fun FlowContent.postPreview(blogPage: BlogPage) {
             classes += "description"
             h2 {
                 classes += "title"
-                +blogPage.pageTitle.toNormalString()
+                +post.pageTitle.toNormalString()
             }
             h3 {
                 classes += "slug"
-                +blogPage.slug.toNormalString()
+                +post.slug.toNormalString()
             }
         }
 
@@ -31,11 +31,11 @@ fun FlowContent.postPreview(blogPage: BlogPage) {
             classes += "info"
             p {
                 classes += "date"
-                +blogPage.getDateDay()
+                +post.getDateDay()
             }
             p {
                 classes += "type"
-                +blogPage.type.name!!
+                +post.type.name!!
             }
         }
     }
