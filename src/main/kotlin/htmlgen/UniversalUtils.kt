@@ -1,5 +1,6 @@
 package htmlgen
 
+import childPath
 import kotlinx.html.*
 import notion.api.v1.model.common.BlockColor
 import notion.api.v1.model.common.RichTextColor
@@ -20,6 +21,7 @@ fun copyDir(src: Path, dest: Path) {
         )
     }
 }
+
 fun HEAD.universalHeadSetting() {
     lang = "zh_CN"
     meta {
@@ -32,18 +34,19 @@ fun HEAD.universalHeadSetting() {
     linkCSS("reset", "root")
     linkGoogleFont()
 }
-fun HEAD.linkGoogleFont(){
+
+fun HEAD.linkGoogleFont() {
     link {
         rel = "preconnect"
         href = "https://fonts.googleapis.com"
     }
     link {
         rel = "preconnect"
-        href="https://fonts.gstatic.com"
+        href = "https://fonts.gstatic.com"
     }
     link {
-        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap"
-        rel="stylesheet"
+        href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&display=swap"
+        rel = "stylesheet"
     }
 }
 
@@ -52,8 +55,9 @@ fun HTMLTag.unsafeSVG(svgString: String) {
         +svgString
     }
 }
-fun FlowContent.useSVG(svgHref: String){
-    svg{
+
+fun FlowContent.useSVG(svgHref: String) {
+    svg {
         unsafe {
             +"<use xlink:href='${svgHref}' />"
         }
@@ -123,7 +127,7 @@ fun FlowContent.richText(richText: PageProperty.RichText) {
                 }
             }
         }
-        +richText.plainText.orEmpty()
+        +richText.text?.content.orEmpty().replace("\t", "  ")
     }
 }
 
@@ -150,8 +154,20 @@ open class T(initialAttributes: Map<String, String>, override val consumer: TagC
     HTMLTag("t", consumer, initialAttributes, null, false, false), HtmlBlockInlineTag {
 
 }
-fun downloadImage(urlStr: String, outputPath: String): String{
-    val outputPathFinal = if(!outputPath.endsWith('/')) outputPath else outputPath + "/"
+
+fun downloadImage(urlStr: String, parentPath: Path, name: String): String {
+    parentPath.createDirectories()
+    val imageData = URL(urlStr).readBytes()
+    val suffixName = urlStr.split('?').first().split('.').last()
+
+    val file = parentPath.childPath("$name.$suffixName").toFile()
+    file.writeBytes(imageData)
+
+    return file.name
+}
+
+fun downloadImageAutoName(urlStr: String, outputPath: String): String {
+    val outputPathFinal = if (!outputPath.endsWith('/')) outputPath else outputPath + "/"
 
     val imageData = URL(urlStr).readBytes()
     val path = Path(outputPathFinal)
@@ -159,18 +175,19 @@ fun downloadImage(urlStr: String, outputPath: String): String{
     path.createDirectories()
 
     val nameRaw = urlStr.split('/').last().split('?')
-    var imgName = if(nameRaw[0].length > 125) nameRaw[0].substring(0, 125) else nameRaw[0]
+    var imgName = if (nameRaw[0].length > 125) nameRaw[0].substring(0, 125) else nameRaw[0]
     val find = findFile(outputPathFinal + imgName)
     imgName = find.second.split('/').last().split('?').first()
     find.first.writeBytes(imageData)
 
     return imgName
 }
-fun findFile(filePath: String): Pair<File, String>{
+
+fun findFile(filePath: String): Pair<File, String> {
     if (File(filePath).exists()) {
         val split = filePath.split(".")
         val suffixName = split.last()
-        val preName = split.dropLast(1).joinToString("","","")
+        val preName = split.dropLast(1).joinToString("", "", "")
 
         val splitByUnderline = preName.split('_');
         val countStr = splitByUnderline.last()
@@ -182,7 +199,7 @@ fun findFile(filePath: String): Pair<File, String>{
             rest = splitByUnderline.dropLast(1).joinToString("")
         }
         return findFile("${rest}_$index.${suffixName}")
-    }else{
+    } else {
         var thePath = filePath.replace('%', '_')
         return Pair(File(thePath), thePath);
     }
@@ -191,7 +208,7 @@ fun findFile(filePath: String): Pair<File, String>{
 private fun String.asRichText(): List<PageProperty.RichText> =
     listOf(PageProperty.RichText(text = PageProperty.RichText.Text(content = this)))
 
-fun List<PageProperty.RichText>.toNormalString(): String{
+fun List<PageProperty.RichText>.toNormalString(): String {
     var str = ""
     this.forEach { str += it.plainText }
     return str;

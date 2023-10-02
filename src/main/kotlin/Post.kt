@@ -48,7 +48,7 @@ class Post(val page: Page) {
         return default
     }
     fun getDateDay(): String{
-        date?.let {
+        page.lastEditedTime.let {
             return it.split('T')[0]
         }
         return "No date"

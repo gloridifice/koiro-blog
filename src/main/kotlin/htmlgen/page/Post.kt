@@ -2,12 +2,17 @@ package htmlgen.page
 
 import BlogContext
 import htmlgen.colorClass
-import htmlgen.downloadImage
+import htmlgen.downloadImageAutoName
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import htmlgen.richTexts
+import notion.api.v1.model.pages.PageProperty
 import notiondata.DataBlock
 import notiondata.DataPage
+import notiondata.ImageDataBlock
+import outputDirectory
+import java.io.File
+import java.io.FileWriter
 import java.net.URL
 import java.util.Scanner
 import kotlin.io.path.*
@@ -52,7 +57,7 @@ fun HTML.post(page: DataPage, context: BlogContext) {
 
 fun FlowContent.tryGenChildren(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext) {
     dataBlock.children?.let { notionBlocks(it, dataPage, context) }
-    
+
 }
 
 fun FlowContent.notionBlocks(block: List<DataBlock>, page: DataPage, context: BlogContext) {
@@ -152,52 +157,77 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
         block is CodeBlock -> {
-
-        }
-
-        //todo
-        block is ImageBlock -> {
-            block.image?.let { image ->
-                image.file?.url?.let {
-                    val imgName = downloadImage(it, post.assetsDirectoryPath)
-
+            block.code?.let { code ->
+                div {
+                    classes += "code_block"
                     div {
-                        classes += "image_wrapper"
-                        img {
-                            src = "/${post.htmlName}/${imgName}"
+                        classes += "code_part"
+                        code.language?.let {
+                            div {
+                                classes += "code_lang"
+                                +it
+                            }
                         }
                         div {
-                            classes += "caption"
-                            image.caption?.let { richTexts(it) }
+                            classes += "code_part_text"
+                            code.richText?.let { richTexts(it) }
                         }
+                    }
+                    div {
+                        classes += "caption"
+                        code.caption?.let { richTexts(it) }
                     }
                 }
             }
         }
 
         //todo
+        block is ImageBlock -> {
+            if (dataBlock is ImageDataBlock)
+                block.image?.let { image ->
+                    image.file?.url?.let {
+                        val imgName = dataBlock.image.name
+                        val path = Path("${outputDirectory}${post.htmlName}/${imgName}")
+                        path.createParentDirectories()
+                        path.toFile().writeBytes(dataBlock.image.byteArray)
+
+                        div {
+                            classes += "image_wrapper"
+                            img {
+                                src = "/${post.htmlName}/${imgName}"
+                            }
+                            caption(image.caption)
+                        }
+                    }
+                }
+        }
+
+        //todo
         block is BookmarkBlock -> {
             block.bookmark?.let {
                 div {
-                    classes += "bookmark"
+                    classes += "bookmark_block"
+                    div {
+                        classes += "bookmark"
 
-                    it.url?.let { url ->
-                        val title = getBookmarkTitle(url)
-                        val titleText = title ?: url
-                        a {
-                            href = url
-                            +titleText
-                        }
+                        it.url?.let { url ->
+                            val title = getBookmarkTitle(url)
+                            val titleText = title ?: url
+                            a {
+                                href = url
+                                +titleText
+                            }
 
-                        if (title != null) {
-                            div {
-                                classes += "url_detail"
+                            if (title != null) {
+                                div {
+                                    classes += "url_detail"
+                                }
                             }
                         }
                     }
-
-                    it.caption?.let { richTexts(it) }
+                    caption(it.caption)
                 }
+
             }
         }
 
@@ -206,6 +236,13 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
 
+    }
+}
+
+fun FlowContent.caption(caption: List<PageProperty.RichText>?) {
+    div {
+        classes += "caption"
+        caption?.let { richTexts(it) }
     }
 }
 
