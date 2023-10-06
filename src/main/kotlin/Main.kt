@@ -55,7 +55,7 @@ fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {
         else "Generating file $path success."
     println(yellow("CreateHtmlFile: ") + log)
 
-    val fileWriter = file.writer().appendHTML().html {
+    val fileWriter = file.writer().append("<!DOCTYPE html>").appendHTML().html {
         block()
     }
     fileWriter.close()
