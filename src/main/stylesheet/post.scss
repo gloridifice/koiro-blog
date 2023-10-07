@@ -14,7 +14,9 @@
   .sidebar_wrapper {
     top: 0;
     position: sticky;
-    width: 150px;
+    min-width: 115px;
+    max-width: 240px;
+    width: 25%;
     height: 100%;
 
     .catalogue {
@@ -30,6 +32,8 @@
         opacity: 0;
         transition: 0.5s opacity;
         padding: 0;
+        overflow-y: scroll;
+        max-height: 60vh;
 
         li {
           list-style: none;
