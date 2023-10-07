@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Build &amp; Generate Website" type="CompoundRunConfigurationType">
+    <toRun name="MainKt" type="JetRunConfigurationType" />
+    <toRun name="Compile TypeScript" type="ShConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

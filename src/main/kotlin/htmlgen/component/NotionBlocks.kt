@@ -1,11 +1,14 @@
 package htmlgen.component
 
 import BlogContext
+import htmlgen.SVGIcons
 import htmlgen.colorClass
 import htmlgen.page.PostContext
 import htmlgen.richTexts
+import htmlgen.unsafeSVG
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
+import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.pages.PageProperty
 import notiondata.DataBlock
 import notiondata.DataPage
@@ -16,7 +19,12 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 
-fun FlowContent.tryGenChildren(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext, postContext: PostContext) {
+fun FlowContent.tryGenChildren(
+    dataBlock: DataBlock,
+    dataPage: DataPage,
+    context: BlogContext,
+    postContext: PostContext
+) {
     dataBlock.children?.let { notionBlocks(it, dataPage, context, postContext) }
 }
 
@@ -107,7 +115,21 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
         block is ToDoBlock -> {
-
+            div {
+                classes += "todo_block"
+                if (block.toDo.checked) classes += "checked"
+                div {
+                    classes += "icon"
+                    val icon = if (block.toDo.checked) SVGIcons.CHECK_BOX_CHECKED else SVGIcons.CHECK_BOX_EMPTY
+                    unsafeSVG(icon)
+                }
+                div {
+                    classes += "text"
+                    block.toDo.richText?.let {
+                        richTexts(it)
+                    }
+                }
+            }
         }
 
         block is ToggleBlock -> {
@@ -115,7 +137,22 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
         block is CalloutBlock -> {
-
+            block.callout?.let { callout ->
+                div {
+                    classes += "callout"
+                    val emoji = callout.icon;
+                    if (emoji is Emoji) {
+                        div {
+                            classes += "icon"
+                            +emoji.emoji.orEmpty()
+                        }
+                    }
+                    div {
+                        classes += "text"
+                        callout.richText?.let { richTexts(it) }
+                    }
+                }
+            }
         }
 
         block is DividerBlock -> {
@@ -200,8 +237,6 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         block is EquationBlock -> {
 
         }
-
-
     }
 }
 

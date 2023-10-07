@@ -1,0 +1,52 @@
+:root {
+  font-family: "Glow Sans SC", -apple-system, sans-serif;
+  --monospace-font: 'JetBrains Mono', monospace;
+  --transparent-color: rgba(1,1,1,0);
+}
+* {
+  transition-duration: 0.2s;
+  transition-property: color;
+}
+body {
+  transition-property: background-color;
+}
+@font-face {
+  font-family: "Glow Sans SC";
+  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Light.otf") format("opentype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "Glow Sans SC";
+  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Glow Sans SC";
+  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Bold.otf") format("opentype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Light.woff2") format("woff");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Regular.woff2") format("woff");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Italic.woff2") format("woff");
+  font-style: italic;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Bold.woff2") format("woff");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-ExtraBold.woff2") format("woff");
+  font-weight: 800;
+}

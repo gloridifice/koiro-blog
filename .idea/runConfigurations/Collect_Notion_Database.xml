@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Collect Notion Database" type="CompoundRunConfigurationType">
+    <toRun name="NotionDataKt" type="JetRunConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

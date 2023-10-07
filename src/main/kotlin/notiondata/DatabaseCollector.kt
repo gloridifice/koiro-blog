@@ -5,6 +5,7 @@ import htmlgen.downloadImage
 import notion.api.v1.NotionClient
 import notion.api.v1.model.blocks.Block
 import notion.api.v1.model.blocks.ImageBlock
+import notion.api.v1.model.databases.Database
 import notion.api.v1.model.pages.Page
 import notion.api.v1.request.blocks.RetrieveBlockRequest
 import notion.api.v1.request.databases.QueryDatabaseRequest
@@ -18,6 +19,16 @@ class DatabaseCollector(
     val client: NotionClient,
     val databaseId: String
 ) {
+
+    private fun isDatabaseNeedToUpdate(database: Database, parentPath: Path): Boolean {
+        val databaseFile = parentPath.childPath("database.json").toFile()
+        if (databaseFile.exists() && databaseFile.isFile) {
+            val existDatabase = client.jsonSerializer.toDatabase(databaseFile.readText())
+            if (existDatabase.lastEditedTime == database.lastEditedTime)
+                return false
+        }
+        return true
+    }
     private fun isPageNeedToUpdate(page: Page, parentPath: Path): Boolean {
         val pageFile = parentPath.childPath(page.id + ".json").toFile()
         if (pageFile.exists() && pageFile.isFile) {
@@ -40,17 +51,21 @@ class DatabaseCollector(
 
     fun collectTo(path: String) {
         val rootPath = Path(path)
-        val queryDatabaseJson = client.queryDatabaseJson(QueryDatabaseRequest(databaseId))
-        val queryDatabaseResult = client.jsonSerializer.toQueryResults(queryDatabaseJson)
-
-        queryDatabaseResult.results.forEach { page ->
-            if (isPageNeedToUpdate(page, rootPath))
-                collectPage(page.id, rootPath)
-        }
-        writeJson(rootPath.childPath("query_result.json"), queryDatabaseJson)
-
         val databaseJson = client.retrieveDatabaseJson(RetrieveDatabaseRequest(databaseId))
-        writeJson(rootPath.childPath("database.json"), databaseJson)
+
+        if (isDatabaseNeedToUpdate(client.jsonSerializer.toDatabase(databaseJson), rootPath)){
+
+            writeJson(rootPath.childPath("database.json"), databaseJson)
+
+            val queryDatabaseJson = client.queryDatabaseJson(QueryDatabaseRequest(databaseId))
+            val queryDatabaseResult = client.jsonSerializer.toQueryResults(queryDatabaseJson)
+
+            queryDatabaseResult.results.forEach { page ->
+                if (isPageNeedToUpdate(page, rootPath))
+                    collectPage(page.id, rootPath)
+            }
+            writeJson(rootPath.childPath("query_result.json"), queryDatabaseJson)
+        }
     }
 
 
