@@ -1,18 +1,13 @@
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import notion.api.v1.NotionClient
 import htmlgen.page.home
 import com.github.ajalt.mordant.rendering.TextColors.*
-import notion.api.v1.model.databases.Database
+import htmlgen.page.about
 import htmlgen.page.post
 import notiondata.DataDatabase
 import notiondata.notionDataRootPath
 import notiondata.readNotionData
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 
@@ -25,14 +20,9 @@ fun main(args: Array<String>) {
     val dataDatabase = readNotionData(Path(notionDataRootPath))
     val context = BlogContext(dataDatabase);
 
-    createHomePage(context)
+    createHTML("home") { home(context) }
+    createHTML("about"){ about(context) }
     createPostPages(context)
-}
-
-fun createHomePage(blogContext: BlogContext) {
-    createHTML("home") {
-        home(blogContext)
-    }
 }
 
 fun createPostPages(context: BlogContext) {

@@ -16,7 +16,8 @@ fun FlowContent.header() {
     navbar(
         arrayListOf(
             NavbarItem("Home", htmlServerPath("home".asLoc()), SVGIcons.HOME),
-            NavbarItem("Notes", "https://gloridifice.notion.site/3659ec2ee2f7498ab744662c364b518a?v=0d711eab95f748eb82a966726ec3f757&pvs=4", SVGIcons.PACKAGE, true)
+            NavbarItem("Notes", "https://gloridifice.notion.site/3659ec2ee2f7498ab744662c364b518a?v=0d711eab95f748eb82a966726ec3f757&pvs=4", SVGIcons.PACKAGE, true),
+            NavbarItem("About", htmlServerPath("about".asLoc()), SVGIcons.USERS)
         )
     )
     headCover()
@@ -38,7 +39,6 @@ fun BODY.footer() {
                 ContactBarItem(
                     SVGIcons.GITHUB, "github", "https://github.com/gloridifice"
                 ),
-
                 ContactBarItem(
                     SVGIcons.TWITTER, "twitter", "https://twitter.com/gloridifice"
                 ),
@@ -56,6 +56,7 @@ fun BODY.footer() {
 fun HTML.layout(
     siteTitle: String = "Koiro's Cat Café",
     cssNames: Array<String> = emptyArray(),
+    headFont: String? = null,
     block: BODY.() -> Unit
 ) {
     head {
@@ -65,6 +66,12 @@ fun HTML.layout(
     }
     body {
         header()
+        headFont?.let {
+            div {
+                classes += "head_font"
+                +headFont
+            }
+        }
         block()
         footer()
     }

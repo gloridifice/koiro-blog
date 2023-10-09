@@ -9,7 +9,8 @@ import htmlgen.unsafeSVG
 fun HTML.home(context: BlogContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home", "blog_preview")
+        cssNames = arrayOf("home", "blog_preview"),
+        headFont = "你好"
     ) {
         contents(context)
     }
@@ -17,15 +18,14 @@ fun HTML.home(context: BlogContext) {
 
 val titleEN = "Koiro's Cat Café"
 val titleCN = "宏楼的猫咖"
-val introduceDescription = "人类、学生、游戏开发者、平面设计笨蛋和技术美术笨蛋"
+val introduceDescription = "这里提供程程序员炒饭、蛮颓镇进口寿司和无糖可乐。"
 fun FlowContent.contents(context: BlogContext) {
     div {
         classes += "contents_wrapper"
         div {
             classes += "contents"
 
-            introduce()
-            lastUpdateTime(context)
+            introduce(context)
             postPreviews(context)
         }
     }
@@ -43,7 +43,7 @@ fun FlowContent.lastUpdateTime(context: BlogContext) {
     }
 }
 
-fun FlowContent.introduce() {
+fun FlowContent.introduce(context: BlogContext) {
     div {
         classes += "introduce"
 
@@ -59,16 +59,49 @@ fun FlowContent.introduce() {
         h2 {
             +titleCN
         }
-        h3 {
-            +introduceDescription
-        }
         div {
             classes += "subIntroduce"
             +"val cats = listOf<Cat>("
             i { +"TODO(\"Recruiting\")" }
             +")"
         }
+        outSidePages(
+            arrayOf(
+                OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
+                OutSidePageItem("Source", "https://github.com/gloridifice/kotlin-notion-blog", "猫咖主人博客生成器的仓库")
+            )
+        )
+
+        lastUpdateTime(context)
     }
+}
+
+data class OutSidePageItem(val name: String, val link: String, val desc: String)
+
+fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
+    div {
+        classes += "outside_pages"
+        items.forEach {
+            div {
+                onClick = "window.open('${it.link}')"
+                classes += "outside_page_item"
+                div {
+                    classes += "start"
+                    unsafeSVG(SVGIcons.EXTERNAL_LINK)
+                    div {
+                        classes += "name"
+                        +it.name
+                    }
+                }
+
+                div {
+                    classes += "desc"
+                    +it.desc
+                }
+            }
+        }
+    }
+
 }
 
 fun FlowContent.postPreviews(context: BlogContext) {

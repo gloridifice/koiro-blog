@@ -12,10 +12,6 @@
   transition-duration: 0.2s;
   transition-property: outline-width, background-color, box-shadow;
   cursor: pointer;
-  :hover {
-    background-color: var(--hlt-color-1);
-    box-shadow: 0 4px 12px var(--shadow-color-1);
-  }
 
   .emoji {
     text-shadow: 0 6px 8px var(--shadow-color-1);
@@ -75,6 +71,10 @@
   }
 }
 
+.post_preview:hover {
+  background-color: var(--hlt-color-1);
+  box-shadow: 0 4px 12px var(--shadow-color-1);
+}
 .post_preview *,
 .info * {
   pointer-events: none;

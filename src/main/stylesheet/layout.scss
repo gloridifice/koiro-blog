@@ -39,6 +39,10 @@ body {
         pointer-events: none;
         margin: 0 2px;
       }
+      svg{
+        width: 20px;
+        height: 20px;
+      }
     }
     .navbar_item:hover {
       background: var(--hlt-color-1);
@@ -55,8 +59,22 @@ body {
     }
   }
 }
+
 svg * {
   fill: var(--text-color);
+}
+
+.head_font {
+  position: absolute;
+  font-weight: 800;
+  top: 128px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  -webkit-text-stroke: 1.5px var(--theme-color);
+  font-size: max(min(15vw, 200px), 100px) ;
+  color: transparent;
+  z-index: -1;
 }
 .head_cover {
   z-index: -1;
