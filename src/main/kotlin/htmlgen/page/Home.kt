@@ -2,6 +2,7 @@ package htmlgen.page
 
 import BlogContext
 import htmlgen.SVGIcons
+import htmlgen.component.largePostPreview
 import kotlinx.html.*
 import htmlgen.component.postPreview
 import htmlgen.unsafeSVG
@@ -18,7 +19,6 @@ fun HTML.home(context: BlogContext) {
 
 val titleEN = "Koiro's Cat Café"
 val titleCN = "宏楼的猫咖"
-val introduceDescription = "这里提供程程序员炒饭、蛮颓镇进口寿司和无糖可乐。"
 fun FlowContent.contents(context: BlogContext) {
     div {
         classes += "contents_wrapper"
@@ -26,11 +26,15 @@ fun FlowContent.contents(context: BlogContext) {
             classes += "contents"
 
             introduce(context)
+            recentPostPreview(context)
             postPreviews(context)
         }
     }
 }
 
+fun FlowContent.recentPostPreview(context: BlogContext){
+    largePostPreview(context.dataDatabase.dataPages.first().post)
+}
 fun FlowContent.lastUpdateTime(context: BlogContext) {
     div {
         classes += "last_update_time"

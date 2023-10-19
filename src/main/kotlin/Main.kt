@@ -5,7 +5,7 @@ import com.github.ajalt.mordant.rendering.TextColors.*
 import htmlgen.page.about
 import htmlgen.page.post
 import notiondata.DataDatabase
-import notiondata.notionDataRootPath
+import notiondata.NOTION_ROOT_DATA_PATH
 import notiondata.readNotionData
 import java.io.File
 import kotlin.io.path.Path
@@ -17,7 +17,7 @@ data class BlogContext(val dataDatabase: DataDatabase) {
 
 val outputDirectory = "static/"
 fun main(args: Array<String>) {
-    val dataDatabase = readNotionData(Path(notionDataRootPath))
+    val dataDatabase = readNotionData(Path(NOTION_ROOT_DATA_PATH))
     val context = BlogContext(dataDatabase);
 
     createHTML("home") { home(context) }

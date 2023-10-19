@@ -22,6 +22,7 @@
     margin: 16px 0;
     display: flex;
     flex-direction: row;
+
     .outside_page_item {
       display: flex;
       flex-direction: row;
@@ -37,29 +38,34 @@
       font-size: 14px;
       box-shadow: 0 2px 4px var(--shadow-color-1);
 
-      .start{
+      .start {
         display: flex;
         flex-direction: row;
-        svg{
+
+        svg {
           width: 14px;
           margin-right: 6px;
-          *{
+
+          * {
             fill: var(--accents-color-2);
           }
         }
+
         .name {
           height: fit-content;
           color: var(--accents-color-2);
           margin: auto 0;
         }
       }
+
       .desc {
         color: var(--accents-color-1);
         height: fit-content;
         margin: auto 0 auto 18px;
       }
     }
-    .outside_page_item:hover{
+
+    .outside_page_item:hover {
       border: solid 1px var(--accents-color-2);
     }
   }

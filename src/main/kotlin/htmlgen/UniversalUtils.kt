@@ -101,7 +101,7 @@ fun FlowContent.richText(richText: PageProperty.RichText) {
         //todo add css for rich text
         if (richText.href != null) {
             classes += "href"
-            onClick += "window.open('${richText.href}')"
+            onClick = "window.open('${richText.href}')"
         }
         val annotation = richText.annotations
         if (annotation != null) {

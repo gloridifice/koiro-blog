@@ -57,7 +57,7 @@
     border: solid 1px var(--accents-color-3);
     border-radius: 12px;
     padding: 8px 12px;
-    width: 505px;
+    width: min(505px, 90%) ;
     cursor: pointer;
 
     .start{

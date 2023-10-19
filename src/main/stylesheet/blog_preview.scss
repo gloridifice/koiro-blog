@@ -1,13 +1,13 @@
 .post_preview {
+  * {
+    display: flex;
+  }
   max-width: 505px;
   position: relative;
   height: 81px;
   width: 100%;
   outline: solid var(--accents-color-3) 1px;
   border-radius: 18px;
-  flex-direction: row;
-  display: flex;
-  justify-content: space-between;
   margin: 14px auto;
   transition-duration: 0.2s;
   transition-property: outline-width, background-color, box-shadow;
@@ -21,10 +21,12 @@
     width: fit-content;
     transition: 0.2s text-shadow;
   }
+}
 
-  * {
-    display: flex;
-  }
+.post_preview.regular {
+  flex-direction: row;
+  display: flex;
+  justify-content: space-between;
 
   .description {
     margin: auto 0;
@@ -33,9 +35,9 @@
     min-width: 100px;
 
     h2 {
+      color: var(--text-color);
       font-size: 18px;
       margin: 0;
-      color: var(--text-color);
       font-weight: 400;
       text-overflow: ellipsis;
     }
@@ -75,9 +77,71 @@
   background-color: var(--hlt-color-1);
   box-shadow: 0 4px 12px var(--shadow-color-1);
 }
+
 .post_preview *,
 .info * {
   pointer-events: none;
 }
 
+.post_preview.large {
+  height: fit-content;
+  display: flex;
+  padding: 14px 0;
+  flex-direction: column;
+  .title_part{
+    margin-top: -6px;
+    display: flex;
+    flex-direction: row;
+    .emoji{
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    h2{
+      color: var(--text-color);
+      font-weight: 600;
+      height: fit-content;
+      margin: auto 0;
+      margin-right: 24px;
+      text-align: justify;
+    }
+  }
+  h3{
+    margin: 8px 24px;
+    margin-top: 2px;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: justify;
+    color: var(--accents-color-1);
+  }
+  .info{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 8px 24px;
+    p{
+      margin: 0;
+      padding: 2px 10px;
+      font-size: 14px;
+      background-color: var(--accents-color-3);
+      border-radius: 6px;
+    }
 
+    .type_tags{
+      flex-direction: row;
+      justify-content: end;
+
+      @media only screen and (max-width: 600px) {
+        .tag{
+          display: none;
+        }
+      }
+      .tag{
+        background-color: var(--accents-color-4);
+        margin: 0 4px;
+      }
+      .type{
+        margin-left: 4px;
+      }
+    }
+  }
+}

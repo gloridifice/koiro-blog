@@ -21,14 +21,15 @@ class DatabaseCollector(
 ) {
 
     private fun isDatabaseNeedToUpdate(database: Database, parentPath: Path): Boolean {
-        val databaseFile = parentPath.childPath("database.json").toFile()
-        if (databaseFile.exists() && databaseFile.isFile) {
-            val existDatabase = client.jsonSerializer.toDatabase(databaseFile.readText())
-            if (existDatabase.lastEditedTime == database.lastEditedTime)
-                return false
-        }
+//        val databaseFile = parentPath.childPath("database.json").toFile()
+//        if (databaseFile.exists() && databaseFile.isFile) {
+//            val existDatabase = client.jsonSerializer.toDatabase(databaseFile.readText())
+//            if (existDatabase.lastEditedTime == database.lastEditedTime)
+//                return false
+//        }
         return true
     }
+
     private fun isPageNeedToUpdate(page: Page, parentPath: Path): Boolean {
         val pageFile = parentPath.childPath(page.id + ".json").toFile()
         if (pageFile.exists() && pageFile.isFile) {
@@ -53,7 +54,7 @@ class DatabaseCollector(
         val rootPath = Path(path)
         val databaseJson = client.retrieveDatabaseJson(RetrieveDatabaseRequest(databaseId))
 
-        if (isDatabaseNeedToUpdate(client.jsonSerializer.toDatabase(databaseJson), rootPath)){
+        if (isDatabaseNeedToUpdate(client.jsonSerializer.toDatabase(databaseJson), rootPath)) {
 
             writeJson(rootPath.childPath("database.json"), databaseJson)
 
@@ -75,16 +76,22 @@ class DatabaseCollector(
 
         val blocks = client.retrieveBlockChildren(pageId)
         for (i in blocks.results.indices) {
-            collectBlockRecursively(blocks.results[i].id!!, parentPath.childPath(pageId), i)
+            collectBlockRecursively(blocks.results[i].id!!, pageId, parentPath.childPath(pageId), i)
         }
     }
 
-    private fun collectBlockRecursively(blockId: String, parentPath: Path, index: Int) {
-        val json = client.retrieveBlockJson(RetrieveBlockRequest(blockId))
+    private fun collectBlockRecursively(blockId: String, parentId: String, parentPath: Path, index: Int) {
+        val json: String = try {
+            client.retrieveBlockJson(RetrieveBlockRequest(blockId))
+        } catch (_: Exception) {
+            val parentFile = parentPath.parent.childPath("${parentId}.json")
+            parentFile.deleteIfExists()
+            throw Exception("Collect Block Failed.")
+        }
         writeJson(parentPath.childPath("${String.format("%03d", index)}_$blockId.json"), json)
 
         val block = client.jsonSerializer.toBlock(json)
-        if (isBlockNeedToUpdate(block, parentPath)){
+        if (isBlockNeedToUpdate(block, parentPath)) {
             if (block is ImageBlock) {
                 block.image?.file?.url?.let {
                     downloadImage(it, parentPath, "img_$blockId")
@@ -93,7 +100,7 @@ class DatabaseCollector(
             if (block.hasChildren == true) {
                 val blocks = client.retrieveBlockChildren(blockId)
                 for (i in blocks.results.indices) {
-                    collectBlockRecursively(blocks.results[i].id!!, parentPath.childPath(blockId), i)
+                    collectBlockRecursively(blocks.results[i].id!!, blockId, parentPath.childPath(blockId), i)
                 }
             }
         }
