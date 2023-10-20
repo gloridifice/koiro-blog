@@ -110,9 +110,18 @@ fun HTML.post(page: DataPage, context: BlogContext) {
                             classes += "date"
                             +post.getDateDay()
                         }
-                        p {
-                            classes += "type"
-                            +post.type.name!!
+                        div {
+                            classes += "type_tags"
+                            post.tags.forEach {
+                                p {
+                                    classes += "tag"
+                                    +it.name.orEmpty()
+                                }
+                            }
+                            p {
+                                classes += "type"
+                                +post.type.name!!
+                            }
                         }
                     }
                 }

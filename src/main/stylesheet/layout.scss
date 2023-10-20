@@ -60,11 +60,17 @@ body {
       * {
         pointer-events: none;
         margin: 0 2px;
+        color: var(--text-color);
+        fill: var(--text-color);
       }
 
       svg {
         width: 20px;
         height: 20px;
+      }
+      .title{
+        height: fit-content;
+        margin: auto 2px;
       }
     }
 

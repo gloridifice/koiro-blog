@@ -87,25 +87,40 @@
     margin-left: 12px;
     margin-right: 12px;
     .page_description {
-      margin: 12px auto;
+      margin: 2em auto;
       max-width: 505px;
 
       h1 {
         padding: 16px 0;
         margin: 10px 0;
-        border-bottom: solid var(--accents-color-2) 1px;
         color: var(--emphasized-color);
       }
 
       .sub_info {
         display: flex;
         justify-content: space-between;
-        padding: 0 4px;
+        padding: 0px 4px;
 
         p {
           margin: 0;
-          padding: 0;
+          padding: 4px 8px;
+          background-color: var(--accents-color-3);
+          border-radius: 6px;
           width: fit-content;
+          color: var(--accents-color-1);
+        }
+
+        .type_tags{
+          display: flex;
+          flex-direction: row;
+          justify-content: end;
+        }
+        .tag{
+          margin: auto 6px;
+          background-color: var(--accents-color-4);
+        }
+        .type{
+          margin-left: 8px;
         }
       }
     }
@@ -133,6 +148,13 @@
         margin-bottom: 10px;
       }
 
+      p{
+        margin: 10px auto;
+      }
+      t{
+        line-height: 1.65em;
+      }
+
       blockquote {
         margin: 0;
         border-left: solid 3px var(--accents-color-2);
@@ -156,12 +178,12 @@
         margin: 12px 0;
 
         .bookmark {
-          padding: 6px 24px;
+          padding: 8px 16px;
           display: flex;
           justify-content: start;
           max-width: 100%;
           border: dashed var(--accents-color-3);
-          border-radius: 100px;
+          border-radius: 6px;
           margin: 0;
 
           a {
@@ -183,8 +205,8 @@
         justify-content: center;
 
         img {
-          border-radius: 10px;
-          border: solid var(--accents-color-2) 2px;
+          border-radius: 8px;
+          border: solid var(--accents-color-3) 1px;
         }
       }
 
@@ -233,7 +255,7 @@
 
       .caption {
         color: var(--accents-color-2);
-        margin: auto;
+        margin: 4px auto;
         width: fit-content;
         font-size: 14px;
       }
@@ -278,7 +300,9 @@
     }
   }
 }
-
+t{
+  white-space: normal;
+}
 t.code {
   background-color: var(--inline-code-color-bg);
   color: var(--inline-code-color-text);
@@ -295,4 +319,9 @@ t.bold {
 
 t.italic {
   font-style: italic;
+}
+t.href {
+  color: var(--accents-color-2);
+  cursor: pointer;
+  text-decoration: underline solid;
 }

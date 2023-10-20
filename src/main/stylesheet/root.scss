@@ -1,5 +1,6 @@
 :root {
-  font-family: "Glow Sans SC", -apple-system, sans-serif;
+  font-family: var(--universal-font);
+  --universal-font: -apple-system, sans-serif;
   --monospace-font: 'JetBrains Mono', monospace;
   --transparent-color: rgba(1,1,1,0);
 }
@@ -9,21 +10,6 @@
 }
 body {
   transition-property: background-color;
-}
-@font-face {
-  font-family: "Glow Sans SC";
-  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Light.otf") format("opentype");
-  font-weight: 300;
-}
-@font-face {
-  font-family: "Glow Sans SC";
-  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Regular.otf") format("opentype");
-  font-weight: 400;
-}
-@font-face {
-  font-family: "Glow Sans SC";
-  src: url("../../../static/assets/resources/font/GlowSansSC-Normal-v0.93/GlowSansSC-Normal-Bold.otf") format("opentype");
-  font-weight: 700;
 }
 @font-face {
   font-family: "JetBrains Mono";
