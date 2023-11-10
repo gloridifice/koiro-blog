@@ -86,7 +86,7 @@
 .post_preview.large {
   height: fit-content;
   display: flex;
-  padding: 14px 0;
+  padding: 18px 0 10px;
   flex-direction: column;
   .title_part{
     margin-top: -6px;
@@ -106,8 +106,7 @@
     }
   }
   h3{
-    margin: 8px 24px;
-    margin-top: 2px;
+    margin: 6px 24px;
     font-size: 16px;
     font-weight: 400;
     text-align: justify;

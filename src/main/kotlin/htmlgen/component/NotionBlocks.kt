@@ -10,6 +10,7 @@ import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.pages.PageProperty
+import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
 import notiondata.DataPage
 import notiondata.ImageDataBlock
@@ -156,7 +157,9 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
         block is DividerBlock -> {
-
+            hr {
+                classes += "divider_block"
+            }
         }
 
         block is CodeBlock -> {
@@ -206,7 +209,7 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
 
         //todo
-        block is BookmarkBlock -> {
+        block is BookmarkBlock && dataBlock is BookmarkDataBlock -> {
             block.bookmark?.let {
                 div {
                     classes += "bookmark_block"
@@ -214,17 +217,17 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
                         classes += "bookmark"
 
                         it.url?.let { url ->
-                            val title = getBookmarkTitle(url)
+                            onClick = "window.open('${url}')"
+
+                            val title = dataBlock.title
                             val titleText = title ?: url
-                            a {
-                                href = url
+                            div {
+                                classes += "title"
                                 +titleText
                             }
-
-                            if (title != null) {
-                                div {
-                                    classes += "url_detail"
-                                }
+                            div {
+                                classes += "url"
+                                +url
                             }
                         }
                     }
@@ -239,7 +242,15 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         }
     }
 }
-
+fun FlowContent.bilibiliVideo(bvString: String){
+    div {
+        classes += "bilibili_video"
+        iframe {
+            src = "//player.bilibili.com/player.html?bvid=${bvString}&page=1&danmaku=0&high_quality=1"
+        }
+    }
+    //todo
+}
 fun FlowContent.caption(caption: List<PageProperty.RichText>?) {
     div {
         classes += "caption"

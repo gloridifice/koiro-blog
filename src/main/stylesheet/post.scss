@@ -139,8 +139,9 @@
 
       h2 {
         font-weight: 700;
-        border-bottom: dashed var(--theme-color) 2px;
+        //border-bottom: dashed var(--theme-color) 2px;
         width: fit-content;
+        margin-bottom: 10px;
       }
 
       h3{
@@ -177,23 +178,40 @@
       .bookmark_block {
         margin: 12px 0;
 
+        .bookmark:hover{
+          background-color: var(--hlt-color-1);
+        }
         .bookmark {
+          transition: .2s background-color;
           padding: 8px 16px;
           display: flex;
-          justify-content: start;
+          flex-direction: column;
           max-width: 100%;
           border: dashed var(--accents-color-3);
           border-radius: 6px;
           margin: 0;
+          cursor: pointer;
 
-          a {
-            color: var(--accents-color-2);
-            cursor: pointer;
+          div{
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            margin: 3px 0;
+          }
+          .title {
+            color: var(--accents-color-1);
+          }
+          .url{
+            color: var(--accents-color-3);
+            font-size: 12px;
           }
         }
+      }
+      .divider_block{
+        height: 2px;
+        border: none;
+        border-radius: 6px;
+        background: var(--theme-color-1)
       }
 
       .image_wrapper {
@@ -205,7 +223,7 @@
         justify-content: center;
 
         img {
-          border-radius: 8px;
+          border-radius: 5px;
           border: solid var(--accents-color-3) 1px;
         }
       }
@@ -226,11 +244,10 @@
         margin: 1em auto;
 
         .code_part {
-          border: solid var(--accents-color-3) 1px;
-          background-color: var(--shadow-color-1);
+          background-color: var(--accents-color-4);
           font-family: var(--monospace-font);
-          border-radius: 8px;
-          padding: 1.5em 2em;
+          border-radius: 5px;
+          padding: 1.3em 1.7em;
 
           .code_lang {
             text-align: right;
@@ -263,11 +280,11 @@
       .callout{
         display: flex;
         flex-direction: row;
-        background-color: var(--reverse-text-color);
+        //background-color: var(--reverse-text-color);
         padding: 20px 28px;
         border-radius: 12px;
         font-size: 17px;
-        //border: solid 1px var(--accents-color-3);
+        border: solid 1px var(--accents-color-3);
         .icon{
           font-size: 28px;
           padding: 8px 16px;
