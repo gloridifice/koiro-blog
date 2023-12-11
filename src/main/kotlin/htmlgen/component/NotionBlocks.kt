@@ -1,6 +1,7 @@
 package htmlgen.component
 
 import BlogContext
+import Post
 import htmlgen.SVGIcons
 import htmlgen.colorClass
 import htmlgen.page.PostContext
@@ -14,7 +15,7 @@ import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
 import notiondata.DataPage
 import notiondata.ImageDataBlock
-import outputDirectory
+import OUT_PUT_PATH
 import java.net.URL
 import java.util.*
 import kotlin.io.path.Path
@@ -35,7 +36,7 @@ fun FlowContent.notionBlocks(block: List<DataBlock>, page: DataPage, context: Bl
 
 fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext, postContext: PostContext) {
     val block = dataBlock.block
-    val post = dataPage.post
+    val post = Post(dataPage.page)
     when {
         //todo
         block is ParagraphBlock -> {
@@ -193,7 +194,7 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
                 block.image?.let { image ->
                     image.file?.url?.let {
                         val imgName = dataBlock.image.name
-                        val path = Path("${outputDirectory}${post.htmlName}/${imgName}")
+                        val path = Path("${OUT_PUT_PATH}${post.htmlName}/${imgName}")
                         path.createParentDirectories()
                         path.toFile().writeBytes(dataBlock.image.byteArray)
 

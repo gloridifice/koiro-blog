@@ -85,9 +85,20 @@ class DatabaseCollector(
         val json = client.retrievePageJson(RetrievePageRequest(pageId))
         writeJson(parentPath.childPath("$pageId.json"), json)
 
+        //下载封面
+        val serializer = NotionClient.defaultJsonSerializer;
+        val page = serializer.toPage(json)
+        page.properties["Preview"]?.let {
+            it.files?.let { files ->
+                files.getOrNull(0)?.let { file ->
+                    downloadImage(file.file!!.url.toString(), parentPath.childPath(pageId), "preview_image")
+                }
+            }
+        }
+
         val blocks = client.retrieveBlockChildren(pageId)
         val toCollect = ArrayList<CollectBlockRequest>()
-        for (i in blocks.results.indices){
+        for (i in blocks.results.indices) {
             val it = blocks.results[i]
             toCollect.add(CollectBlockRequest(it.id!!, pageId, parentPath.childPath(pageId), i))
         }
@@ -99,7 +110,6 @@ class DatabaseCollector(
     data class CollectBlockRequest(val blockId: String, val parentId: String, val parentPath: Path, val index: Int)
 
     private suspend fun collectBlocks(requests: List<CollectBlockRequest>) {
-
         coroutineScope {
             val toWrite = ArrayList<Pair<CollectBlockRequest, String>>()
             val toRetrieveChildren = ArrayList<CollectBlockRequest>()
@@ -118,18 +128,22 @@ class DatabaseCollector(
 
                         val block = client.jsonSerializer.toBlock(json)
                         if (isBlockNeedToUpdate(block, request.parentPath)) {
-                            when(block){
+                            when (block) {
                                 is ImageBlock -> {
                                     block.image?.file?.url?.let {
                                         downloadImage(it, request.parentPath, "img_${request.blockId}")
                                     }
                                 }
+
                                 is BookmarkBlock -> {
                                     val title = TitleExtractor.getPageTitle(block.bookmark!!.url)
                                     val root = JsonObject()
                                     root.addProperty("title", title)
                                     val bookmarkJson = Gson().toJson(root)
-                                    request.parentPath.childPath("bookmark_${request.blockId}.json").toFile().writeText(bookmarkJson)
+                                    val filePath = request.parentPath.childPath("bookmark_${request.blockId}.json")
+                                    filePath.createParentDirectories()
+                                    val file = if (filePath.exists()) filePath else filePath.createFile()
+                                    file.writeText(bookmarkJson)
                                 }
                             }
                             if (block.hasChildren == true) {
@@ -163,7 +177,8 @@ class DatabaseCollector(
         }
 
     }
-    private fun writeBlock(block: CollectBlockRequest, json: String){
+
+    private fun writeBlock(block: CollectBlockRequest, json: String) {
         val blockInstance = NotionClient.defaultJsonSerializer.toBlock(json)
         val path = block.parentPath.childPath("${String.format("%03d", block.index)}_${block.blockId}.json")
         println(TextColors.brightMagenta("Successfully Collect Block: type-${blockInstance.type.name} \n path: ${path}"))

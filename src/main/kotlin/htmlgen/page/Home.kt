@@ -1,16 +1,18 @@
 package htmlgen.page
 
 import BlogContext
+import BlogPost
 import htmlgen.SVGIcons
 import htmlgen.component.largePostPreview
 import kotlinx.html.*
-import htmlgen.component.postPreview
+import htmlgen.component.blogPostPreview
+import htmlgen.component.devLogPostPreview
 import htmlgen.unsafeSVG
 
 fun HTML.home(context: BlogContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home", "blog_preview"),
+        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview"),
         headFont = "你好"
     ) {
         contents(context)
@@ -28,12 +30,13 @@ fun FlowContent.contents(context: BlogContext) {
             introduce(context)
             recentPostPreview(context)
             postPreviews(context)
+            devLogPreviews(context)
         }
     }
 }
 
 fun FlowContent.recentPostPreview(context: BlogContext){
-    largePostPreview(context.dataDatabase.dataPages.first().post)
+    largePostPreview(BlogPost(context.blogDataDatabase.dataPages.first().page))
 }
 fun FlowContent.lastUpdateTime(context: BlogContext) {
     div {
@@ -42,7 +45,7 @@ fun FlowContent.lastUpdateTime(context: BlogContext) {
             +"Latest Update"
         }
         p {
-            +context.dataDatabase.dataPages.first().page.lastEditedTime.split('T').first()
+            +context.blogDataDatabase.dataPages.first().page.lastEditedTime.split('T').first()
         }
     }
 }
@@ -111,7 +114,7 @@ fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
 fun FlowContent.postPreviews(context: BlogContext) {
     div {
         classes += "post_previews_wrapper"
-        val typeOptions = context.dataDatabase.database.properties["Class"]!!.select!!.options!!
+        val typeOptions = context.blogDataDatabase.database.properties["Class"]!!.select!!.options!!
         div {
             classes += "post_type_buttons"
 
@@ -140,11 +143,33 @@ fun FlowContent.postPreviews(context: BlogContext) {
                 }
                 classes += "post_type_previews"
                 id = "${name.lowercase()}_type_previews"
-                for (page in context.dataDatabase.dataPages.filter { it.post.type.name == name }) {
-                    if (page.post.published) postPreview(page.post)
+                for (page in context.blogDataDatabase.dataPages.filter { it.blogPost().type.name == name }) {
+                    val post = page.blogPost()
+                    if (post.published) blogPostPreview(post)
                 }
             }
         }
     }
 }
 
+fun FlowContent.devLogPreviews(context: BlogContext) {
+    div {
+        classes += "dev_log_previews_wrapper"
+        div {
+            h3 {
+                +"开发日志"
+            }
+        }
+        div {
+            classes += "dev_log_previews"
+            val sort = context.devLogDataDatabase.dataPages.map { it.devLogPost() }.sortedBy {
+                it.index
+            }
+            for (i in 0..<6){
+                sort.getOrNull(i)?.let {
+                    devLogPostPreview(it)
+                }
+            }
+        }
+    }
+}

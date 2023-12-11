@@ -1,10 +1,10 @@
 import htmlgen.toNormalString
-import notiondata.readNotionData
+import notiondata.readNotionDatabase
 import kotlin.io.path.Path
 
 
 fun main(){
-    val database = readNotionData(Path("notionData"))
+    val database = readNotionDatabase(Path("notionData"))
     database.dataPages.forEach { page ->
         println("page: " + page.page.properties["Page"]!!.title!!.toNormalString())
         page.dataBlocks?.forEach { block ->

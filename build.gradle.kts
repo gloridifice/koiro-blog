@@ -23,7 +23,6 @@ dependencies {
     implementation("com.github.seratch:notion-sdk-jvm-core:${notionSdkVersion}")
     implementation("com.github.ajalt.mordant:mordant:${mordantVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCoroutinesVersion}")
-
 }
 
 tasks.test {

@@ -1,12 +1,12 @@
 package htmlgen.page
 
 import BlogContext
+import BlogPost
+import DevLogPost
 import htmlgen.component.notionBlocks
-import htmlgen.richText
 import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
-import notiondata.DataBlock
 import notiondata.DataPage
 import kotlin.io.path.*
 
@@ -81,14 +81,14 @@ fun FlowContent.sidebarContent(page: DataPage, context: BlogContext) {
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.post(page: DataPage, context: BlogContext) {
-    Path(page.post.assetsDirectoryPath).deleteRecursively()
+fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
+    val blogPost = BlogPost(dataPage.page)
 
-    val post = page.post
+    Path(blogPost.assetsDirectoryPath).deleteRecursively()
     val postContext = PostContext()
 
     layout(
-        siteTitle = post.getEmoji() + " " + post.getPlainTitle(),
+        siteTitle = blogPost.getEmoji() + " " + blogPost.getPlainTitle(),
         cssNames = arrayOf("post")
     ) {
         div {
@@ -102,17 +102,17 @@ fun HTML.post(page: DataPage, context: BlogContext) {
                     classes += "page_description"
                     h1 {
                         classes += "title"
-                        +"${post.getEmoji()} ${post.getPlainTitle()}"
+                        +"${blogPost.getEmoji()} ${blogPost.getPlainTitle()}"
                     }
                     div {
                         classes += "sub_info"
                         p {
                             classes += "date"
-                            +post.getDateDay()
+                            +blogPost.getLastEditedTimeDay()
                         }
                         div {
                             classes += "type_tags"
-                            post.tags.forEach {
+                            blogPost.tags.forEach {
                                 p {
                                     classes += "tag"
                                     +it.name.orEmpty()
@@ -120,18 +120,66 @@ fun HTML.post(page: DataPage, context: BlogContext) {
                             }
                             p {
                                 classes += "type"
-                                +post.type.name!!
+                                +blogPost.type.name!!
                             }
                         }
                     }
                 }
                 div {
                     classes += "page_contents"
-                    page.dataBlocks?.let { notionBlocks(it, page, context, postContext) }
+                    dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
                 }
             }
-            sidebarContent(page, context)
+            sidebarContent(dataPage, context)
         }
     }
 }
 
+@OptIn(ExperimentalPathApi::class)
+fun HTML.devLogPost(dataPage: DataPage, context: BlogContext) {
+    val devLogPost = dataPage.devLogPost()
+
+    Path(devLogPost.assetsDirectoryPath).deleteRecursively()
+    val postContext = PostContext()
+
+    layout(
+        siteTitle = devLogPost.getEmoji() + " " + devLogPost.getPlainTitle(),
+        cssNames = arrayOf("post")
+    ) {
+        div {
+            classes += "post"
+            div {
+                classes += "sidebar_wrapper"
+            }
+            div {
+                classes += "contents"
+                div {
+                    classes += "page_description"
+                    h1 {
+                        classes += "title"
+                        +"${devLogPost.getEmoji()} ${devLogPost.getPlainTitle()}"
+                    }
+                    div {
+                        classes += "sub_info"
+                        p {
+                            classes += "date"
+                            +devLogPost.getCreatedTimeDay()
+                        }
+                        div {
+                            classes += "type_tags"
+                            p {
+                                classes += "type"
+                                +devLogPost.work?.name!!
+                            }
+                        }
+                    }
+                }
+                div {
+                    classes += "page_contents"
+                    dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
+                }
+            }
+            sidebarContent(dataPage, context)
+        }
+    }
+}

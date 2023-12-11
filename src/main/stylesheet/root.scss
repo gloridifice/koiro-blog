@@ -4,13 +4,6 @@
   --monospace-font: 'JetBrains Mono', monospace;
   --transparent-color: rgba(1,1,1,0);
 }
-* {
-  transition-duration: 0.2s;
-  transition-property: color;
-}
-body {
-  transition-property: background-color;
-}
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Light.woff2") format("woff");

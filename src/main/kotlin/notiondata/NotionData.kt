@@ -8,14 +8,19 @@ import notion.api.v1.request.databases.QueryDatabaseRequest
 import notion.api.v1.request.databases.RetrieveDatabaseRequest
 import notion.api.v1.request.pages.RetrievePageRequest
 
-const val NOTION_ROOT_DATA_PATH = "notionData/"
+const val NOTION_BLOG_DATABASE_ROOT_PATH = "notionData/blogDatabase"
+const val NOTION_DEV_LOG_DATABASE_ROOT_PATH = "notionData/devLogDatabase"
 const val MAX_RETRY_COUNT = 3
 fun main() {
     notionClient { client ->
-        val databaseId = "0ed868dbb56445929e8a993ff70b1750"
+        val blogDatabaseId = "0ed868dbb56445929e8a993ff70b1750"
+        val devLogDatabaseId = "07a7413ef3424478abdceee428cebdfb"
 
-        val collector = DatabaseCollector(client, databaseId)
-        collector.collectTo(NOTION_ROOT_DATA_PATH)
+        val blogDatabaseCollector = DatabaseCollector(client, blogDatabaseId)
+        blogDatabaseCollector.collectTo(NOTION_BLOG_DATABASE_ROOT_PATH)
+
+        val devLogDatabaseCollector = DatabaseCollector(client, devLogDatabaseId)
+        devLogDatabaseCollector.collectTo(NOTION_DEV_LOG_DATABASE_ROOT_PATH)
     }
 }
 
