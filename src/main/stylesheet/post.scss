@@ -338,7 +338,12 @@ t.italic {
   font-style: italic;
 }
 t.href {
-  color: var(--accents-color-2);
+  color: var(--theme-color-1);
   cursor: pointer;
   text-decoration: underline solid;
+  transition: color .2s;
+}
+t.href:hover{
+  color: var(--theme-color);
+  text-decoration: underline solid 3px;
 }

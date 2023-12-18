@@ -129,7 +129,7 @@ svg * {
 }
 
 .contents {
-  max-width: min(90%, 600px);
+  max-width: min(90%, var(--content-max-width));
   text-align: center;
   display: flex;
   flex-direction: column;
