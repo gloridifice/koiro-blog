@@ -163,7 +163,7 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
         div {
             classes += "dev_log_previews"
             val sort = context.devLogDataDatabase.dataPages.map { it.devLogPost() }.sortedBy {
-                it.index
+                -it.index
             }
             for (i in 0..<6){
                 sort.getOrNull(i)?.let {
