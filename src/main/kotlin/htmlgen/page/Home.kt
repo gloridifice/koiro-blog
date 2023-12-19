@@ -2,12 +2,14 @@ package htmlgen.page
 
 import BlogContext
 import BlogPost
+import DevLogPost
 import htmlgen.SVGIcons
 import htmlgen.component.largePostPreview
 import kotlinx.html.*
 import htmlgen.component.blogPostPreview
 import htmlgen.component.devLogPostPreview
 import htmlgen.unsafeSVG
+import java.text.SimpleDateFormat
 
 fun HTML.home(context: BlogContext) {
     layout(
@@ -36,7 +38,11 @@ fun FlowContent.contents(context: BlogContext) {
 }
 
 fun FlowContent.recentPostPreview(context: BlogContext){
-    largePostPreview(BlogPost(context.blogDataDatabase.dataPages.first().page))
+    val post = context.latestPostPage;
+    when(post){
+        is BlogPost -> largePostPreview(post)
+        is DevLogPost -> devLogPostPreview(post)
+    }
 }
 fun FlowContent.lastUpdateTime(context: BlogContext) {
     div {
@@ -45,7 +51,7 @@ fun FlowContent.lastUpdateTime(context: BlogContext) {
             +"Latest Update"
         }
         p {
-            +context.blogDataDatabase.dataPages.first().page.lastEditedTime.split('T').first()
+            +context.latestPostPage.getLastEditedTimeDay()
         }
     }
 }
@@ -143,7 +149,7 @@ fun FlowContent.postPreviews(context: BlogContext) {
                 }
                 classes += "post_type_previews"
                 id = "${name.lowercase()}_type_previews"
-                for (page in context.blogDataDatabase.dataPages.filter { it.blogPost().type.name == name }) {
+                for (page in context.blogDataDatabase.publishedPages.filter { it.blogPost().type.name == name }) {
                     val post = page.blogPost()
                     if (post.published) blogPostPreview(post)
                 }
@@ -162,7 +168,7 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
         }
         div {
             classes += "dev_log_previews"
-            val sort = context.devLogDataDatabase.dataPages.map { it.devLogPost() }.sortedBy {
+            val sort = context.devLogDataDatabase.publishedPages.map { it.devLogPost() }.sortedBy {
                 -it.index
             }
             for (i in 0..<6){

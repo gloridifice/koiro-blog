@@ -15,6 +15,8 @@ import notion.api.v1.model.databases.QueryResults
 import notion.api.v1.model.pages.Page
 import java.nio.file.Path
 import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.io.path.exists
 
 
@@ -25,27 +27,32 @@ fun readNotionDatabase(rootPath: Path): DataDatabase {
     val databaseJson = rootPath.childPath("database.json").toFile().readText()
     val database = NotionClient.defaultJsonSerializer.toDatabase(databaseJson)
 
-    var dataPages = result.results.map {
+    var publishedPages = result.results.map {
         DataPage(it, rootPath)
     }.toList()
-    dataPages = dataPages.sortedWith { n1, n2 ->
+    publishedPages = publishedPages.sortedWith { n1, n2 ->
         val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         val n1Date = fmt.parse(n1.page.lastEditedTime)
         val n2Date = fmt.parse(n2.page.lastEditedTime)
         -n1Date.compareTo(n2Date)
     }
-    val rawPages = dataPages
-    dataPages = dataPages.filter { it.page.properties["Published"]!!.checkbox!! }
+    val rawPages = publishedPages
+    publishedPages = publishedPages.filter { it.page.properties["Published"]!!.checkbox!! }
 
-    return DataDatabase(database, result, dataPages, rawPages)
+    return DataDatabase(database, result, publishedPages, rawPages)
 }
 
 class DataDatabase(
     val database: Database,
     val queryDatabaseRequest: QueryResults,
-    val dataPages: List<DataPage>,
-    val rawPages: List<DataPage> // contains un published pages
+    val publishedPages: List<DataPage>,
+    val allPages: List<DataPage> // contains unpublished pages
 ) {
+    val latestData: Date;
+    init {
+        val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        latestData = fmt.parse(publishedPages.first().page.lastEditedTime)
+    }
 }
 
 class DataPage(

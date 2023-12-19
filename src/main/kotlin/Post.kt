@@ -5,6 +5,8 @@ import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.common.Icon
 import notion.api.v1.model.pages.Page
 import notion.api.v1.model.pages.PageProperty
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 open class Post(val page: Page) {
     val pageTitle: List<PageProperty.RichText> = page.properties["Title"]!!.title!!
@@ -43,6 +45,23 @@ open class Post(val page: Page) {
             return it.split('T')[0]
         }
         return "No date"
+    }
+
+    fun getPreviewDisplayDate(): String{
+        val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        val date = fmt.parse(page.lastEditedTime)
+
+        val fmtThisYear = SimpleDateFormat("MM-dd")
+        val fmtOtherYear = SimpleDateFormat("yyyy-MM-dd")
+
+        val timeCal = Calendar.getInstance()
+        val currentCal = Calendar.getInstance()
+
+        timeCal.time = date
+
+        return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)){
+            fmtThisYear.format(date)
+        } else fmtOtherYear.format(date)
     }
 
     fun getCreatedTimeDay(): String{

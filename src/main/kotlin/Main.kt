@@ -13,10 +13,20 @@ import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 
-data class BlogContext(
+class BlogContext(
     val blogDataDatabase: DataDatabase,
     val devLogDataDatabase: DataDatabase,
-    )
+    ){
+    val latestPostPage: Post;
+
+    init {
+        val postLatest = blogDataDatabase.latestData
+        val devLogLatest = devLogDataDatabase.latestData
+        latestPostPage = if (postLatest > devLogLatest)
+            blogDataDatabase.publishedPages.first().blogPost()
+        else devLogDataDatabase.publishedPages.first().devLogPost();
+    }
+}
 
 
 
@@ -33,7 +43,7 @@ fun main(args: Array<String>) {
 }
 
 fun createBlogPostPages(context: BlogContext) {
-    context.blogDataDatabase.dataPages.forEach { page ->
+    context.blogDataDatabase.publishedPages.forEach { page ->
         val post = BlogPost(page.page)
         if (!post.published) return@forEach
 
@@ -44,7 +54,7 @@ fun createBlogPostPages(context: BlogContext) {
 }
 
 fun createDevLogPostPages(context: BlogContext) {
-    context.devLogDataDatabase.dataPages.forEach { page ->
+    context.devLogDataDatabase.publishedPages.forEach { page ->
         val post = page.devLogPost()
         if (!post.published) return@forEach
 

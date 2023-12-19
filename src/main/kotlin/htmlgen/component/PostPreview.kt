@@ -33,7 +33,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogPost) {
             classes += "info"
             p {
                 classes += "date"
-                +blogPost.getLastEditedTimeDay()
+                +blogPost.getPreviewDisplayDate()
             }
             p {
                 classes += "type"
@@ -71,7 +71,7 @@ fun FlowContent.largePostPreview(post: BlogPost) {
             classes += "info"
             p {
                 classes += "date"
-                +post.getLastEditedTimeDay()
+                +post.getPreviewDisplayDate()
             }
             div {
                 classes += "type_tags"
@@ -127,7 +127,7 @@ fun FlowContent.devLogPostPreview(devLogPost: DevLogPost){
             classes += "info"
             p {
                 classes += "date"
-                +devLogPost.getCreatedTimeDay()
+                +devLogPost.getPreviewDisplayDate()
             }
         }
     }

@@ -5,7 +5,7 @@ import kotlin.io.path.Path
 
 fun main(){
     val database = readNotionDatabase(Path("notionData"))
-    database.dataPages.forEach { page ->
+    database.publishedPages.forEach { page ->
         println("page: " + page.page.properties["Page"]!!.title!!.toNormalString())
         page.dataBlocks?.forEach { block ->
             println("--> block { type: ${block.block.type} }")
