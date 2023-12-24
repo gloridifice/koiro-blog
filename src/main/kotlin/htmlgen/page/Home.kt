@@ -3,18 +3,21 @@ package htmlgen.page
 import BlogContext
 import BlogPost
 import DevLogPost
+import OUT_PUT_PATH
+import childPath
 import htmlgen.SVGIcons
-import htmlgen.component.largePostPreview
+import htmlgen.component.*
 import kotlinx.html.*
-import htmlgen.component.blogPostPreview
-import htmlgen.component.devLogPostPreview
 import htmlgen.unsafeSVG
+import isImage
+import java.io.File
 import java.text.SimpleDateFormat
+import kotlin.io.path.Path
 
 fun HTML.home(context: BlogContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview"),
+        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview", "album"),
         headFont = "你好"
     ) {
         contents(context)
@@ -33,17 +36,36 @@ fun FlowContent.contents(context: BlogContext) {
             recentPostPreview(context)
             postPreviews(context)
             devLogPreviews(context)
+            albumPart()
         }
     }
 }
 
-fun FlowContent.recentPostPreview(context: BlogContext){
+fun FlowContent.albumPart() {
+    val albumItems = ArrayList<AlbumItem>()
+    Path(OUT_PUT_PATH).childPath("album").toFile().walk().iterator()
+        .asSequence().sortedBy { -it.lastModified() }.forEach {
+            if (it.isFile && it.isImage()) {
+                albumItems.add(AlbumItem("/album/" + it.name))
+            }
+        }
+    div {
+        classes += "album_part"
+        h2 {
+            +"📷 🏷️"
+        }
+        album(albumItems)
+    }
+}
+
+fun FlowContent.recentPostPreview(context: BlogContext) {
     val post = context.latestPostPage;
-    when(post){
+    when (post) {
         is BlogPost -> largePostPreview(post)
         is DevLogPost -> devLogPostPreview(post)
     }
 }
+
 fun FlowContent.lastUpdateTime(context: BlogContext) {
     div {
         classes += "last_update_time"
@@ -81,7 +103,11 @@ fun FlowContent.introduce(context: BlogContext) {
         outSidePages(
             arrayOf(
                 OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
-                OutSidePageItem("Source", "https://github.com/gloridifice/kotlin-notion-blog", "猫咖主人博客生成器的仓库")
+                OutSidePageItem(
+                    "Source",
+                    "https://github.com/gloridifice/kotlin-notion-blog",
+                    "猫咖主人博客生成器的仓库"
+                )
             )
         )
 
@@ -171,7 +197,7 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
             val sort = context.devLogDataDatabase.publishedPages.map { it.devLogPost() }.sortedBy {
                 -it.index
             }
-            for (i in 0..<6){
+            for (i in 0..<6) {
                 sort.getOrNull(i)?.let {
                     devLogPostPreview(it)
                 }
