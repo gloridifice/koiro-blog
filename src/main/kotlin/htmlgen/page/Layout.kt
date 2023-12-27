@@ -48,6 +48,13 @@ fun BODY.footer() {
                 )
             )
         )
+        div {
+            a {
+                rel = "me"
+                href = "https://mastodon.gamedev.place/@koiro"
+                + "Mastodon"
+            }
+        }
     }
 }
 

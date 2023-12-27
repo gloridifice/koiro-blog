@@ -107,7 +107,7 @@ fun FlowContent.introduce(context: BlogContext) {
                     "Source",
                     "https://github.com/gloridifice/kotlin-notion-blog",
                     "猫咖主人博客生成器的仓库"
-                )
+                ),
             )
         )
 
