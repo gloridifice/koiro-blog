@@ -61,6 +61,7 @@ class DatabaseCollector(
         return true
     }
 
+    @OptIn(ExperimentalPathApi::class)
     fun collectTo(path: String) {
         val rootPath = Path(path)
         val databaseJson = client.retrieveDatabaseJson(RetrieveDatabaseRequest(databaseId))
@@ -81,11 +82,15 @@ class DatabaseCollector(
     }
 
 
+    @ExperimentalPathApi
     private fun collectPage(pageId: String, parentPath: Path) {
         val json = client.retrievePageJson(RetrievePageRequest(pageId))
         writeJson(parentPath.childPath("$pageId.json"), json)
 
-        //下载封面
+        // 删除原来所有的 Block
+        parentPath.childPath(pageId).deleteRecursively()
+
+        // 下载封面
         val serializer = NotionClient.defaultJsonSerializer;
         val page = serializer.toPage(json)
         page.properties["Preview"]?.let {

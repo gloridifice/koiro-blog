@@ -139,18 +139,21 @@
 
       h2 {
         font-weight: 700;
+        color: var(--emphasized-color);
         //border-bottom: dashed var(--theme-color) 2px;
         width: fit-content;
         margin-bottom: 10px;
       }
 
       h3{
-        font-weight: 700;
+        color: var(--emphasized-color);
+        font-weight: 500;
         margin-bottom: 10px;
       }
 
       p{
-        margin: 10px auto;
+        margin: 8px auto;
+        min-height: 12px;
       }
       t{
         line-height: 1.65em;
@@ -272,7 +275,7 @@
 
       .caption {
         color: var(--accents-color-2);
-        margin: 4px auto;
+        margin: 4px;
         width: fit-content;
         font-size: 14px;
       }
