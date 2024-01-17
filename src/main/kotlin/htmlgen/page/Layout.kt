@@ -63,11 +63,15 @@ fun BODY.footer() {
 fun HTML.layout(
     siteTitle: String = "Koiro's Cat Café",
     cssNames: Array<String> = emptyArray(),
+    jsNames: Array<String> = emptyArray(),
     headFont: String? = null,
-    block: BODY.() -> Unit
+    block: BODY.() -> Unit,
 ) {
     head {
         universalHeadSetting()
+        jsNames.forEach {
+            script { src = "/assets/js/$it.js" }
+        }
         linkCSS("layout", *cssNames)
         title(siteTitle)
     }

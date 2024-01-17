@@ -9,6 +9,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogPost) {
     div {
         classes += "post_preview"
         classes += "regular"
+        classes += "reveal"
         onClick = "location.href='${blogPost.htmlServerPath}';"
 
         val emoji = blogPost.getEmoji()
@@ -47,6 +48,7 @@ fun FlowContent.largePostPreview(post: BlogPost) {
     div {
         classes += "post_preview"
         classes += "large"
+        classes += "reveal"
         onClick = "location.href='${post.htmlServerPath}';"
 
         div {
@@ -97,6 +99,7 @@ fun FlowContent.devLogPostPreview(devLogPost: DevLogPost){
     div {
         classes += "dev_log_post_preview"
         classes += "regular"
+        classes += "reveal"
         onClick = "location.href='${devLogPost.htmlServerPath}';"
 
         val emoji = devLogPost.getEmoji()

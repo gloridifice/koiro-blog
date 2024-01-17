@@ -11,6 +11,7 @@ class AlbumItem(
 fun FlowContent.album(items: List<AlbumItem>){
     div {
         classes += "album_container"
+        classes += "reveal"
 
         items.forEach {
             div {

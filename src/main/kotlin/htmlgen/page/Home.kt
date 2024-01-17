@@ -17,8 +17,9 @@ import kotlin.io.path.Path
 fun HTML.home(context: BlogContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview", "album"),
-        headFont = "你好"
+        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview", "album", "scroll_animation"),
+        jsNames = arrayOf("scroll_animation"),
+        headFont = "你好",
     ) {
         contents(context)
     }
@@ -52,6 +53,7 @@ fun FlowContent.albumPart() {
     div {
         classes += "album_part"
         h2 {
+            classes += "reveal"
             +"📷 🏷️"
         }
         album(albumItems)
@@ -149,6 +151,7 @@ fun FlowContent.postPreviews(context: BlogContext) {
         val typeOptions = context.blogDataDatabase.database.properties["Class"]!!.select!!.options!!
         div {
             classes += "post_type_buttons"
+            classes += "reveal"
 
             for (i in typeOptions.indices) {
                 div {
@@ -188,6 +191,7 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
     div {
         classes += "dev_log_previews_wrapper"
         div {
+            classes += "reveal"
             h3 {
                 +"开发日志"
             }
