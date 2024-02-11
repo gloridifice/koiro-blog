@@ -108,8 +108,9 @@ fun FlowContent.introduce(context: BlogContext) {
                 OutSidePageItem(
                     "Source",
                     "https://github.com/gloridifice/kotlin-notion-blog",
-                    "猫咖主人博客生成器的仓库"
+                    "博客仓库"
                 ),
+                OutSidePageItem("Scales", "random_scale/index", "吉他随机音阶")
             )
         )
 
