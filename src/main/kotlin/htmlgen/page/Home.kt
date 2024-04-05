@@ -10,8 +10,6 @@ import htmlgen.component.*
 import kotlinx.html.*
 import htmlgen.unsafeSVG
 import isImage
-import java.io.File
-import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 
 fun HTML.home(context: BlogContext) {
@@ -109,8 +107,7 @@ fun FlowContent.introduce(context: BlogContext) {
                     "Source",
                     "https://github.com/gloridifice/kotlin-notion-blog",
                     "博客仓库"
-                ),
-                OutSidePageItem("Scales", "random_scale/index", "吉他随机音阶")
+                )
             )
         )
 
