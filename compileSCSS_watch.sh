@@ -1,0 +1,1 @@
+sass --watch src/main/stylesheet:static/assets/css --style expanded

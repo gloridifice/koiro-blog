@@ -3,6 +3,7 @@ package htmlgen.page
 import BlogContext
 import BlogPost
 import DevLogPost
+import htmlgen.component.NavbarItem
 import htmlgen.component.notionBlocks
 import htmlgen.richTexts
 import kotlinx.html.*
@@ -20,56 +21,68 @@ fun headingId(heading: Int, index: Int): String {
     return "heading${heading}_$index"
 }
 
-fun FlowContent.sidebarContent(page: DataPage, context: BlogContext) {
+fun FlowContent.navi(array: ArrayList<NavbarItem>){
     div {
-        classes += "sidebar_wrapper"
-        div {
-            classes += "catalogue"
-            h2 {
-                +"目录"
+        classes += "navi"
+        for (item in array) {
+            a{
+                href = item.link
+//                onClick = if (item.isLinkOutside) {
+//                    classes += "outside"
+//                    "window.open('${item.link}')"
+//                } else {
+//                    "window.location='${item.link}'"
+//                }
+                +item.title
             }
-            div {
-                val headBlocks = page.dataBlocks?.filter {
-                    it.block is HeadingOneBlock || it.block is HeadingTwoBlock || it.block is HeadingThreeBlock
-                }
-                val pCtx = PostContext()
-                ul {
-                    headBlocks?.let {
-                        for (index in it.indices) {
-                            val block = it[index].block
+        }
+    }
+}
 
-                            if (block is HeadingOneBlock) {
-                                li {
-                                    classes += "h1"
-                                    a {
-                                        href = "#${headingId(1, pCtx.h1Index)}"
-                                        pCtx.h1Index++
+fun FlowContent.catalogue(page: DataPage, context: BlogContext) {
+    div {
+        classes += "catalogue"
+        div {
+            val headBlocks = page.dataBlocks?.filter {
+                it.block is HeadingOneBlock || it.block is HeadingTwoBlock || it.block is HeadingThreeBlock
+            }
+            val pCtx = PostContext()
+            ul {
+                headBlocks?.let {
+                    for (index in it.indices) {
+                        val block = it[index].block
 
-                                        richTexts(block.heading1.richText)
-                                    }
+                        if (block is HeadingOneBlock) {
+                            li {
+                                classes += "h1"
+                                a {
+                                    href = "#${headingId(1, pCtx.h1Index)}"
+                                    pCtx.h1Index++
+
+                                    richTexts(block.heading1.richText)
                                 }
                             }
-                            if(block is HeadingTwoBlock) {
-                                li {
-                                    classes += "h2"
-                                    a {
-                                        href = "#${headingId(2, pCtx.h3Index)}"
-                                        pCtx.h2Index++
+                        }
+                        if (block is HeadingTwoBlock) {
+                            li {
+                                classes += "h2"
+                                a {
+                                    href = "#${headingId(2, pCtx.h3Index)}"
+                                    pCtx.h2Index++
 
-                                        richTexts(block.heading2.richText)
-                                    }
+                                    richTexts(block.heading2.richText)
                                 }
                             }
+                        }
 
-                            if(block is HeadingThreeBlock) {
-                                li {
-                                    classes += "h3"
-                                    a {
-                                        href = "#${headingId(3, pCtx.h3Index)}"
-                                        pCtx.h3Index++
+                        if (block is HeadingThreeBlock) {
+                            li {
+                                classes += "h3"
+                                a {
+                                    href = "#${headingId(3, pCtx.h3Index)}"
+                                    pCtx.h3Index++
 
-                                        richTexts(block.heading3.richText)
-                                    }
+                                    richTexts(block.heading3.richText)
                                 }
                             }
                         }
@@ -89,11 +102,18 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
 
     layout(
         siteTitle = blogPost.getEmoji() + " " + blogPost.getPlainTitle(),
-        cssNames = arrayOf("post","color_scheme_v2.dark_mode")
+        cssNames = arrayOf("post", "color_scheme_v2.dark_mode")
     ) {
         div {
             classes += "post"
+            catalogue(dataPage, context); //目录
+            navi(navbarItems)
             div {
+                classes += "sidebar_wrapper_left"
+                classes += "sidebar_wrapper"
+            }
+            div {
+                classes += "sidebar_wrapper_right"
                 classes += "sidebar_wrapper"
             }
             div {
@@ -130,7 +150,6 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
                     dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
                 }
             }
-            sidebarContent(dataPage, context)
         }
     }
 }
@@ -179,7 +198,9 @@ fun HTML.devLogPost(dataPage: DataPage, context: BlogContext) {
                     dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
                 }
             }
-            sidebarContent(dataPage, context)
+            catalogue(dataPage, context)
         }
     }
 }
+
+
