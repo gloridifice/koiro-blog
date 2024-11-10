@@ -89,7 +89,7 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
 
     layout(
         siteTitle = blogPost.getEmoji() + " " + blogPost.getPlainTitle(),
-        cssNames = arrayOf("post")
+        cssNames = arrayOf("post","color_scheme_v2.dark_mode")
     ) {
         div {
             classes += "post"
