@@ -30,11 +30,7 @@ fun HTML.about(context: BlogContext) {
             }
 
             friends(
-                arrayOf(
-                    FriendLinkItem("拉斯普的月台", "https://blog.rasp505.top/", "海拉鲁驿站"),
-                    FriendLinkItem("dyron503's", "https://career.dyron503.com/", "你知道吗？我的 ID 中「503」的出处是……"),
-                    FriendLinkItem("北依的树洞", "https://hanahoshikawa092.netlify.app", "音乐是救世主"),
-                )
+                friendLinkItems
             )
         }
     }

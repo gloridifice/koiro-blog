@@ -35,7 +35,7 @@ fun HEAD.universalHeadSetting() {
     script {
         src = "/assets/js/header.js"
     }
-    linkCSS("reset", "root")
+    linkCSS("reset", "root","color_scheme_v2.dark_mode")
     linkGoogleFont()
 }
 

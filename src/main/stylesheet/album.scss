@@ -21,23 +21,9 @@
       border-radius: 8px;
       transition: all .25s ease-in-out;
 
-
-      @media only screen and (min-width: 600px) {
-        &:hover img {
-          filter: grayscale(0);
-        }
-      }
-
-      &:hover {
-        border-color: var(--theme-color);
-      }
-
       img {
         width: 100%;
 
-        @media only screen and (min-width: 600px) {
-          filter: grayscale(80%);
-        }
         border-radius: 5px;
         transition: all .25s ease-in-out;
       }

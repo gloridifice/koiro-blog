@@ -12,33 +12,114 @@ import htmlgen.unsafeSVG
 import isImage
 import kotlin.io.path.Path
 
+
+val friendLinkItems = arrayOf(
+    FriendLinkItem("拉斯普的月台", "https://blog.rasp505.top/", "海拉鲁驿站"),
+    FriendLinkItem("dyron503's", "https://career.dyron503.com/", "你知道吗？我的 ID 中「503」的出处是……"),
+    FriendLinkItem("北依的树洞", "https://hanahoshikawa092.netlify.app", "音乐是救世主"),
+)
+
 fun HTML.home(context: BlogContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home", "blog_preview", "dev_log_post_preview", "album", "scroll_animation"),
+        cssNames = arrayOf(
+            "home",
+            "blog_preview",
+            "dev_log_post_preview",
+            "album",
+            "scroll_animation",
+        ),
         jsNames = arrayOf("scroll_animation"),
         headFont = "你好",
     ) {
-        contents(context)
+        div {
+            classes += "about"
+            img {
+                src = "/assets/resources/about_icon.png"
+            }
+            outSidePages(
+                arrayOf(
+                    OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
+                    OutSidePageItem(
+                        "Source",
+                        "https://github.com/gloridifice/kotlin-notion-blog",
+                        "博客仓库"
+                    )
+                )
+            )
+
+            div {
+                classes += "introduction"
+                div {
+                    classes += "icon"
+                    unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
+                }
+                div {
+                    classes += "texts"
+                    h2 {
+                        +"这里是宏楼的猫咖！"
+                    }
+                    p {
+                        +"人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
+                    }
+                }
+
+            }
+
+            div {
+                classes += "friends"
+                div {
+                    classes += "title"
+                    unsafeSVG(SVGIcons.PARTNER_EXCHANGE);
+                    div {
+                        +"友情链接"
+                    }
+                }
+                div {
+                    classes += "list"
+                    friendLinkItems.forEach {
+                        div {
+                            onClick = "window.open('${it.link}')"
+                            classes += "friend_link"
+                            div {
+                                classes += "icon"
+                                classes += "start"
+                                unsafeSVG(SVGIcons.EXTERNAL_LINK)
+                                div {
+                                    +it.name
+                                }
+                            }
+                            div {
+                                classes += "desc"
+                                +it.description
+                            }
+                        }
+                    }
+                }
+            }
+
+            div {
+                classes += "navi"
+            }
+
+        }
+        div {
+            classes += "contents_wrapper"
+            div {
+                classes += "contents"
+
+//                introduce(context)
+                recentPostPreview(context)
+                postPreviews(context)
+                devLogPreviews(context)
+                albumPart()
+            }
+        }
     }
 }
 
 val titleEN = "Koiro's Cat Café"
 val titleCN = "宏楼的猫咖"
-fun FlowContent.contents(context: BlogContext) {
-    div {
-        classes += "contents_wrapper"
-        div {
-            classes += "contents"
-
-            introduce(context)
-            recentPostPreview(context)
-            postPreviews(context)
-            devLogPreviews(context)
-            albumPart()
-        }
-    }
-}
 
 fun FlowContent.albumPart() {
     val albumItems = ArrayList<AlbumItem>()
@@ -124,14 +205,8 @@ fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
             div {
                 onClick = "window.open('${it.link}')"
                 classes += "outside_page_item"
-                div {
-                    classes += "start"
-                    unsafeSVG(SVGIcons.EXTERNAL_LINK)
-                    div {
-                        classes += "name"
-                        +it.name
-                    }
-                }
+
+                unsafeSVG(SVGIcons.EXTERNAL_LINK)
 
                 div {
                     classes += "desc"

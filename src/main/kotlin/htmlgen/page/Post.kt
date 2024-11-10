@@ -8,6 +8,7 @@ import htmlgen.component.notionBlocks
 import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
+import notion.api.v1.model.databases.DatabaseProperty
 import notiondata.DataPage
 import kotlin.io.path.*
 
@@ -21,11 +22,11 @@ fun headingId(heading: Int, index: Int): String {
     return "heading${heading}_$index"
 }
 
-fun FlowContent.navi(array: ArrayList<NavbarItem>){
+fun FlowContent.navi(array: ArrayList<NavbarItem>) {
     div {
         classes += "navi"
         for (item in array) {
-            a{
+            a {
                 href = item.link
 //                onClick = if (item.isLinkOutside) {
 //                    classes += "outside"
@@ -104,51 +105,76 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
         siteTitle = blogPost.getEmoji() + " " + blogPost.getPlainTitle(),
         cssNames = arrayOf("post", "color_scheme_v2.dark_mode")
     ) {
+        post(
+            "${blogPost.getEmoji()} ${blogPost.getPlainTitle()}",
+            blogPost.tags,
+            blogPost.type.name,
+            blogPost.getLastEditedTimeDay(),
+            dataPage,
+            context,
+            postContext
+        )
+    }
+}
+
+fun FlowContent.post(
+    title: String,
+    tags: List<DatabaseProperty.MultiSelect.Option>?,
+    typeName: String?,
+    lastEditedTimeString: String,
+    dataPage: DataPage,
+    context: BlogContext,
+    postContext: PostContext
+) {
+    div {
+        classes += "post"
+        catalogue(dataPage, context); //目录
+        navi(navbarItems)
         div {
-            classes += "post"
-            catalogue(dataPage, context); //目录
-            navi(navbarItems)
+            classes += "sidebar_wrapper_left"
+            classes += "sidebar_wrapper"
+        }
+        div {
+            classes += "sidebar_wrapper_right"
+            classes += "sidebar_wrapper"
+        }
+        div {
+            classes += "contents"
             div {
-                classes += "sidebar_wrapper_left"
-                classes += "sidebar_wrapper"
-            }
-            div {
-                classes += "sidebar_wrapper_right"
-                classes += "sidebar_wrapper"
-            }
-            div {
-                classes += "contents"
+                classes += "page_description"
+                h1 {
+                    classes += "title"
+                    +title
+                }
                 div {
-                    classes += "page_description"
-                    h1 {
-                        classes += "title"
-                        +"${blogPost.getEmoji()} ${blogPost.getPlainTitle()}"
+                    classes += "sub_info"
+                    p {
+                        classes += "date"
+                        +lastEditedTimeString
                     }
-                    div {
-                        classes += "sub_info"
-                        p {
-                            classes += "date"
-                            +blogPost.getLastEditedTimeDay()
-                        }
+                    tags?.let {
                         div {
                             classes += "type_tags"
-                            blogPost.tags.forEach {
+                            it.forEach {
                                 p {
                                     classes += "tag"
                                     +it.name.orEmpty()
                                 }
                             }
-                            p {
-                                classes += "type"
-                                +blogPost.type.name!!
+                            typeName?.let {
+                                p {
+                                    classes += "type"
+                                    +it
+                                }
                             }
                         }
                     }
+
                 }
-                div {
-                    classes += "page_contents"
-                    dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
-                }
+            }
+            div {
+                classes += "page_contents"
+                dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
             }
         }
     }
@@ -165,41 +191,15 @@ fun HTML.devLogPost(dataPage: DataPage, context: BlogContext) {
         siteTitle = devLogPost.getEmoji() + " " + devLogPost.getPlainTitle(),
         cssNames = arrayOf("post")
     ) {
-        div {
-            classes += "post"
-            div {
-                classes += "sidebar_wrapper"
-            }
-            div {
-                classes += "contents"
-                div {
-                    classes += "page_description"
-                    h1 {
-                        classes += "title"
-                        +"${devLogPost.getEmoji()} ${devLogPost.getPlainTitle()}"
-                    }
-                    div {
-                        classes += "sub_info"
-                        p {
-                            classes += "date"
-                            +devLogPost.getCreatedTimeDay()
-                        }
-                        div {
-                            classes += "type_tags"
-                            p {
-                                classes += "type"
-                                +devLogPost.work?.name!!
-                            }
-                        }
-                    }
-                }
-                div {
-                    classes += "page_contents"
-                    dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
-                }
-            }
-            catalogue(dataPage, context)
-        }
+        post(
+            "${devLogPost.getEmoji()} ${devLogPost.getPlainTitle()}",
+            null,
+            null,
+            devLogPost.getLastEditedTimeDay(),
+            dataPage,
+            context,
+            postContext
+        )
     }
 }
 

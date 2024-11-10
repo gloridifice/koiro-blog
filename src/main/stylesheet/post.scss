@@ -161,7 +161,7 @@
         margin: 6px 0;
         text-align: left;
         font-weight: 400;
-        font-size: 40px;
+        font-size: 34px;
         color: var(--emphasized-color);
       }
 
@@ -205,6 +205,7 @@
         width: 100%;
         padding: 2px 0;
         font-weight: 400;
+        font-size: 28px;
         border-bottom: solid var(--line-color) 1px;
       }
 
@@ -213,12 +214,13 @@
         color: var(--text-color-0);
         //border-bottom: dashed var(--theme-color) 2px;
         width: fit-content;
-        margin: 24px 0 12px;
+        margin: 22px 0 12px;
       }
 
       h3 {
         color: var(--text-color-0);
         font-weight: 400;
+        font-size: 18px;
         margin-bottom: 10px;
       }
 
