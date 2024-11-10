@@ -86,6 +86,7 @@
   .contents {
     margin-left: 12px;
     margin-right: 12px;
+    border-left: var(--line-color) 1px;
     .page_description {
       margin: 2em auto;
       max-width: 505px;
