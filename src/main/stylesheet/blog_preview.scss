@@ -40,12 +40,13 @@
       margin: 0;
       font-weight: normal;
       text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     h3 {
       font-size: 12px;
-      margin: 0;
-      margin-top: 4px;
+      margin: 4px 0 0;
       color: var(--text-color-1);
       font-weight: 200;
     }
@@ -63,7 +64,6 @@
     width: fit-content;
     margin: auto 20px auto 10px;
     text-align: right;
-    color: var(--accents-color-2);
     font-size: 12px;
     font-weight: 400;
     min-width: fit-content;
@@ -72,6 +72,10 @@
   .info p {
     margin: 0;
   }
+}
+.info p {
+  color: var(--text-color-2);
+  font-family: var(--monospace-font), sans-serif;
 }
 
 .post_preview:hover {
@@ -101,8 +105,7 @@
       color: var(--text-color-0);
       font-weight: normal;
       height: fit-content;
-      margin: auto 0;
-      margin-right: 24px;
+      margin: auto 24px auto 0;
       text-align: justify;
     }
   }
@@ -123,7 +126,6 @@
       padding: 2px 8px;
       font-size: 12px;
       border-radius: 3px;
-      color: var(--accents-color-1);
     }
 
     .type_tags{

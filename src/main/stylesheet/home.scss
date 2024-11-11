@@ -1,12 +1,13 @@
-:root{
+:root {
   background-color: var(--bg-color);
   --about-width: 400px;
 }
 
-body{
+body {
   margin: 0;
 }
-.about{
+
+.about {
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -21,6 +22,7 @@ body{
   box-sizing: border-box;
   border: 24px var(--bg-color-0) solid;
   padding: 36px;
+
   * {
     color: var(--text-color-1);
     font-weight: 200;
@@ -70,35 +72,29 @@ body{
     }
   }
 
-  @media only screen and (max-width: 600px) {
-    .outside_pages{
-      flex-direction: column;
-      .outside_page_item{
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
+  img {
+    height: 256px;
+    width: fit-content;
   }
 
-  img{
-    height: 256px;
-  }
-  .introduction{
+  .introduction {
     width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
     margin: 24px 0;
 
-    .texts{
+    .texts {
       display: flex;
       flex-direction: column;
-      h2{
+
+      h2 {
         margin: 0;
         font-size: 16px;
         font-weight: normal;
       }
-      p{
+
+      p {
         margin: 6px 0 0;
         font-size: 14px;
         color: var(--text-color-2);
@@ -106,11 +102,12 @@ body{
       }
     }
 
-    .icon{
-      svg{
+    .icon {
+      svg {
         width: 36px;
         height: 36px;
-        *{
+
+        * {
           fill: var(--text-color-2);
         }
       }
@@ -120,31 +117,40 @@ body{
       padding-right: 18px;
     }
   }
-  .friends{
+
+  .friends {
     margin-top: 48px;
-    .title{
+    width: 100%;
+
+    .title {
       display: flex;
       flex-direction: row;
       align-items: end;
       margin-left: 10px;
-      svg{
+
+      svg {
         width: 28px;
         height: 28px;
-        *{
+
+        * {
           fill: var(--text-color-2);
         }
       }
-      div{
+
+      div {
         margin-left: 10px;
         color: var(--text-color-2);
         font-weight: normal;
       }
     }
+
     .list {
       width: 100%;
-      .friend_link:hover{
+
+      .friend_link:hover {
         border: solid 1px var(--text-color-2);
       }
+
       .friend_link {
         box-sizing: content-box;
         display: flex;
@@ -159,29 +165,33 @@ body{
         transition: border-color 0.2s;
         border: solid 1px transparent;
 
-        .start{
+        .start {
           display: flex;
           flex-direction: row;
           align-items: center;
 
           height: fit-content;
           margin: auto 0;
-          svg{
+
+          svg {
             width: 14px;
             height: 14px;
             margin-right: 6px;
           }
-          div{
+
+          div {
             transition: .2s color;
             height: fit-content;
             margin: auto 0;
           }
+
           .icon {
             height: 20px;
             margin: 4px;
 
-            svg{
+            svg {
               fill: var(--text-color-2);
+
               * {
                 fill: var(--text-color-2);
               }
@@ -201,19 +211,62 @@ body{
       }
     }
   }
+
+  @media only screen and (max-width: 360px) {
+    .outside_pages {
+      flex-direction: column;
+
+      .outside_page_item {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .introduction{
+      flex-direction: column;
+      .icon{
+        margin-bottom: 16px;
+      }
+      .texts{
+        text-align: center;
+      }
+    }
+    .friends{
+      margin-top: 12px;
+      .title{
+        width: fit-content;
+        margin: 0 auto;
+      }
+    }
+  }
 }
-.contents_wrapper{
+
+.contents_wrapper {
   position: absolute;
   right: 0;
   top: 0;
-  width: calc(100vw - var(--about-width)) ;
+  width: calc(100vw - var(--about-width));
   background-color: var(--bg-color-0);
 }
-.contents{
+
+.contents {
   width: 100%;
-  margin: 0;
-  margin-top: 48px;
-  margin-left: 4vw;
+  margin: 48px 0 0 4vw;
+}
+
+@media only screen and (max-width: 600px) {
+  .about {
+    align-items: center;
+    width: 100vw;
+    position: static;
+    height: fit-content;
+  }
+  .contents_wrapper {
+    width: 100vw;
+    position: static;
+  }
+  .contents {
+    margin: 0 auto
+  }
 }
 
 .title_icon svg * {
