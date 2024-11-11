@@ -73,8 +73,8 @@ body {
   }
 
   img {
-    height: 256px;
-    width: fit-content;
+    width: min(266px, 100%) ;
+    object-fit: contain;
   }
 
   .introduction {
