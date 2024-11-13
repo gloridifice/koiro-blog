@@ -10,6 +10,7 @@ import htmlgen.component.*
 import kotlinx.html.*
 import htmlgen.unsafeSVG
 import isImage
+import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 
 
@@ -272,8 +273,9 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
         div {
             classes += "dev_log_previews"
             val sort = context.devLogDataDatabase.publishedPages.map { it.devLogPost() }.sortedBy {
-                -it.index
-            }
+                val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+                fmt.parse(it.page.createdTime)
+            }.reversed()
             for (i in 0..<6) {
                 sort.getOrNull(i)?.let {
                     devLogPostPreview(it)

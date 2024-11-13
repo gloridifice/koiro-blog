@@ -4,6 +4,7 @@ import childPath
 import kotlinx.html.*
 import notion.api.v1.model.common.BlockColor
 import notion.api.v1.model.common.RichTextColor
+import notion.api.v1.model.common.RichTextLinkType
 import notion.api.v1.model.pages.PageProperty
 import java.io.File
 import java.net.URL
@@ -98,6 +99,10 @@ fun FlowContent.richTexts(richTexts: List<PageProperty.RichText>) {
 
 fun FlowContent.richText(richText: PageProperty.RichText) {
     t {
+        richText.mention?.let { mention ->
+//            if (mention.type  ) {
+//            }
+        }
         //todo add css for rich text
         if (richText.href != null) {
             classes += "href"

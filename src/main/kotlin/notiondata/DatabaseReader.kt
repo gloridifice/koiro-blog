@@ -32,8 +32,8 @@ fun readNotionDatabase(rootPath: Path): DataDatabase {
     }.toList()
     publishedPages = publishedPages.sortedWith { n1, n2 ->
         val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-        val n1Date = fmt.parse(n1.page.lastEditedTime)
-        val n2Date = fmt.parse(n2.page.lastEditedTime)
+        val n1Date = fmt.parse(n1.page.createdTime)
+        val n2Date = fmt.parse(n2.page.createdTime)
         -n1Date.compareTo(n2Date)
     }
     val rawPages = publishedPages

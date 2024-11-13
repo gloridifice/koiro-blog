@@ -11,7 +11,7 @@ repositories {
 }
 
 val kotlinxHtmlVersion = "0.9.1"
-val notionSdkVersion = "1.9.0"
+val notionSdkVersion = "1.11.1"
 val mordantVersion = "2.1.0"
 val kotlinCoroutinesVersion = "1.7.3"
 

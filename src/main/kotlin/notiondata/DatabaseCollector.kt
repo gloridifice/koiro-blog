@@ -41,6 +41,14 @@ class DatabaseCollector(
         return true
     }
 
+    private fun checkAndDeletePage(parentPath: Path){
+        parentPath.iterator().asSequence().filter {
+            it.name.endsWith(".json");
+        }.map {
+
+        }
+    }
+
     private fun isPageNeedToUpdate(page: Page, parentPath: Path): Boolean {
         val pageFile = parentPath.childPath(page.id + ".json").toFile()
         if (pageFile.exists() && pageFile.isFile) {
@@ -65,8 +73,9 @@ class DatabaseCollector(
     fun collectTo(path: String) {
         val rootPath = Path(path)
         val databaseJson = client.retrieveDatabaseJson(RetrieveDatabaseRequest(databaseId))
+        val database = client.jsonSerializer.toDatabase(databaseJson);
 
-        if (isDatabaseNeedToUpdate(client.jsonSerializer.toDatabase(databaseJson), rootPath)) {
+        if (isDatabaseNeedToUpdate(database, rootPath)) {
 
             writeJson(rootPath.childPath("database.json"), databaseJson)
 

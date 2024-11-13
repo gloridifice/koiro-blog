@@ -10,13 +10,12 @@ import notiondata.NOTION_BLOG_DATABASE_ROOT_PATH
 import notiondata.NOTION_DEV_LOG_DATABASE_ROOT_PATH
 import notiondata.readNotionDatabase
 import java.io.File
-import kotlin.io.path.Path
-import kotlin.io.path.createParentDirectories
+import kotlin.io.path.*
 
 class BlogContext(
     val blogDataDatabase: DataDatabase,
     val devLogDataDatabase: DataDatabase,
-    ){
+) {
     val latestPostPage: Post;
 
     init {
@@ -29,7 +28,6 @@ class BlogContext(
 }
 
 
-
 const val OUT_PUT_PATH = "static/"
 fun main(args: Array<String>) {
     val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH))
@@ -37,12 +35,17 @@ fun main(args: Array<String>) {
     val context = BlogContext(blog, devLog);
 
     createHTML("home") { home(context) }
-    createHTML("about"){ about(context) }
+    createHTML("about") { about(context) }
     createBlogPostPages(context)
     createDevLogPostPages(context)
 }
 
 fun createBlogPostPages(context: BlogContext) {
+    // Delete
+    val path = Path("${OUT_PUT_PATH}/post")
+    path.forEach { path.toFile().deleteRecursively() }
+
+    // Gen
     context.blogDataDatabase.publishedPages.forEach { page ->
         val post = BlogPost(page.page)
         if (!post.published) return@forEach
@@ -54,6 +57,11 @@ fun createBlogPostPages(context: BlogContext) {
 }
 
 fun createDevLogPostPages(context: BlogContext) {
+    // Delete
+    val path = Path("${OUT_PUT_PATH}/devLog")
+    path.forEach { path.toFile().deleteRecursively() }
+
+    // Gen pages
     context.devLogDataDatabase.publishedPages.forEach { page ->
         val post = page.devLogPost()
         if (!post.published) return@forEach
