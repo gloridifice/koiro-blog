@@ -103,7 +103,8 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
 
     layout(
         siteTitle = blogPost.getEmoji() + " " + blogPost.getPlainTitle(),
-        cssNames = arrayOf("post", "color_scheme_v2.dark_mode")
+        jsNames = arrayOf("highlightjs/highlight"),
+        cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")
     ) {
         post(
             "${blogPost.getEmoji()} ${blogPost.getPlainTitle()}",
@@ -126,6 +127,7 @@ fun FlowContent.post(
     context: BlogContext,
     postContext: PostContext
 ) {
+    script { +"hljs.highlightAll();" }
     div {
         classes += "post"
         catalogue(dataPage, context); //目录

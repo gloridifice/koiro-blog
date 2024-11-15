@@ -175,10 +175,18 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
                                 +it
                             }
                         }
-                        div {
-                            classes += "code_part_text"
-                            code.richText?.let { richTexts(it) }
+                        pre {
+                            code {
+                                code.language?.let {
+                                    classes += "language-${it}"
+                                }
+                                +(code.richText?.let { it[0].plainText } ?: " ").replace("\t", "  ")
+                            }
                         }
+//                        div {
+//                            classes += "code_part_text"
+//                            code.richText?.let { richTexts(it) }
+//                        }
                     }
                     div {
                         classes += "caption"

@@ -331,7 +331,7 @@ body {
       }
 
       .code_block {
-        margin: 1em auto;
+        margin: 0.4em auto;
 
         .code_part {
           background-color: var(--bg-color-1);
@@ -349,12 +349,14 @@ body {
             font-size: 12px;
           }
 
-          .code_part_text {
-            overflow-x: auto;
-            font-size: 14px;
-            color: var(--text-color-1);
-
-            t {
+          pre {
+            margin: 0;
+            code{
+              line-height: 1.5em;
+              padding: 0;
+              overflow-x: auto;
+              font-size: 14px;
+              background-color: var(--bg-color-1);
               white-space: pre;
             }
           }
@@ -444,10 +446,11 @@ t {
 t.code {
   background-color: var(--inline-code-color-bg);
   color: var(--inline-code-color-text);
+  font-weight: normal;
   border-radius: 0.3em;
-  padding: 0 0.6em;
+  padding: 0 0.4em;
   margin: 0 -0.1em;
-  font-family: var(--monospace-font);
+  font-family: var(--monospace-font), monospace;
   font-size: 0.9em;
 }
 
