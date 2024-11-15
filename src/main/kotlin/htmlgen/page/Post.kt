@@ -2,9 +2,9 @@ package htmlgen.page
 
 import BlogContext
 import BlogPost
-import DevLogPost
-import htmlgen.component.NavbarItem
+import htmlgen.component.NaviItem
 import htmlgen.component.notionBlocks
+import htmlgen.navbarItems
 import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
@@ -22,18 +22,13 @@ fun headingId(heading: Int, index: Int): String {
     return "heading${heading}_$index"
 }
 
-fun FlowContent.navi(array: ArrayList<NavbarItem>) {
+fun FlowContent.navi(array: ArrayList<NaviItem>) {
     div {
         classes += "navi"
         for (item in array) {
             a {
+                classes += "navi_link"
                 href = item.link
-//                onClick = if (item.isLinkOutside) {
-//                    classes += "outside"
-//                    "window.open('${item.link}')"
-//                } else {
-//                    "window.location='${item.link}'"
-//                }
                 +item.title
             }
         }
@@ -142,6 +137,16 @@ fun FlowContent.post(
         }
         div {
             classes += "contents"
+            div {
+                classes += "header"
+                for (item in navbarItems) {
+                    a {
+                        classes += "navi_link"
+                        href = item.link
+                        +item.title
+                    }
+                }
+            }
             div {
                 classes += "page_description"
                 h1 {

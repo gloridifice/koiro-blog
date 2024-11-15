@@ -1,10 +1,7 @@
 package htmlgen.page
 
 import BlogContext
-import htmlgen.SVGIcons
-import htmlgen.asLoc
-import htmlgen.resourcesServerPath
-import htmlgen.unsafeSVG
+import htmlgen.*
 import kotlinx.html.*
 
 val introduce = "人类、学生、游戏开发者、平面设计笨蛋和技术美术笨蛋。"

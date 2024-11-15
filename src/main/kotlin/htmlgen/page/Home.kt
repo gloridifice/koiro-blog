@@ -5,20 +5,13 @@ import BlogPost
 import DevLogPost
 import OUT_PUT_PATH
 import childPath
-import htmlgen.SVGIcons
+import htmlgen.*
 import htmlgen.component.*
 import kotlinx.html.*
-import htmlgen.unsafeSVG
 import isImage
 import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 
-
-val friendLinkItems = arrayOf(
-    FriendLinkItem("拉斯普的月台", "https://blog.rasp505.top/", "海拉鲁驿站"),
-    FriendLinkItem("dyron503's", "https://career.dyron503.com/", "你知道吗？我的 ID 中「503」的出处是……"),
-    FriendLinkItem("北依的树洞", "https://hanahoshikawa092.netlify.app", "音乐是救世主"),
-)
 
 fun HTML.home(context: BlogContext) {
     layout(
@@ -35,74 +28,77 @@ fun HTML.home(context: BlogContext) {
     ) {
         div {
             classes += "about"
-            img {
-                src = "/assets/resources/about_icon.png"
-            }
-            outSidePages(
-                arrayOf(
-                    OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
-                    OutSidePageItem(
-                        "Source",
-                        "https://github.com/gloridifice/kotlin-notion-blog",
-                        "博客仓库"
+            div {
+                classes += "up"
+                img {
+                    src = "/assets/resources/about_icon.png"
+                }
+                outSidePages(
+                    arrayOf(
+                        OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
+                        OutSidePageItem(
+                            "Source",
+                            "https://github.com/gloridifice/kotlin-notion-blog",
+                            "博客仓库"
+                        )
                     )
                 )
-            )
-
-            div {
-                classes += "introduction"
                 div {
-                    classes += "icon"
-                    unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
-                }
-                div {
-                    classes += "texts"
-                    h2 {
-                        +"这里是宏楼的猫咖！"
-                    }
-                    p {
-                        +"人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
-                    }
-                }
-
-            }
-
-            div {
-                classes += "friends"
-                div {
-                    classes += "title"
-                    unsafeSVG(SVGIcons.PARTNER_EXCHANGE);
+                    classes += "introduction"
                     div {
-                        +"友情链接"
+                        classes += "icon"
+                        unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
                     }
+                    div {
+                        classes += "texts"
+                        h2 {
+                            +"这里是宏楼的猫咖！"
+                        }
+                        p {
+                            +"人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
+                        }
+                    }
+
                 }
                 div {
-                    classes += "list"
-                    friendLinkItems.forEach {
+                    classes += "friends"
+                    div {
+                        classes += "title"
+                        unsafeSVG(SVGIcons.PARTNER_EXCHANGE);
                         div {
-                            onClick = "window.open('${it.link}')"
-                            classes += "friend_link"
+                            +"友情链接"
+                        }
+                    }
+                    div {
+                        classes += "list"
+                        friendLinkItems.forEach {
                             div {
-                                classes += "icon"
-                                classes += "start"
-                                unsafeSVG(SVGIcons.EXTERNAL_LINK)
+                                onClick = "window.open('${it.link}')"
+                                classes += "friend_link"
                                 div {
-                                    +it.name
+                                    classes += "icon"
+                                    classes += "start"
+                                    unsafeSVG(SVGIcons.EXTERNAL_LINK)
+                                    div {
+                                        +it.name
+                                    }
                                 }
-                            }
-                            div {
-                                classes += "desc"
-                                +it.description
+                                div {
+                                    classes += "desc"
+                                    +it.description
+                                }
                             }
                         }
                     }
                 }
             }
-
             div {
-                classes += "navi"
+                classes += "down"
+                div {
+                    classes += "navi"
+                    naviWithHighlightedItem(navbarItems, HOME_NAVI_ITEM)
+                }
             }
-
         }
         div {
             classes += "contents_wrapper"
@@ -118,9 +114,6 @@ fun HTML.home(context: BlogContext) {
         }
     }
 }
-
-val titleEN = "Koiro's Cat Café"
-val titleCN = "宏楼的猫咖"
 
 fun FlowContent.albumPart() {
     val albumItems = ArrayList<AlbumItem>()
@@ -284,3 +277,4 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
         }
     }
 }
+

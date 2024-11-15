@@ -32,7 +32,7 @@ body {
     box-sizing: border-box;
     z-index: -1;
     border: 24px solid var(--bg-color-0);
-    background-image: url("../resources/text_background.png");
+    background-image: var(--text-tile-bg-image);
   }
 
   .navi {
@@ -42,31 +42,6 @@ body {
     top: 40vh;
     transform: translateY(-50%);
     right: calc((100vw - var(--content-max-width)) / 2 + var(--content-max-width) + 48px);
-
-    a {
-      margin: 6px 0;
-      color: var(--text-color-2);
-      font-size: 24px;
-      font-family: serif;
-      font-weight: bolder;
-      display: inline-block;
-      transform: scaleX(0.75);
-      transition: color 0.2s;
-      cursor: pointer;
-    }
-
-    a:hover {
-      color: var(--text-color-0);
-    }
-  }
-
-  @media only screen and (max-width: 920px) {
-    .catalogue {
-      display: none;
-    }
-    .navi{
-      display: none;
-    }
   }
 
   .catalogue {
@@ -158,8 +133,13 @@ body {
     margin: 0;
     border-left: solid var(--line-color) 1px;
     border-right: solid var(--line-color) 1px;
-    padding: 52px;
+    padding: 24px 52px 52px;
     background-color: var(--bg-color-0);
+
+    .header{
+      display: none;
+      flex-direction: row;
+    }
 
     .page_description {
 
@@ -299,10 +279,10 @@ body {
       }
 
       .divider_block {
-        height: 2px;
+        height: 1px;
         border: none;
         border-radius: 6px;
-        background: var(--theme-color-1)
+        background: var(--text-color-2)
       }
 
       .image_wrapper {
@@ -320,13 +300,14 @@ body {
 
       .column_list {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         flex-direction: row;
+        overflow: auto;
         max-width: 100%;
 
         .column {
           margin: 4px;
-          max-width: 50%;
+          max-width: 47%;
         }
       }
 
@@ -417,9 +398,23 @@ body {
       }
     }
   }
+
+  @media only screen and (max-width: 920px) {
+    .catalogue {
+      display: none;
+    }
+    .navi{
+      display: none;
+    }
+    .contents{
+      .header{
+        display: flex;
+      }
+    }
+  }
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 760px) {
   html{
     box-sizing: content-box;
   }

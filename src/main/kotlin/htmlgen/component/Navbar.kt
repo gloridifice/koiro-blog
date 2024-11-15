@@ -4,12 +4,29 @@ import htmlgen.SVGIcons
 import kotlinx.html.*
 import htmlgen.unsafeSVG
 
-class NavbarItem(val title: String, val link: String, val iconSVGString: String, val isLinkOutside: Boolean = false) {
+class NaviItem(val title: String, val link: String, val iconSVGString: String, val isLinkOutside: Boolean = false) {
 
 }
 
+fun FlowContent.naviWithHighlightedItem(items: List<NaviItem>, highlighted: NaviItem) {
+    div {
+        classes += "navi"
+        classes += "row"
+        for (item in items) {
+            a {
+                classes += "navi_link"
+                if (item == highlighted) {
+                   classes += "highlighted"
+                }
+                href = item.link
+                +item.title
+            }
+        }
+    }
+}
+
 //todo implement link
-fun FlowContent.navbar(items: List<NavbarItem>) {
+fun FlowContent.navbar(items: List<NaviItem>) {
     div {
         classes += "header"
         div {
@@ -28,7 +45,7 @@ fun FlowContent.navbar(items: List<NavbarItem>) {
     }
 }
 
-private fun FlowContent.navbarItem(item: NavbarItem) {
+private fun FlowContent.navbarItem(item: NaviItem) {
     div {
         classes += "navbar_item"
         onClick = if (item.isLinkOutside) {
