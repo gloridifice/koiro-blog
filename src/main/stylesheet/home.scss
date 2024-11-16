@@ -31,18 +31,23 @@ body {
   }
 
   .up {
+    display: flex;
+    flex-direction: column;
     justify-content: start;
+    align-items: center;
+    width: 100%;
   }
 
   .down {
     justify-content: end;
+    width: 100%;
   }
 
   .outside_pages {
     margin: 16px 0;
     display: flex;
     flex-direction: row;
-
+    justify-content: center;
 
     .outside_page_item {
       display: flex;
@@ -221,7 +226,7 @@ body {
     }
   }
 
-  @media only screen and (max-width: 360px) {
+  @media only screen and (max-width: 380px) {
     .outside_pages {
       flex-direction: column;
 
@@ -241,6 +246,10 @@ body {
         text-align: center;
       }
     }
+
+  }
+
+  @media only screen and (max-width: 440px) {
     .friends {
       margin-top: 12px;
 
