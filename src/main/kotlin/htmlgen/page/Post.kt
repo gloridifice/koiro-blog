@@ -1,7 +1,7 @@
 package htmlgen.page
 
-import BlogContext
-import BlogPost
+import GlobalContext
+import htmlgen.model.BlogPost
 import htmlgen.component.NaviItem
 import htmlgen.component.notionBlocks
 import htmlgen.navbarItems
@@ -9,7 +9,7 @@ import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import notion.api.v1.model.databases.DatabaseProperty
-import notiondata.DataPage
+import notiondata.PageData
 import kotlin.io.path.*
 
 class PostContext(
@@ -35,7 +35,7 @@ fun FlowContent.navi(array: ArrayList<NaviItem>) {
     }
 }
 
-fun FlowContent.catalogue(page: DataPage, context: BlogContext) {
+fun FlowContent.catalogue(page: PageData, context: GlobalContext) {
     div {
         classes += "catalogue"
         div {
@@ -90,8 +90,8 @@ fun FlowContent.catalogue(page: DataPage, context: BlogContext) {
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
-    val blogPost = BlogPost(dataPage.page)
+fun HTML.blogPost(pageData: PageData, context: GlobalContext) {
+    val blogPost = BlogPost(pageData)
 
     Path(blogPost.assetsDirectoryPath).deleteRecursively()
     val postContext = PostContext()
@@ -106,7 +106,7 @@ fun HTML.blogPost(dataPage: DataPage, context: BlogContext) {
             blogPost.tags,
             blogPost.type.name,
             blogPost.getLastEditedTimeDay(),
-            dataPage,
+            pageData,
             context,
             postContext
         )
@@ -118,14 +118,14 @@ fun FlowContent.post(
     tags: List<DatabaseProperty.MultiSelect.Option>?,
     typeName: String?,
     lastEditedTimeString: String,
-    dataPage: DataPage,
-    context: BlogContext,
+    pageData: PageData,
+    context: GlobalContext,
     postContext: PostContext
 ) {
     script { +"hljs.highlightAll();" }
     div {
         classes += "post"
-        catalogue(dataPage, context); //目录
+        catalogue(pageData, context); //目录
         navi(navbarItems)
         div {
             classes += "sidebar_wrapper_left"
@@ -181,15 +181,15 @@ fun FlowContent.post(
             }
             div {
                 classes += "page_contents"
-                dataPage.dataBlocks?.let { notionBlocks(it, dataPage, context, postContext) }
+                pageData.dataBlocks?.let { notionBlocks(it, pageData, postContext) }
             }
         }
     }
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.devLogPost(dataPage: DataPage, context: BlogContext) {
-    val devLogPost = dataPage.devLogPost()
+fun HTML.devLogPost(pageData: PageData, context: GlobalContext) {
+    val devLogPost = pageData.devLogPost()
 
     Path(devLogPost.assetsDirectoryPath).deleteRecursively()
     val postContext = PostContext()
@@ -203,7 +203,7 @@ fun HTML.devLogPost(dataPage: DataPage, context: BlogContext) {
             null,
             null,
             devLogPost.getLastEditedTimeDay(),
-            dataPage,
+            pageData,
             context,
             postContext
         )

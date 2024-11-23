@@ -1,7 +1,6 @@
 package htmlgen.component
 
-import BlogContext
-import Post
+import htmlgen.model.Post
 import htmlgen.SVGIcons
 import htmlgen.colorClass
 import htmlgen.page.PostContext
@@ -13,7 +12,7 @@ import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.pages.PageProperty
 import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
-import notiondata.DataPage
+import notiondata.PageData
 import notiondata.ImageDataBlock
 import OUT_PUT_PATH
 import java.net.URL
@@ -23,27 +22,26 @@ import kotlin.io.path.createParentDirectories
 
 fun FlowContent.tryGenChildren(
     dataBlock: DataBlock,
-    dataPage: DataPage,
-    context: BlogContext,
+    pageData: PageData,
     postContext: PostContext
 ) {
-    dataBlock.children?.let { notionBlocks(it, dataPage, context, postContext) }
+    dataBlock.children?.let { notionBlocks(it, pageData, postContext) }
 }
 
-fun FlowContent.notionBlocks(block: List<DataBlock>, page: DataPage, context: BlogContext, postContext: PostContext) {
-    block.forEach { notionBlock(it, page, context, postContext) }
+fun FlowContent.notionBlocks(block: List<DataBlock>, page: PageData, postContext: PostContext) {
+    block.forEach { notionBlock(it, page, postContext) }
 }
 
-fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: BlogContext, postContext: PostContext) {
+fun FlowContent.notionBlock(dataBlock: DataBlock, pageData: PageData, postContext: PostContext) {
     val block = dataBlock.block
-    val post = Post(dataPage.page)
+    val post = Post(pageData.page)
     when {
         //todo
         block is ParagraphBlock -> {
             p {
                 block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
                 richTexts(block.paragraph.richText)
-                tryGenChildren(dataBlock, dataPage, context, postContext)
+                tryGenChildren(dataBlock, pageData, postContext)
             }
         }
 
@@ -86,7 +84,7 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
                 li {
                     block.bulletedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.bulletedListItem.richText)
-                    tryGenChildren(dataBlock, dataPage, context, postContext)
+                    tryGenChildren(dataBlock, pageData, postContext)
                 }
             }
         }
@@ -97,7 +95,7 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
                 li {
                     block.numberedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.numberedListItem.richText)
-                    tryGenChildren(dataBlock, dataPage, context, postContext)
+                    tryGenChildren(dataBlock, pageData, postContext)
                 }
             }
         }
@@ -105,14 +103,14 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, dataPage: DataPage, context: B
         block is ColumnListBlock -> {
             div {
                 classes += "column_list"
-                tryGenChildren(dataBlock, dataPage, context, postContext)
+                tryGenChildren(dataBlock, pageData, postContext)
             }
         }
 
         block is ColumnBlock -> {
             div {
                 classes += "column"
-                tryGenChildren(dataBlock, dataPage, context, postContext)
+                tryGenChildren(dataBlock, pageData, postContext)
             }
         }
 

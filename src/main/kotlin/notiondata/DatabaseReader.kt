@@ -1,7 +1,7 @@
 package notiondata
 
-import BlogPost
-import DevLogPost
+import htmlgen.model.BlogPost
+import htmlgen.model.DevLogPost
 import childPath
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -28,7 +28,7 @@ fun readNotionDatabase(rootPath: Path): DataDatabase {
     val database = NotionClient.defaultJsonSerializer.toDatabase(databaseJson)
 
     var publishedPages = result.results.map {
-        DataPage(it, rootPath)
+        PageData(it, rootPath)
     }.toList()
     publishedPages = publishedPages.sortedWith { n1, n2 ->
         val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
@@ -45,8 +45,8 @@ fun readNotionDatabase(rootPath: Path): DataDatabase {
 class DataDatabase(
     val database: Database,
     val queryDatabaseRequest: QueryResults,
-    val publishedPages: List<DataPage>,
-    val allPages: List<DataPage> // contains unpublished pages
+    val publishedPages: List<PageData>,
+    val allPages: List<PageData> // contains unpublished pages
 ) {
     val latestData: Date;
     init {
@@ -55,12 +55,15 @@ class DataDatabase(
     }
 }
 
-class DataPage(
+class PageData(
     val page: Page,
     parentPath: Path,
 ) {
     val dataBlocks: List<DataBlock>?
     val previewImage: Image?
+
+    val lastEditedTimeDate: Date;
+    val createdTimeDate: Date;
 
     init {
         val currentPath = parentPath.childPath(page.id)
@@ -69,14 +72,16 @@ class DataPage(
         }
         //read dataBlocks object
         dataBlocks = readChildrenBlocks(currentPath)
-
+        val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        lastEditedTimeDate = fmt.parse(page.lastEditedTime)
+        createdTimeDate = fmt.parse(page.createdTime)
     }
 
-    fun blogPost(): BlogPost{
-        return BlogPost(page)
+    fun blogPost(): BlogPost {
+        return BlogPost(this)
     }
 
-    fun devLogPost(): DevLogPost{
+    fun devLogPost(): DevLogPost {
         return DevLogPost(this)
     }
 }

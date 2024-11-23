@@ -1,7 +1,7 @@
 package htmlgen.component
 
-import BlogPost
-import DevLogPost
+import htmlgen.model.BlogPost
+import htmlgen.model.DevLogPost
 import kotlinx.html.*
 import htmlgen.toNormalString
 

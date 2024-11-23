@@ -1,11 +1,11 @@
 package htmlgen.page
 
-import BlogContext
+import GlobalContext
 import htmlgen.*
 import kotlinx.html.*
 
 val introduce = "人类、学生、游戏开发者、平面设计笨蛋和技术美术笨蛋。"
-fun HTML.about(context: BlogContext) {
+fun HTML.about(context: GlobalContext) {
     layout(siteTitle = "关于", cssNames = arrayOf("about"), headFont = "ABOUT") {
         div {
             classes += "contents"

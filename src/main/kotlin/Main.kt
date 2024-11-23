@@ -2,21 +2,26 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import htmlgen.page.home
 import com.github.ajalt.mordant.rendering.TextColors.*
+import htmlgen.model.BlogPost
+import htmlgen.model.Post
+import htmlgen.model.home.ActiveElement
+import htmlgen.model.home.BlogElement
+import htmlgen.model.home.DevLogElement
+import htmlgen.model.home.HomeElement
 import htmlgen.page.about
 import htmlgen.page.blogPost
 import htmlgen.page.devLogPost
-import notiondata.DataDatabase
-import notiondata.NOTION_BLOG_DATABASE_ROOT_PATH
-import notiondata.NOTION_DEV_LOG_DATABASE_ROOT_PATH
-import notiondata.readNotionDatabase
+import notiondata.*
 import java.io.File
 import kotlin.io.path.*
 
-class BlogContext(
+class GlobalContext(
     val blogDataDatabase: DataDatabase,
     val devLogDataDatabase: DataDatabase,
+    val activeDataDatabase: DataDatabase
 ) {
     val latestPostPage: Post;
+    val homeElements: ArrayList<HomeElement>;
 
     init {
         val postLatest = blogDataDatabase.latestData
@@ -24,6 +29,12 @@ class BlogContext(
         latestPostPage = if (postLatest > devLogLatest)
             blogDataDatabase.publishedPages.first().blogPost()
         else devLogDataDatabase.publishedPages.first().devLogPost();
+
+        homeElements = ArrayList()
+        homeElements.addAll(blogDataDatabase.publishedPages.map { BlogElement(it.blogPost()) })
+        homeElements.addAll(devLogDataDatabase.publishedPages.map { DevLogElement(it.devLogPost()) })
+        homeElements.addAll(activeDataDatabase.publishedPages.map { ActiveElement(it) })
+        homeElements.sortBy { it.getDate() }
     }
 }
 
@@ -32,7 +43,8 @@ const val OUT_PUT_PATH = "static/"
 fun main(args: Array<String>) {
     val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH))
     val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH))
-    val context = BlogContext(blog, devLog);
+    val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH))
+    val context = GlobalContext(blog, devLog, active);
 
     createHTML("home") { home(context) }
     createHTML("about") { about(context) }
@@ -40,23 +52,23 @@ fun main(args: Array<String>) {
     createDevLogPostPages(context)
 }
 
-fun createBlogPostPages(context: BlogContext) {
+fun createBlogPostPages(context: GlobalContext) {
     // Delete
     val path = Path("${OUT_PUT_PATH}/post")
     path.forEach { path.toFile().deleteRecursively() }
 
     // Gen
-    context.blogDataDatabase.publishedPages.forEach { page ->
-        val post = BlogPost(page.page)
+    context.blogDataDatabase.publishedPages.forEach { pageData ->
+        val post = BlogPost(pageData)
         if (!post.published) return@forEach
 
         createHTML(post.htmlName) {
-            blogPost(page, context)
+            blogPost(pageData, context)
         }
     }
 }
 
-fun createDevLogPostPages(context: BlogContext) {
+fun createDevLogPostPages(context: GlobalContext) {
     // Delete
     val path = Path("${OUT_PUT_PATH}/devLog")
     path.forEach { path.toFile().deleteRecursively() }

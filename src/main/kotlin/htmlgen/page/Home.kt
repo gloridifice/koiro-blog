@@ -1,19 +1,20 @@
 package htmlgen.page
 
-import BlogContext
-import BlogPost
-import DevLogPost
+import GlobalContext
+import htmlgen.model.BlogPost
+import htmlgen.model.DevLogPost
 import OUT_PUT_PATH
 import childPath
 import htmlgen.*
 import htmlgen.component.*
+import htmlgen.model.home.BlogElement
 import kotlinx.html.*
 import isImage
 import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 
 
-fun HTML.home(context: BlogContext) {
+fun HTML.home(context: GlobalContext) {
     layout(
         siteTitle = "Koiro's Cat Café",
         cssNames = arrayOf(
@@ -105,10 +106,17 @@ fun HTML.home(context: BlogContext) {
             div {
                 classes += "contents"
 
-//                introduce(context)
-                recentPostPreview(context)
-                postPreviews(context)
-                devLogPreviews(context)
+                div {
+                    classes += "elements"
+                    for (element in context.homeElements) {
+                        with(element) {
+                           this@div.show()
+                        }
+                    }
+                }
+//                recentPostPreview(context)
+//                postPreviews(context)
+//                devLogPreviews(context)
                 albumPart()
             }
         }
@@ -133,60 +141,11 @@ fun FlowContent.albumPart() {
     }
 }
 
-fun FlowContent.recentPostPreview(context: BlogContext) {
+fun FlowContent.recentPostPreview(context: GlobalContext) {
     val post = context.latestPostPage;
     when (post) {
         is BlogPost -> largePostPreview(post)
         is DevLogPost -> devLogPostPreview(post)
-    }
-}
-
-fun FlowContent.lastUpdateTime(context: BlogContext) {
-    div {
-        classes += "last_update_time"
-        h4 {
-            +"Latest Update"
-        }
-        p {
-            +context.latestPostPage.getLastEditedTimeDay()
-        }
-    }
-}
-
-fun FlowContent.introduce(context: BlogContext) {
-    div {
-        classes += "introduce"
-
-        div {
-            classes += "title_icon"
-            unsafeSVG(
-                SVGIcons.CAT_WALK
-            )
-        }
-        h1 {
-            +titleEN
-        }
-        h2 {
-            +titleCN
-        }
-        div {
-            classes += "subIntroduce"
-            +"val cats = listOf<Cat>("
-            i { +"TODO(\"Recruiting\")" }
-            +")"
-        }
-        outSidePages(
-            arrayOf(
-                OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
-                OutSidePageItem(
-                    "Source",
-                    "https://github.com/gloridifice/kotlin-notion-blog",
-                    "博客仓库"
-                )
-            )
-        )
-
-        lastUpdateTime(context)
     }
 }
 
@@ -212,7 +171,7 @@ fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
 
 }
 
-fun FlowContent.postPreviews(context: BlogContext) {
+fun FlowContent.postPreviews(context: GlobalContext) {
     div {
         classes += "post_previews_wrapper"
         val typeOptions = context.blogDataDatabase.database.properties["Class"]!!.select!!.options!!
@@ -254,7 +213,7 @@ fun FlowContent.postPreviews(context: BlogContext) {
     }
 }
 
-fun FlowContent.devLogPreviews(context: BlogContext) {
+fun FlowContent.devLogPreviews(context: GlobalContext) {
     div {
         classes += "dev_log_previews_wrapper"
         div {
@@ -266,8 +225,7 @@ fun FlowContent.devLogPreviews(context: BlogContext) {
         div {
             classes += "dev_log_previews"
             val sort = context.devLogDataDatabase.publishedPages.map { it.devLogPost() }.sortedBy {
-                val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-                fmt.parse(it.page.createdTime)
+                it.pageData.createdTimeDate
             }.reversed()
             for (i in 0..<6) {
                 sort.getOrNull(i)?.let {
