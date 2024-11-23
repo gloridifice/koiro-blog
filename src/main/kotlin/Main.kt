@@ -2,8 +2,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
 import htmlgen.page.home
 import com.github.ajalt.mordant.rendering.TextColors.*
-import htmlgen.model.BlogPost
-import htmlgen.model.Post
+import htmlgen.model.*
 import htmlgen.model.home.ActiveElement
 import htmlgen.model.home.BlogElement
 import htmlgen.model.home.DevLogElement
@@ -15,35 +14,37 @@ import notiondata.*
 import java.io.File
 import kotlin.io.path.*
 
+const val OUT_PUT_PATH_STRING = "static/"
+val STATIC_PATH = Path(OUT_PUT_PATH_STRING);
+
 class GlobalContext(
-    val blogDataDatabase: DataDatabase,
-    val devLogDataDatabase: DataDatabase,
-    val activeDataDatabase: DataDatabase
+    val blogDatabaseData: DatabaseData<BlogPostPage>,
+    val devLogDatabaseData: DatabaseData<DevLogPostPage>,
+    val activeDatabaseData: DatabaseData<ActivePage>
 ) {
     val latestPostPage: Post;
     val homeElements: ArrayList<HomeElement>;
 
     init {
-        val postLatest = blogDataDatabase.latestData
-        val devLogLatest = devLogDataDatabase.latestData
+        val postLatest = blogDatabaseData.latestData
+        val devLogLatest = devLogDatabaseData.latestData
         latestPostPage = if (postLatest > devLogLatest)
-            blogDataDatabase.publishedPages.first().blogPost()
-        else devLogDataDatabase.publishedPages.first().devLogPost();
+            blogDatabaseData.publishedPages.first()
+        else devLogDatabaseData.publishedPages.first();
 
         homeElements = ArrayList()
-        homeElements.addAll(blogDataDatabase.publishedPages.map { BlogElement(it.blogPost()) })
-        homeElements.addAll(devLogDataDatabase.publishedPages.map { DevLogElement(it.devLogPost()) })
-        homeElements.addAll(activeDataDatabase.publishedPages.map { ActiveElement(it) })
-        homeElements.sortBy { it.getDate() }
+        homeElements.addAll(blogDatabaseData.publishedPages.map { BlogElement(it) })
+        homeElements.addAll(devLogDatabaseData.publishedPages.map { DevLogElement(it) })
+        homeElements.addAll(activeDatabaseData.publishedPages.map { ActiveElement(it) })
+        homeElements.sortByDescending { it.getDate() }
     }
 }
 
 
-const val OUT_PUT_PATH = "static/"
 fun main(args: Array<String>) {
-    val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH))
-    val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH))
-    val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH))
+    val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH), ::BlogPostPage)
+    val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH), ::DevLogPostPage)
+    val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH), ::ActivePage)
     val context = GlobalContext(blog, devLog, active);
 
     createHTML("home") { home(context) }
@@ -54,15 +55,14 @@ fun main(args: Array<String>) {
 
 fun createBlogPostPages(context: GlobalContext) {
     // Delete
-    val path = Path("${OUT_PUT_PATH}/post")
+    val path = Path("${OUT_PUT_PATH_STRING}/post")
     path.forEach { path.toFile().deleteRecursively() }
 
     // Gen
-    context.blogDataDatabase.publishedPages.forEach { pageData ->
-        val post = BlogPost(pageData)
-        if (!post.published) return@forEach
+    context.blogDatabaseData .publishedPages.forEach { pageData ->
+        if (!pageData.published) return@forEach
 
-        createHTML(post.htmlName) {
+        createHTML(pageData.getStaticHtmlName()) {
             blogPost(pageData, context)
         }
     }
@@ -70,23 +70,22 @@ fun createBlogPostPages(context: GlobalContext) {
 
 fun createDevLogPostPages(context: GlobalContext) {
     // Delete
-    val path = Path("${OUT_PUT_PATH}/devLog")
+    val path = Path("${OUT_PUT_PATH_STRING}/devLog")
     path.forEach { path.toFile().deleteRecursively() }
 
     // Gen pages
-    context.devLogDataDatabase.publishedPages.forEach { page ->
-        val post = page.devLogPost()
+    context.devLogDatabaseData.publishedPages.forEach { post ->
         if (!post.published) return@forEach
 
-        createHTML(post.htmlName) {
-            devLogPost(page, context)
+        createHTML(post.getStaticHtmlName()) {
+            devLogPost(post, context)
         }
-        post.genPreview()
+        post.copyPreviewImageFromNotionDataToStatic()
     }
 }
 
 fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {
-    val path = Path("${OUT_PUT_PATH}${htmlName}.html")
+    val path = Path("${OUT_PUT_PATH_STRING}${htmlName}.html")
     path.createParentDirectories()
     val file = File(path.toUri())
     val isExist = !file.createNewFile()

@@ -1,6 +1,6 @@
 package htmlgen.component
 
-import htmlgen.model.Post
+import childPath
 import htmlgen.SVGIcons
 import htmlgen.colorClass
 import htmlgen.page.PostContext
@@ -12,9 +12,9 @@ import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.pages.PageProperty
 import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
-import notiondata.PageData
+import htmlgen.model.PageData
 import notiondata.ImageDataBlock
-import OUT_PUT_PATH
+import serverPathString
 import java.net.URL
 import java.util.*
 import kotlin.io.path.Path
@@ -34,7 +34,6 @@ fun FlowContent.notionBlocks(block: List<DataBlock>, page: PageData, postContext
 
 fun FlowContent.notionBlock(dataBlock: DataBlock, pageData: PageData, postContext: PostContext) {
     val block = dataBlock.block
-    val post = Post(pageData.page)
     when {
         //todo
         block is ParagraphBlock -> {
@@ -200,14 +199,14 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, pageData: PageData, postContex
                 block.image?.let { image ->
                     image.file?.url?.let {
                         val imgName = dataBlock.image.name
-                        val path = Path("${OUT_PUT_PATH}${post.htmlName}/${imgName}")
+                        val path = pageData.getStaticAssetsDirectoryPath().childPath(imgName)
                         path.createParentDirectories()
                         path.toFile().writeBytes(dataBlock.image.byteArray)
 
                         div {
                             classes += "image_wrapper"
                             img {
-                                src = "/${post.htmlName}/${imgName}"
+                                src = path.serverPathString()
                             }
                             caption(image.caption)
                         }

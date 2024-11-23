@@ -45,7 +45,7 @@ fun HTML.layout(
         jsNames.forEach {
             script { src = "/assets/js/$it.js" }
         }
-        linkCSS("layout", *cssNames)
+        linkCSS("layout", "page_content", *cssNames)
         title(siteTitle)
     }
     body {

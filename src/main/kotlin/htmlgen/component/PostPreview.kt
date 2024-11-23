@@ -1,11 +1,12 @@
 package htmlgen.component
 
-import htmlgen.model.BlogPost
-import htmlgen.model.DevLogPost
+import htmlgen.model.BlogPostPage
+import htmlgen.model.DevLogPostPage
 import kotlinx.html.*
 import htmlgen.toNormalString
+import serverPathString
 
-fun FlowContent.blogPostPreview(blogPost: BlogPost) {
+fun FlowContent.blogPostPreview(blogPost: BlogPostPage) {
     div {
         classes += "post_preview"
         classes += "regular"
@@ -44,7 +45,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogPost) {
     }
 }
 
-fun FlowContent.largePostPreview(post: BlogPost) {
+fun FlowContent.largePostPreview(post: BlogPostPage) {
     div {
         classes += "post_preview"
         classes += "large"
@@ -95,7 +96,7 @@ fun FlowContent.largePostPreview(post: BlogPost) {
     }
 }
 
-fun FlowContent.devLogPostPreview(devLogPost: DevLogPost){
+fun FlowContent.devLogPostPreview(devLogPost: DevLogPostPage){
     div {
         classes += "dev_log_post_preview"
         classes += "regular"
@@ -103,7 +104,7 @@ fun FlowContent.devLogPostPreview(devLogPost: DevLogPost){
         onClick = "location.href='${devLogPost.htmlServerPath}';"
 
         val emoji = devLogPost.getEmoji()
-        val imageUrl = devLogPost.previewImageUrl;
+        val imageUrl = devLogPost.previewImagePath?.serverPathString();
         if (imageUrl != null){
             div {
                 classes += "preview"

@@ -13,6 +13,11 @@ fun Path.childPath(child: String): Path {
     )
 }
 
+/// remove the "static/" ahead
+fun Path.serverPathString(): String {
+    return "/" + this.toString().removePrefix("static/")
+}
+
 fun Path.hasChildren(): Boolean{
     val files = this.toFile().listFiles()
     return files != null && files.isNotEmpty()

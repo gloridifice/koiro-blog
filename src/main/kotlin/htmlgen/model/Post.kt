@@ -1,27 +1,27 @@
 package htmlgen.model
 
-import OUT_PUT_PATH
 import htmlgen.asLoc
 import htmlgen.htmlServerPath
 import htmlgen.toNormalString
 import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.common.Icon
+import notion.api.v1.model.pages.Page
 import notion.api.v1.model.pages.PageProperty
-import notiondata.PageData
+import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-open class Post(val pageData: PageData) {
-    val pageTitle: List<PageProperty.RichText> = pageData.page.properties["Title"]!!.title!!
-    val icon: Icon = pageData.page.icon
-    val published: Boolean = pageData.page.properties["Published"]!!.checkbox!!
+abstract class Post(page: Page, parentPath: Path): PageData(page, parentPath) {
+    val pageTitle: List<PageProperty.RichText> = page.properties["Title"]!!.title!!
+    val icon: Icon = page.icon
+    val published: Boolean = page.properties["Published"]!!.checkbox!!
 
-    val slug: List<PageProperty.RichText>? = pageData.page.properties["Slug"]?.richText
-    val date: String? = pageData.page.properties["Date"]?.date?.start
+    val slug: List<PageProperty.RichText>? = page.properties["Slug"]?.richText
+    val date: String? = page.properties["Date"]?.date?.start
     val authors: List<String>?
 
     init {
-        val authorsOption = pageData.page.properties["Authors"]?.people
+        val authorsOption = page.properties["Authors"]?.people
 
         authors = if (authorsOption != null){
             val authorNames = ArrayList<String>()
@@ -30,10 +30,7 @@ open class Post(val pageData: PageData) {
         } else null
     }
 
-    val htmlServerPath get() = htmlServerPath(htmlName.asLoc())
-    val assetsDirectoryPath get() = "${OUT_PUT_PATH}${htmlName}/"
-    open val htmlName get() = "post/${uuid}"
-    val uuid get() = pageData.page.id;
+    val htmlServerPath get() = htmlServerPath(getStaticHtmlName().asLoc())
 
     open fun getPlainTitle(): String = pageTitle.toNormalString()
     fun getEmoji(): String{
@@ -44,7 +41,7 @@ open class Post(val pageData: PageData) {
         return default
     }
     fun getLastEditedTimeDay(): String{
-        pageData.page.lastEditedTime.let {
+        page.lastEditedTime.let {
             return it.split('T')[0]
         }
         return "No date"
@@ -57,15 +54,15 @@ open class Post(val pageData: PageData) {
         val timeCal = Calendar.getInstance()
         val currentCal = Calendar.getInstance()
 
-        timeCal.time = pageData.lastEditedTimeDate
+        timeCal.time = lastEditedTimeDate
 
         return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)){
-            fmtThisYear.format(date)
-        } else fmtOtherYear.format(date)
+            fmtThisYear.format(lastEditedTimeDate)
+        } else fmtOtherYear.format(lastEditedTimeDate)
     }
 
     fun getCreatedTimeDay(): String{
-        pageData.page.createdTime.let {
+        page.createdTime.let {
             return it.split('T')[0]
         }
         return "No date"

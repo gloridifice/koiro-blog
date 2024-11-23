@@ -1,15 +1,16 @@
 package htmlgen.page
 
 import GlobalContext
-import htmlgen.model.BlogPost
+import htmlgen.model.BlogPostPage
 import htmlgen.component.NaviItem
 import htmlgen.component.notionBlocks
+import htmlgen.model.DevLogPostPage
 import htmlgen.navbarItems
 import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import notion.api.v1.model.databases.DatabaseProperty
-import notiondata.PageData
+import htmlgen.model.PageData
 import kotlin.io.path.*
 
 class PostContext(
@@ -90,10 +91,8 @@ fun FlowContent.catalogue(page: PageData, context: GlobalContext) {
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.blogPost(pageData: PageData, context: GlobalContext) {
-    val blogPost = BlogPost(pageData)
-
-    Path(blogPost.assetsDirectoryPath).deleteRecursively()
+fun HTML.blogPost(blogPost: BlogPostPage, context: GlobalContext) {
+    blogPost.getStaticAssetsDirectoryPath().deleteRecursively()
     val postContext = PostContext()
 
     layout(
@@ -106,7 +105,7 @@ fun HTML.blogPost(pageData: PageData, context: GlobalContext) {
             blogPost.tags,
             blogPost.type.name,
             blogPost.getLastEditedTimeDay(),
-            pageData,
+            blogPost,
             context,
             postContext
         )
@@ -180,7 +179,7 @@ fun FlowContent.post(
                 }
             }
             div {
-                classes += "page_contents"
+                classes += "page_content"
                 pageData.dataBlocks?.let { notionBlocks(it, pageData, postContext) }
             }
         }
@@ -188,22 +187,21 @@ fun FlowContent.post(
 }
 
 @OptIn(ExperimentalPathApi::class)
-fun HTML.devLogPost(pageData: PageData, context: GlobalContext) {
-    val devLogPost = pageData.devLogPost()
-
-    Path(devLogPost.assetsDirectoryPath).deleteRecursively()
+fun HTML.devLogPost(devLogPost: DevLogPostPage, context: GlobalContext) {
+    devLogPost.getStaticAssetsDirectoryPath().deleteRecursively()
     val postContext = PostContext()
 
     layout(
         siteTitle = devLogPost.getEmoji() + " " + devLogPost.getPlainTitle(),
-        cssNames = arrayOf("post")
+        jsNames = arrayOf("highlightjs/highlight"),
+        cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")
     ) {
         post(
             "${devLogPost.getEmoji()} ${devLogPost.getPlainTitle()}",
             null,
             null,
             devLogPost.getLastEditedTimeDay(),
-            pageData,
+            devLogPost,
             context,
             postContext
         )

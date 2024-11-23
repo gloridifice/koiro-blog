@@ -1,30 +1,31 @@
 package htmlgen.model.home
 
-import htmlgen.model.BlogPost
+import htmlgen.model.BlogPostPage
 import htmlgen.toNormalString
 import kotlinx.html.*
 import java.util.Date
 
 class BlogElement(
-    val blogPost: BlogPost
+    val blogPost: BlogPostPage
 ) : HomeElement {
     override fun DIV.show() {
         classes += "post_preview"
         classes += "regular"
-        classes += "reveal"
         onClick = "location.href='${blogPost.htmlServerPath}';"
 
         val emoji = blogPost.getEmoji()
-        div {
-            classes += "emoji"
-            +emoji
-        }
 
         div {
             classes += "description"
-            h2 {
+            div {
                 classes += "title"
-                +blogPost.getPlainTitle()
+                h2 {
+                    +blogPost.getPlainTitle()
+                }
+                div {
+                    classes += "emoji"
+                    +emoji
+                }
             }
             h3 {
                 classes += "slug"
@@ -32,20 +33,10 @@ class BlogElement(
             }
         }
 
-        div {
-            classes += "info"
-            p {
-                classes += "date"
-                +blogPost.getPreviewDisplayDate()
-            }
-            p {
-                classes += "type"
-                +blogPost.type.name!!
-            }
-        }
+//        div { classes += "info"; p { classes += "date"; +blogPost.getPreviewDisplayDate() }; p { classes += "type"; +blogPost.type.name!! } }
     }
 
     override fun getDate(): Date {
-        return blogPost.pageData.createdTimeDate
+        return blogPost.createdTimeDate
     }
 }

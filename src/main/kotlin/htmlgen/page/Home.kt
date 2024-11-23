@@ -1,16 +1,14 @@
 package htmlgen.page
 
 import GlobalContext
-import htmlgen.model.BlogPost
-import htmlgen.model.DevLogPost
-import OUT_PUT_PATH
+import htmlgen.model.BlogPostPage
+import htmlgen.model.DevLogPostPage
+import OUT_PUT_PATH_STRING
 import childPath
 import htmlgen.*
 import htmlgen.component.*
-import htmlgen.model.home.BlogElement
 import kotlinx.html.*
 import isImage
-import java.text.SimpleDateFormat
 import kotlin.io.path.Path
 
 
@@ -19,8 +17,6 @@ fun HTML.home(context: GlobalContext) {
         siteTitle = "Koiro's Cat Café",
         cssNames = arrayOf(
             "home",
-            "blog_preview",
-            "dev_log_post_preview",
             "album",
             "scroll_animation",
         ),
@@ -109,8 +105,21 @@ fun HTML.home(context: GlobalContext) {
                 div {
                     classes += "elements"
                     for (element in context.homeElements) {
-                        with(element) {
-                           this@div.show()
+                        div {
+                            classes += "element"
+                            classes += "reveal"
+                            div {
+                                classes += "time"
+                                p {
+                                    + dateDisplayWithoutYearString(element.getDate())
+                                }
+                            }
+                            div {
+                                classes += "content"
+                                with(element) {
+                                    this@div.show()
+                                }
+                            }
                         }
                     }
                 }
@@ -125,7 +134,7 @@ fun HTML.home(context: GlobalContext) {
 
 fun FlowContent.albumPart() {
     val albumItems = ArrayList<AlbumItem>()
-    Path(OUT_PUT_PATH).childPath("album").toFile().walk().iterator()
+    Path(OUT_PUT_PATH_STRING).childPath("album").toFile().walk().iterator()
         .asSequence().sortedBy { -it.lastModified() }.forEach {
             if (it.isFile && it.isImage()) {
                 albumItems.add(AlbumItem("/album/" + it.name))
@@ -144,8 +153,8 @@ fun FlowContent.albumPart() {
 fun FlowContent.recentPostPreview(context: GlobalContext) {
     val post = context.latestPostPage;
     when (post) {
-        is BlogPost -> largePostPreview(post)
-        is DevLogPost -> devLogPostPreview(post)
+        is BlogPostPage -> largePostPreview(post)
+        is DevLogPostPage -> devLogPostPreview(post)
     }
 }
 
@@ -174,7 +183,7 @@ fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
 fun FlowContent.postPreviews(context: GlobalContext) {
     div {
         classes += "post_previews_wrapper"
-        val typeOptions = context.blogDataDatabase.database.properties["Class"]!!.select!!.options!!
+        val typeOptions = context.blogDatabaseData.database.properties["Class"]!!.select!!.options!!
         div {
             classes += "post_type_buttons"
             classes += "reveal"
@@ -204,9 +213,8 @@ fun FlowContent.postPreviews(context: GlobalContext) {
                 }
                 classes += "post_type_previews"
                 id = "${name.lowercase()}_type_previews"
-                for (page in context.blogDataDatabase.publishedPages.filter { it.blogPost().type.name == name }) {
-                    val post = page.blogPost()
-                    if (post.published) blogPostPreview(post)
+                for (page in context.blogDatabaseData.publishedPages.filter { it.type.name == name }) {
+                    if (page.published) blogPostPreview(page)
                 }
             }
         }
@@ -224,8 +232,8 @@ fun FlowContent.devLogPreviews(context: GlobalContext) {
         }
         div {
             classes += "dev_log_previews"
-            val sort = context.devLogDataDatabase.publishedPages.map { it.devLogPost() }.sortedBy {
-                it.pageData.createdTimeDate
+            val sort = context.devLogDatabaseData.publishedPages.map { it }.sortedBy {
+                it.createdTimeDate
             }.reversed()
             for (i in 0..<6) {
                 sort.getOrNull(i)?.let {

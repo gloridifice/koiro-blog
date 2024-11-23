@@ -4,13 +4,14 @@ import childPath
 import kotlinx.html.*
 import notion.api.v1.model.common.BlockColor
 import notion.api.v1.model.common.RichTextColor
-import notion.api.v1.model.common.RichTextLinkType
 import notion.api.v1.model.pages.PageProperty
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
@@ -222,3 +223,22 @@ fun List<PageProperty.RichText>.toNormalString(): String {
     this.forEach { str += it.plainText }
     return str;
 }
+
+val fmtThisYear = SimpleDateFormat("MM-dd")
+val fmtOtherYear = SimpleDateFormat("yyyy-MM-dd")
+
+fun dateDisplayString(date: Date): String{
+    val timeCal = Calendar.getInstance()
+    val currentCal = Calendar.getInstance()
+
+    timeCal.time = date
+
+    return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)){
+        fmtThisYear.format(date)
+    } else fmtOtherYear.format(date)
+}
+
+fun dateDisplayWithoutYearString(date: Date): String{
+    return fmtThisYear.format(date)
+}
+
