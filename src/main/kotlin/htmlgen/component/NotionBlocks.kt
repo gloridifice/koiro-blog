@@ -23,24 +23,36 @@ import kotlin.io.path.createParentDirectories
 fun FlowContent.tryGenChildren(
     dataBlock: DataBlock,
     pageData: PageData,
-    postContext: PostContext
+    postContext: PostContext, ignoreEmptyBlock: Boolean = false
 ) {
-    dataBlock.children?.let { notionBlocks(it, pageData, postContext) }
+    dataBlock.children?.let { notionBlocks(it, pageData, postContext, ignoreEmptyBlock) }
 }
 
-fun FlowContent.notionBlocks(block: List<DataBlock>, page: PageData, postContext: PostContext) {
-    block.forEach { notionBlock(it, page, postContext) }
+fun FlowContent.notionBlocks(
+    block: List<DataBlock>,
+    page: PageData,
+    postContext: PostContext,
+    ignoreEmptyBlock: Boolean = false
+) {
+    block.forEach { notionBlock(it, page, postContext, ignoreEmptyBlock) }
 }
 
-fun FlowContent.notionBlock(dataBlock: DataBlock, pageData: PageData, postContext: PostContext) {
+fun FlowContent.notionBlock(
+    dataBlock: DataBlock,
+    pageData: PageData,
+    postContext: PostContext,
+    ignoreEmptyBlock: Boolean = false
+) {
     val block = dataBlock.block
     when {
         //todo
         block is ParagraphBlock -> {
-            p {
-                block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
-                richTexts(block.paragraph.richText)
-                tryGenChildren(dataBlock, pageData, postContext)
+            if (!ignoreEmptyBlock || block.paragraph.richText.isEmpty()) {
+                p {
+                    block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
+                    richTexts(block.paragraph.richText)
+                    tryGenChildren(dataBlock, pageData, postContext)
+                }
             }
         }
 
@@ -248,7 +260,8 @@ fun FlowContent.notionBlock(dataBlock: DataBlock, pageData: PageData, postContex
         }
     }
 }
-fun FlowContent.bilibiliVideo(bvString: String){
+
+fun FlowContent.bilibiliVideo(bvString: String) {
     div {
         classes += "bilibili_video"
         iframe {
@@ -257,6 +270,7 @@ fun FlowContent.bilibiliVideo(bvString: String){
     }
     //todo
 }
+
 fun FlowContent.caption(caption: List<PageProperty.RichText>?) {
     div {
         classes += "caption"

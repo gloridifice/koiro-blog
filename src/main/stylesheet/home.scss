@@ -381,8 +381,9 @@ body {
       align-items: center;
       cursor: pointer;
       background-color: var(--bg-color-1);
-      background-image: var(--text-tile-bg-image-blur);
-      border: var(--bg-color-1) 8px solid;
+      background-image: var(--text-tile-bg-image);
+      border-radius: 3px;
+      margin: 12px;
       transition: 0.5s all;
       > * {
         flex: 1 1 auto;
@@ -401,8 +402,8 @@ body {
         }
 
         .emoji {
-          font-size: 32px;
-          flex-basis: 32px;
+          font-size: 24px;
+          flex-basis: 24px;
         }
 
         h2 {
@@ -426,8 +427,7 @@ body {
     }
 
     .content.post_preview:hover {
-      border-color: var(--bg-color-0);
-      background-image: var(--text-tile-bg-image);
+      background-color: var(--bg-color-2);
     }
 
     .content.devlog {
