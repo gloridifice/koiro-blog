@@ -27,6 +27,9 @@
   flex-direction: row;
   display: flex;
   justify-content: space-between;
+  background-image: var(--text-tile-bg-image);
+  background-color: var(--bg-color-1);
+  border: solid 1px transparent;
 
   .description {
     margin: auto 0;
@@ -79,7 +82,8 @@
 }
 
 .post_preview:hover {
-  background-color: var(--bg-color-1);
+  background-color: var(--bg-color-2);
+  border: solid 1px var(--line-color);
   box-shadow: 0 4px 12px var(--shadow-color-1);
 }
 

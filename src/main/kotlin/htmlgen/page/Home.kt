@@ -1,26 +1,17 @@
 package htmlgen.page
 
 import GlobalContext
-import htmlgen.model.BlogPostPage
-import htmlgen.model.DevLogPostPage
-import OUT_PUT_PATH_STRING
-import childPath
+import HOME_SELECTIONS
 import htmlgen.*
 import htmlgen.component.*
+import htmlgen.page.subpage.SubPage
 import kotlinx.html.*
-import isImage
-import kotlin.io.path.Path
 
-
-fun HTML.home(context: GlobalContext) {
+fun HTML.homePage(subPage: SubPage, show: DIV.() -> Unit) {
     layout(
         siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf(
-            "home",
-            "album",
-            "scroll_animation",
-        ),
-        jsNames = arrayOf("scroll_animation"),
+        cssNames = arrayOf("home") + subPage.getCssNames(),
+        jsNames = subPage.getJsNames(),
         headFont = "你好",
     ) {
         div {
@@ -30,7 +21,7 @@ fun HTML.home(context: GlobalContext) {
                 img {
                     src = "/assets/resources/about_icon.png"
                 }
-                outSidePages(
+                outSidePageButtons(
                     arrayOf(
                         OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
                         OutSidePageItem(
@@ -57,43 +48,12 @@ fun HTML.home(context: GlobalContext) {
                     }
 
                 }
-                div {
-                    classes += "friends"
-                    div {
-                        classes += "title"
-                        unsafeSVG(SVGIcons.PARTNER_EXCHANGE);
-                        div {
-                            +"友情链接"
-                        }
-                    }
-                    div {
-                        classes += "list"
-                        friendLinkItems.forEach {
-                            div {
-                                onClick = "window.open('${it.link}')"
-                                classes += "friend_link"
-                                div {
-                                    classes += "icon"
-                                    classes += "start"
-                                    unsafeSVG(SVGIcons.EXTERNAL_LINK)
-                                    div {
-                                        +it.name
-                                    }
-                                }
-                                div {
-                                    classes += "desc"
-                                    +it.description
-                                }
-                            }
-                        }
-                    }
-                }
             }
             div {
                 classes += "down"
                 div {
                     classes += "navi"
-                    naviWithHighlightedItem(navbarItems, HOME_NAVI_ITEM)
+                    naviWithHighlightedItem(HOME_SELECTIONS, subPage)
                 }
             }
         }
@@ -102,65 +62,17 @@ fun HTML.home(context: GlobalContext) {
             div {
                 classes += "contents"
 
-                div {
-                    classes += "elements"
-                    for (element in context.homeElements) {
-                        div {
-                            classes += "element"
-                            classes += "reveal"
-                            div {
-                                classes += "time"
-                                p {
-                                    + dateDisplayWithoutYearString(element.getDate())
-                                }
-                            }
-                            div {
-                                classes += "content"
-                                with(element) {
-                                    this@div.show()
-                                }
-                            }
-                        }
-                    }
-                }
-//                recentPostPreview(context)
-//                postPreviews(context)
-//                devLogPreviews(context)
-                albumPart()
+                show()
+
+                footer()
             }
         }
-    }
-}
-
-fun FlowContent.albumPart() {
-    val albumItems = ArrayList<AlbumItem>()
-    Path(OUT_PUT_PATH_STRING).childPath("album").toFile().walk().iterator()
-        .asSequence().sortedBy { -it.lastModified() }.forEach {
-            if (it.isFile && it.isImage()) {
-                albumItems.add(AlbumItem("/album/" + it.name))
-            }
-        }
-    div {
-        classes += "album_part"
-        h2 {
-            classes += "reveal"
-            +"📷 🏷️"
-        }
-        album(albumItems)
-    }
-}
-
-fun FlowContent.recentPostPreview(context: GlobalContext) {
-    val post = context.latestPostPage;
-    when (post) {
-        is BlogPostPage -> largePostPreview(post)
-        is DevLogPostPage -> devLogPostPreview(post)
     }
 }
 
 data class OutSidePageItem(val name: String, val link: String, val desc: String)
 
-fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
+fun FlowContent.outSidePageButtons(items: Array<OutSidePageItem>) {
     div {
         classes += "outside_pages"
         items.forEach {
@@ -173,48 +85,6 @@ fun FlowContent.outSidePages(items: Array<OutSidePageItem>) {
                 div {
                     classes += "desc"
                     +it.desc
-                }
-            }
-        }
-    }
-
-}
-
-fun FlowContent.postPreviews(context: GlobalContext) {
-    div {
-        classes += "post_previews_wrapper"
-        val typeOptions = context.blogDatabaseData.database.properties["Class"]!!.select!!.options!!
-        div {
-            classes += "post_type_buttons"
-            classes += "reveal"
-
-            for (i in typeOptions.indices) {
-                div {
-                    val option = typeOptions[i]
-                    val name = option.name!!
-                    classes += "post_type_button"
-                    id = "${name.lowercase()}_type_button"
-                    if (i == 0) {
-                        classes += "is_selected"
-                    }
-                    h3 {
-                        classes += "type_name"
-                        +name.uppercase()
-                    }
-                }
-            }
-        }
-        for (i in typeOptions.indices) {
-            val option = typeOptions[i]
-            val name = option.name!!
-            div {
-                if (i != 0) {
-                    classes += "hidden"
-                }
-                classes += "post_type_previews"
-                id = "${name.lowercase()}_type_previews"
-                for (page in context.blogDatabaseData.publishedPages.filter { it.type.name == name }) {
-                    if (page.published) blogPostPreview(page)
                 }
             }
         }

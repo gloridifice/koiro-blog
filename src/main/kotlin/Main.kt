@@ -1,56 +1,51 @@
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
-import htmlgen.page.home
 import com.github.ajalt.mordant.rendering.TextColors.*
 import htmlgen.model.*
-import htmlgen.model.home.ActiveElement
-import htmlgen.model.home.BlogElement
-import htmlgen.model.home.DevLogElement
-import htmlgen.model.home.HomeElement
-import htmlgen.page.about
-import htmlgen.page.blogPost
-import htmlgen.page.devLogPost
+import htmlgen.page.*
+import htmlgen.page.HomeSelection
+import htmlgen.page.subpage.MainSubPage
+import htmlgen.page.OutsideLink
+import htmlgen.page.subpage.AboutSubPage
+import htmlgen.page.subpage.BlogsSubPage
+import htmlgen.page.subpage.SubPage
 import notiondata.*
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.*
 
 const val OUT_PUT_PATH_STRING = "static/"
 val STATIC_PATH = Path(OUT_PUT_PATH_STRING);
+val GLOBAL_CONTEXT: GlobalContext = readData();
 
-class GlobalContext(
-    val blogDatabaseData: DatabaseData<BlogPostPage>,
-    val devLogDatabaseData: DatabaseData<DevLogPostPage>,
-    val activeDatabaseData: DatabaseData<ActivePage>
-) {
-    val latestPostPage: Post;
-    val homeElements: ArrayList<HomeElement>;
+val HOME_SELECTIONS: Array<HomeSelection> = arrayOf(
+    MainSubPage(GLOBAL_CONTEXT),
+//    OutsideLink("笔记", ""),
+    BlogsSubPage(GLOBAL_CONTEXT),
+    AboutSubPage()
+)
 
-    init {
-        val postLatest = blogDatabaseData.latestData
-        val devLogLatest = devLogDatabaseData.latestData
-        latestPostPage = if (postLatest > devLogLatest)
-            blogDatabaseData.publishedPages.first()
-        else devLogDatabaseData.publishedPages.first();
-
-        homeElements = ArrayList()
-        homeElements.addAll(blogDatabaseData.publishedPages.map { BlogElement(it) })
-        homeElements.addAll(devLogDatabaseData.publishedPages.map { DevLogElement(it) })
-        homeElements.addAll(activeDatabaseData.publishedPages.map { ActiveElement(it) })
-        homeElements.sortByDescending { it.getDate() }
-    }
-}
-
-
-fun main(args: Array<String>) {
+fun readData(): GlobalContext{
     val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH), ::BlogPostPage)
     val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH), ::DevLogPostPage)
     val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH), ::ActivePage)
-    val context = GlobalContext(blog, devLog, active);
+    return GlobalContext(blog, devLog, active)
+}
 
-    createHTML("home") { home(context) }
-    createHTML("about") { about(context) }
-    createBlogPostPages(context)
-    createDevLogPostPages(context)
+fun main(args: Array<String>) {
+    // Create home pages
+    HOME_SELECTIONS.mapNotNull { it as? SubPage }.forEach { subpage ->
+        createHTML(subpage.getHtmlFilePath()) {
+            homePage(subpage) {
+                with(subpage) {
+                    this@homePage.show()
+                }
+            }
+        }
+    }
+
+    createBlogPostPages(GLOBAL_CONTEXT)
+    createDevLogPostPages(GLOBAL_CONTEXT)
 }
 
 fun createBlogPostPages(context: GlobalContext) {
@@ -84,8 +79,7 @@ fun createDevLogPostPages(context: GlobalContext) {
     }
 }
 
-fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {
-    val path = Path("${OUT_PUT_PATH_STRING}${htmlName}.html")
+fun createHTML(path: Path, block: HTML.() -> Unit) {
     path.createParentDirectories()
     val file = File(path.toUri())
     val isExist = !file.createNewFile()
@@ -98,4 +92,9 @@ fun createHTML(htmlName: String, block: HTML.() -> Unit = {}) {
         block()
     }
     fileWriter.close()
+}
+
+fun createHTML(htmlName: String, block: HTML.() -> Unit) {
+    val path = Path("${OUT_PUT_PATH_STRING}${htmlName}.html")
+    createHTML(path, block)
 }

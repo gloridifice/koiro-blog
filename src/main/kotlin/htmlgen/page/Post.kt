@@ -1,11 +1,10 @@
 package htmlgen.page
 
 import GlobalContext
+import HOME_SELECTIONS
 import htmlgen.model.BlogPostPage
-import htmlgen.component.NaviItem
 import htmlgen.component.notionBlocks
 import htmlgen.model.DevLogPostPage
-import htmlgen.navbarItems
 import htmlgen.richTexts
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
@@ -23,14 +22,14 @@ fun headingId(heading: Int, index: Int): String {
     return "heading${heading}_$index"
 }
 
-fun FlowContent.navi(array: ArrayList<NaviItem>) {
+fun FlowContent.navi() {
     div {
         classes += "navi"
-        for (item in array) {
+        for (item in HOME_SELECTIONS) {
             a {
                 classes += "navi_link"
-                href = item.link
-                +item.title
+                href = item.url()
+                +item.displayName()
             }
         }
     }
@@ -125,7 +124,7 @@ fun FlowContent.post(
     div {
         classes += "post"
         catalogue(pageData, context); //目录
-        navi(navbarItems)
+        navi() //侧边导航栏
         div {
             classes += "sidebar_wrapper_left"
             classes += "sidebar_wrapper"
@@ -138,11 +137,12 @@ fun FlowContent.post(
             classes += "contents"
             div {
                 classes += "header"
-                for (item in navbarItems) {
+                // 顶部导航栏
+                for (item in HOME_SELECTIONS) {
                     a {
                         classes += "navi_link"
-                        href = item.link
-                        +item.title
+                        href = item.url()
+                        +item.displayName()
                     }
                 }
             }

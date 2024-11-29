@@ -1,6 +1,7 @@
 package htmlgen.component
 
 import htmlgen.SVGIcons
+import htmlgen.page.HomeSelection
 import kotlinx.html.*
 import htmlgen.unsafeSVG
 
@@ -8,7 +9,7 @@ class NaviItem(val title: String, val link: String, val iconSVGString: String, v
 
 }
 
-fun FlowContent.naviWithHighlightedItem(items: List<NaviItem>, highlighted: NaviItem) {
+fun FlowContent.naviWithHighlightedItem(items: Array<HomeSelection>, highlighted: HomeSelection) {
     div {
         classes += "navi"
         classes += "row"
@@ -18,8 +19,8 @@ fun FlowContent.naviWithHighlightedItem(items: List<NaviItem>, highlighted: Navi
                 if (item == highlighted) {
                    classes += "highlighted"
                 }
-                href = item.link
-                +item.title
+                href = item.url()
+                +item.displayName()
             }
         }
     }

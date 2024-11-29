@@ -1,0 +1,44 @@
+
+.post_previews_wrapper > div > p {
+  color: var(--text-color-2);
+  font-family: serif;
+  font-size: 18px;
+}
+
+.post_previews_wrapper > div {
+  width: 100%;
+  border-top: solid 1px var(--bg-color-1);
+  padding: 0 0 24px;
+}
+
+
+.post_type_buttons {
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  gap: 12px;
+  justify-content: center;
+  align-items: end;
+
+  h3 {
+    margin: 0;
+  }
+
+  .post_type_button {
+    color: var(--text-color-2);
+    transition: color 0.3s;
+  }
+
+  .post_type_button:not(.is_selected) {
+    cursor: pointer;
+    text-decoration: underline 1px;
+  }
+
+  .post_type_button:not(.is_selected):hover {
+    color: var(--text-color-0);
+  }
+
+  .is_selected {
+    color: var(--theme-color-1);
+  }
+}

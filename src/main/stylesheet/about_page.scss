@@ -1,0 +1,131 @@
+* {
+  color: var(--text-color)
+}
+
+.friends {
+  margin: 0 auto;
+  margin-top: 48px;
+  width: 90%;
+  max-width: 400px;
+
+
+  .title {
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    margin-left: 10px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+
+      * {
+        fill: var(--text-color-2);
+      }
+    }
+
+    div {
+      margin-left: 10px;
+      color: var(--text-color-2);
+      font-weight: normal;
+    }
+  }
+
+  .list {
+    width: 100%;
+
+    .friend_link:hover {
+      border: solid 1px var(--text-color-2);
+    }
+
+    .friend_link {
+      box-sizing: content-box;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin: 8px auto;
+      background-color: var(--bg-color-1);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: border-color 0.2s;
+      border: solid 1px transparent;
+
+      .start {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        height: fit-content;
+        margin: auto 0;
+
+        svg {
+          width: 14px;
+          height: 14px;
+          margin-right: 6px;
+        }
+
+        div {
+          transition: .2s color;
+          height: fit-content;
+          margin: auto 0;
+        }
+
+        .icon {
+          height: 20px;
+          margin: 4px;
+
+          svg {
+            fill: var(--text-color-2);
+
+            * {
+              fill: var(--text-color-2);
+            }
+          }
+        }
+      }
+
+      .desc {
+        color: var(--text-color-2);
+        height: fit-content;
+        margin: 0;
+        margin-left: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+.introduce {
+  margin: 32px auto;
+  margin-top: 0;
+  //background-color: transparent;
+  //backdrop-filter: blur(5px);
+  //box-shadow: 0 8px 12px var(--shadow-color-1);
+  padding: 12px 24px;
+  border-radius: 24px;
+  max-width: 330px;
+
+  .avatar_wrapper {
+    img {
+      height: min(max(168px, 30vh), 328px);
+      object-fit: contain;
+      box-shadow: 0 8px 12px var(--shadow-color-1);
+
+      //transform: rotate3d(-0.5,1,.2, 15deg);
+      //transition: .3s transform ease-in-out;
+    }
+    margin: 24px;
+  }
+
+  .description_wrapper {
+    text-align: left;
+    p {
+      font-size: 18px;
+      margin: 4px 0;
+    }
+  }
+}
