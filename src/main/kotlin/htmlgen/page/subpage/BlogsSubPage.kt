@@ -5,63 +5,13 @@ import STATIC_PATH
 import childPath
 import htmlgen.component.blogPostPreview
 import htmlgen.component.footer
+import htmlgen.component.largePostPreview
 import htmlgen.model.BlogPostPage
 import htmlgen.toNormalString
 import kotlinx.html.*
 import java.nio.file.Path
 
 class BlogsSubPage(val context: GlobalContext) : SubPage() {
-    fun FlowContent.largePostPreview(post: BlogPostPage) {
-        div {
-            classes += "post_preview"
-            classes += "large"
-            classes += "reveal"
-            onClick = "location.href='${post.htmlServerPath}';"
-
-            div {
-                classes += "title_part"
-                val emoji = post.getEmoji()
-                div {
-                    classes += "emoji"
-                    +emoji
-                }
-
-                h2 {
-                    classes += "title"
-                    +post.getPlainTitle()
-                }
-            }
-            h3 {
-                classes += "slug"
-                +if (post.slug != null) post.slug.toNormalString() else "没有介绍"
-            }
-
-            div {
-                classes += "info"
-                p {
-                    classes += "date"
-                    +post.getPreviewDisplayDate()
-                }
-                div {
-                    classes += "type_tags"
-
-                    post.tags.forEach {
-                        p {
-                            classes += "tag"
-                            +it.name.orEmpty()
-                        }
-                    }
-
-                    p {
-                        classes += "type"
-                        +post.type.name!!
-                    }
-                }
-
-            }
-        }
-    }
-
     override fun DIV.show() {
         div {
             classes += "top_gap_space"

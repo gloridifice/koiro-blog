@@ -11,21 +11,22 @@ import notion.api.v1.request.pages.RetrievePageRequest
 const val NOTION_BLOG_DATABASE_ROOT_PATH = "notionData/blogDatabase"
 const val NOTION_DEV_LOG_DATABASE_ROOT_PATH = "notionData/devLogDatabase"
 const val NOTION_ACTIVE_DATABASE_ROOT_PATH = "notionData/activeDatabase"
+const val NOTION_PORTFOLIO_DATABASE_ROOT_PATH = "notionData/portfolio"
 const val MAX_RETRY_COUNT = 3
 fun main() {
     notionClient { client ->
         val blogDatabaseId = "0ed868dbb56445929e8a993ff70b1750"
         val devLogDatabaseId = "07a7413ef3424478abdceee428cebdfb"
         val activeDatabaseId = "1427e342f5b580b78b7bf0e6876e8eac"
+        val portfolioDatabaseId = "1527e342f5b580f9a49ae31fd1e38e21"
 
-        val blogDatabaseCollector = DatabaseCollector(client, blogDatabaseId)
-        blogDatabaseCollector.collectTo(NOTION_BLOG_DATABASE_ROOT_PATH)
+        DatabaseCollector(client, blogDatabaseId).collectTo(NOTION_BLOG_DATABASE_ROOT_PATH)
 
-        val devLogDatabaseCollector = DatabaseCollector(client, devLogDatabaseId)
-        devLogDatabaseCollector.collectTo(NOTION_DEV_LOG_DATABASE_ROOT_PATH)
+        DatabaseCollector(client, devLogDatabaseId).collectTo(NOTION_DEV_LOG_DATABASE_ROOT_PATH)
 
-        val activeDatabaseCollector = DatabaseCollector(client, activeDatabaseId)
-        activeDatabaseCollector.collectTo(NOTION_ACTIVE_DATABASE_ROOT_PATH)
+        DatabaseCollector(client, activeDatabaseId).collectTo(NOTION_ACTIVE_DATABASE_ROOT_PATH)
+
+        DatabaseCollector(client, portfolioDatabaseId).collectTo(NOTION_PORTFOLIO_DATABASE_ROOT_PATH)
     }
 }
 

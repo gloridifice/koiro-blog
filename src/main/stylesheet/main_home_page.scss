@@ -80,18 +80,19 @@
     }
 
     .content.devlog {
+      flex-direction: column;
       .preview {
-        height: 72px;
-        margin-right: 12px;
+        width: 90%;
+        margin: 24px 24px 0;
 
         img {
-          height: 100%;
+          width: 100%;
           border-radius: 2px;
         }
       }
 
       .description {
-        margin-right: 12px;
+        margin-top: 12px;
         h2 {
           font-size: 18px;
         }
@@ -102,7 +103,6 @@
       margin: 24px 0;
       width: 80%;
     }
-
 
     @media only screen and (max-width: 820px) {
       flex-direction: column;

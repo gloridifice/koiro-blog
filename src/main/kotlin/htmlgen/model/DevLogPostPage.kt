@@ -1,17 +1,14 @@
 package htmlgen.model
 
-import OUT_PUT_PATH_STRING
 import childPath
 import notion.api.v1.model.databases.DatabaseProperty
 import notion.api.v1.model.pages.Page
 import notiondata.Image
-import serverPathString
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
 
-class DevLogPostPage(page: Page, parentPath: Path) : Post(page, parentPath) {
+class DevLogPostPage(page: Page, parentPath: Path) : PostPage(page, parentPath) {
     val work: DatabaseProperty.Select.Option? = page.properties["Work"]?.select;
     val index: Int = page.properties["Index"]!!.number!!.toInt();
     val previewImage: Image?

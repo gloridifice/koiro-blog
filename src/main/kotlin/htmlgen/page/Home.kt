@@ -91,26 +91,4 @@ fun FlowContent.outSidePageButtons(items: Array<OutSidePageItem>) {
     }
 }
 
-fun FlowContent.devLogPreviews(context: GlobalContext) {
-    div {
-        classes += "dev_log_previews_wrapper"
-        div {
-            classes += "reveal"
-            h3 {
-                +"开发日志"
-            }
-        }
-        div {
-            classes += "dev_log_previews"
-            val sort = context.devLogDatabaseData.publishedPages.map { it }.sortedBy {
-                it.createdTimeDate
-            }.reversed()
-            for (i in 0..<6) {
-                sort.getOrNull(i)?.let {
-                    devLogPostPreview(it)
-                }
-            }
-        }
-    }
-}
 

@@ -33,17 +33,9 @@ class DevLogElement(
                 +devLogPost.getPlainTitle()
             }
         }
-
-//        div {
-//            classes += "info"
-//            p {
-//                classes += "date"
-//                +devLogPost.getPreviewDisplayDate()
-//            }
-//        }
     }
 
     override fun getDate(): Date {
-        return devLogPost.createdTimeDate
+        return devLogPost.publishedDate ?: devLogPost.createdTimeDate
     }
 }

@@ -4,11 +4,7 @@ import com.github.ajalt.mordant.rendering.TextColors.*
 import htmlgen.model.*
 import htmlgen.page.*
 import htmlgen.page.HomeSelection
-import htmlgen.page.subpage.MainSubPage
-import htmlgen.page.OutsideLink
-import htmlgen.page.subpage.AboutSubPage
-import htmlgen.page.subpage.BlogsSubPage
-import htmlgen.page.subpage.SubPage
+import htmlgen.page.subpage.*
 import notiondata.*
 import java.io.File
 import java.nio.file.Path
@@ -20,8 +16,8 @@ val GLOBAL_CONTEXT: GlobalContext = readData();
 
 val HOME_SELECTIONS: Array<HomeSelection> = arrayOf(
     MainSubPage(GLOBAL_CONTEXT),
-//    OutsideLink("笔记", ""),
     BlogsSubPage(GLOBAL_CONTEXT),
+    PortfolioSubPage(GLOBAL_CONTEXT),
     AboutSubPage()
 )
 
@@ -29,7 +25,8 @@ fun readData(): GlobalContext{
     val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH), ::BlogPostPage)
     val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH), ::DevLogPostPage)
     val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH), ::ActivePage)
-    return GlobalContext(blog, devLog, active)
+    val portfolio = readNotionDatabase(Path(NOTION_PORTFOLIO_DATABASE_ROOT_PATH), ::ProjectPage)
+    return GlobalContext(blog, devLog, active, portfolio)
 }
 
 fun main(args: Array<String>) {

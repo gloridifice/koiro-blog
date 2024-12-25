@@ -1,11 +1,8 @@
 package htmlgen.component
 
 import childPath
-import htmlgen.SVGIcons
-import htmlgen.colorClass
+import htmlgen.*
 import htmlgen.page.PostContext
-import htmlgen.richTexts
-import htmlgen.unsafeSVG
 import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import notion.api.v1.model.common.Emoji
@@ -205,7 +202,6 @@ fun FlowContent.notionBlock(
             }
         }
 
-        //todo
         block is ImageBlock -> {
             if (dataBlock is ImageDataBlock)
                 block.image?.let { image ->
@@ -226,7 +222,6 @@ fun FlowContent.notionBlock(
                 }
         }
 
-        //todo
         block is BookmarkBlock && dataBlock is BookmarkDataBlock -> {
             block.bookmark?.let {
                 div {
@@ -257,6 +252,30 @@ fun FlowContent.notionBlock(
 
         block is EquationBlock -> {
 
+        }
+
+        block is TableBlock -> {
+            div {
+                classes += "table"
+                val hasHeaderColumn = block.table.hasColumnHeader;
+                val hasRowHeader = block.table.hasRowHeader;
+                table {
+                    dataBlock.children?.forEachIndexed { rowIndex, rowDataBlock ->
+                        tr {
+                            if (rowIndex == 0 && hasRowHeader) classes += "table_header"
+                            val rowBlock = rowDataBlock.block;
+                            if (rowBlock is TableRowBlock) {
+                                rowBlock.tableRow.cells.forEachIndexed() { i, cell ->
+                                    td {
+                                        if (i == 0 && hasHeaderColumn) classes += "table_header"
+                                        +cell.toPlainString()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

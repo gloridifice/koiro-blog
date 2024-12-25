@@ -7,9 +7,10 @@ import htmlgen.model.home.HomeElement
 class GlobalContext(
     val blogDatabaseData: DatabaseData<BlogPostPage>,
     val devLogDatabaseData: DatabaseData<DevLogPostPage>,
-    val activeDatabaseData: DatabaseData<ActivePage>
+    val activeDatabaseData: DatabaseData<ActivePage>,
+    val portfolioDatabaseData: DatabaseData<ProjectPage>
 ) {
-    val latestPostPage: Post;
+    val latestPostPage: PostPage;
     val homeElements: ArrayList<HomeElement>;
 
     init {
@@ -24,5 +25,9 @@ class GlobalContext(
         homeElements.addAll(devLogDatabaseData.publishedPages.map { DevLogElement(it) })
         homeElements.addAll(activeDatabaseData.publishedPages.map { ActiveElement(it) })
         homeElements.sortByDescending { it.getDate() }
+
+        portfolioDatabaseData.publishedPages.forEach {
+            it.copyPreviewImageFromNotionDataToStatic()
+        }
     }
 }

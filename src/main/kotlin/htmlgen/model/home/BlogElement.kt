@@ -32,11 +32,9 @@ class BlogElement(
                 +if (blogPost.slug != null) blogPost.slug.toNormalString() else "没有介绍"
             }
         }
-
-//        div { classes += "info"; p { classes += "date"; +blogPost.getPreviewDisplayDate() }; p { classes += "type"; +blogPost.type.name!! } }
     }
 
     override fun getDate(): Date {
-        return blogPost.createdTimeDate
+        return blogPost.publishedDate ?: blogPost.createdTimeDate
     }
 }

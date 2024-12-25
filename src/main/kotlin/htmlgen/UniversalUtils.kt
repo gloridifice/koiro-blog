@@ -10,6 +10,7 @@ import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.io.path.Path
@@ -31,13 +32,13 @@ fun HEAD.universalHeadSetting() {
         content = "charset=utf-8"
     }
     meta {
-        name ="viewport"
+        name = "viewport"
         content = "width=device-width, initial-scale=1.0"
     }
     script {
         src = "/assets/js/header.js"
     }
-    linkCSS("reset", "root","color_scheme_v2.dark_mode")
+    linkCSS("reset", "root", "color_scheme_v2.dark_mode")
     linkGoogleFont()
 }
 
@@ -90,6 +91,14 @@ data class Loc(val loc: String) {
     override fun toString(): String {
         return loc
     }
+}
+
+fun List<PageProperty.RichText>.toPlainString(): String {
+    var ret = "";
+    this.forEach {
+        ret += it.plainText
+    }
+    return ret
 }
 
 fun FlowContent.richTexts(richTexts: List<PageProperty.RichText>) {
@@ -227,18 +236,29 @@ fun List<PageProperty.RichText>.toNormalString(): String {
 val fmtThisYear = SimpleDateFormat("MM-dd")
 val fmtOtherYear = SimpleDateFormat("yyyy-MM-dd")
 
-fun dateDisplayString(date: Date): String{
+fun dateDisplayString(date: Date): String {
     val timeCal = Calendar.getInstance()
     val currentCal = Calendar.getInstance()
 
     timeCal.time = date
 
-    return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)){
+    return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)) {
         fmtThisYear.format(date)
     } else fmtOtherYear.format(date)
 }
 
-fun dateDisplayWithoutYearString(date: Date): String{
+fun dateDisplayWithoutYearString(date: Date): String {
     return fmtThisYear.format(date)
 }
 
+val notionDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+val notionDateDayFormat = SimpleDateFormat("yyyy-MM-dd");
+fun parseNotionDateString(str: String?): Date? {
+    return if (str != null)
+        try {
+            notionDateFormat.parse(str)
+        } catch (e: ParseException) {
+            notionDateDayFormat.parse(str)
+        }
+    else null
+}

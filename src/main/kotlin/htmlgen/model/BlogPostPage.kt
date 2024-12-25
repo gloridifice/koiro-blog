@@ -4,7 +4,7 @@ import notion.api.v1.model.databases.DatabaseProperty
 import notion.api.v1.model.pages.Page
 import java.nio.file.Path
 
-class BlogPostPage(page: Page, parentPath: Path) : Post(page, parentPath) {
+class BlogPostPage(page: Page, parentPath: Path) : PostPage(page, parentPath) {
     val type: DatabaseProperty.Select.Option
     val tags: List<DatabaseProperty.MultiSelect.Option>
 

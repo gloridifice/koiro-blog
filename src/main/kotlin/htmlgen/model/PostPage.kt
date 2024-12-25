@@ -2,6 +2,7 @@ package htmlgen.model
 
 import htmlgen.asLoc
 import htmlgen.htmlServerPath
+import htmlgen.parseNotionDateString
 import htmlgen.toNormalString
 import notion.api.v1.model.common.Emoji
 import notion.api.v1.model.common.Icon
@@ -10,14 +11,14 @@ import notion.api.v1.model.pages.PageProperty
 import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 
-abstract class Post(page: Page, parentPath: Path): PageData(page, parentPath) {
+abstract class PostPage(page: Page, parentPath: Path): PageData(page, parentPath) {
     val pageTitle: List<PageProperty.RichText> = page.properties["Title"]!!.title!!
     val icon: Icon = page.icon
-    val published: Boolean = page.properties["Published"]!!.checkbox!!
 
     val slug: List<PageProperty.RichText>? = page.properties["Slug"]?.richText
-    val date: String? = page.properties["Date"]?.date?.start
+    val publishedDate: Date? = parseNotionDateString(page.properties["Date"]?.date?.start)
     val authors: List<String>?
 
     init {
@@ -59,12 +60,5 @@ abstract class Post(page: Page, parentPath: Path): PageData(page, parentPath) {
         return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)){
             fmtThisYear.format(lastEditedTimeDate)
         } else fmtOtherYear.format(lastEditedTimeDate)
-    }
-
-    fun getCreatedTimeDay(): String{
-        page.createdTime.let {
-            return it.split('T')[0]
-        }
-        return "No date"
     }
 }
