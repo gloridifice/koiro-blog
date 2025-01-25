@@ -38,6 +38,28 @@ fun HEAD.universalHeadSetting() {
     script {
         src = "/assets/js/header.js"
     }
+    script {
+        src = "/assets/katex/katex.js"
+    }
+    unsafe {
+        +"<script defer src=\"/assets/katex/auto-render.min.js\" onload=\"renderMathInElement(document.body);\"></script>"
+    }
+    script {
+        +"""
+                document.addEventListener("DOMContentLoaded", function() {
+                    renderMathInElement(document.body, {
+                      delimiters: [
+                          {left: '${'$'}${'$'}', right: '${'$'}${'$'}', display: false},
+                      ],
+                      throwOnError : false
+                    });
+                });
+        """.trimIndent()
+    }
+    link {
+        rel = "stylesheet"
+        href = assetsServerPath("katex/katex.css".asLoc())
+    }
     linkCSS("reset", "root", "color_scheme_v2.dark_mode")
     linkGoogleFont()
 }
@@ -81,6 +103,7 @@ fun HEAD.linkCSS(vararg cssNames: String) {
 }
 
 fun resourcesServerPath(loc: Loc): String = "/assets/resources/$loc"
+fun assetsServerPath(loc: Loc): String = "/assets/$loc"
 fun cssServerPath(loc: Loc): String = "/assets/css/$loc" + if (loc.loc.contains(".css")) "" else ".css"
 fun htmlServerPath(loc: Loc): String = "/$loc" + if (loc.loc.contains(".html")) "" else ".html"
 fun jsServerPath(loc: String): String = "/assets/js/$loc" + if (loc.contains(".js")) "" else ".js"

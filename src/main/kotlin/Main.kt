@@ -51,7 +51,7 @@ fun createBlogPostPages(context: GlobalContext) {
     path.forEach { path.toFile().deleteRecursively() }
 
     // Gen
-    context.blogDatabaseData .publishedPages.forEach { pageData ->
+    context.blogDatabaseData.publishedPages.forEach { pageData ->
         if (!pageData.published) return@forEach
 
         createHTML(pageData.getStaticHtmlName()) {

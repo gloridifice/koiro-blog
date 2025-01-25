@@ -251,7 +251,12 @@ fun FlowContent.notionBlock(
         }
 
         block is EquationBlock -> {
-
+            block.equation?.let {
+                div {
+                    classes += "equation"
+                    + "$$${it.expression}$$"
+                }
+            }
         }
 
         block is TableBlock -> {
