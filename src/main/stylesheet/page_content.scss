@@ -253,7 +253,7 @@ t.italic {
   font-style: italic;
 }
 
-t.href {
+a.link {
   color: var(--theme-color-1);
   cursor: pointer;
   text-decoration: underline solid;
@@ -262,7 +262,7 @@ t.href {
   overflow-wrap: break-word;
 }
 
-t.href:hover {
+a.link:hover {
   color: var(--theme-color);
   text-decoration: underline solid 3px;
 }

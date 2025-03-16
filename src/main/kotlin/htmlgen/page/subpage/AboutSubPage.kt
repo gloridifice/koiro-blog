@@ -44,7 +44,7 @@ class AboutSubPage : SubPage() {
                     }
                     div {
                         classes += "list"
-                        friendLinkItems.forEach {
+                        for (it in friendLinkItems) {
                             div {
                                 onClick = "window.open('${it.link}')"
                                 classes += "friend_link"

@@ -131,46 +131,49 @@ fun FlowContent.richTexts(richTexts: List<PageProperty.RichText>) {
 }
 
 fun FlowContent.richText(richText: PageProperty.RichText) {
-    t {
-        richText.mention?.let { mention ->
-//            if (mention.type  ) {
-//            }
-        }
-        //todo add css for rich text
-        if (richText.href != null) {
-            classes += "href"
-            onClick = "window.open('${richText.href}')"
-        }
-        val annotation = richText.annotations
-        if (annotation != null) {
-            when {
-                annotation.bold == true -> {
-                    classes += "bold"
-                }
+    val text = richText.text?.content.orEmpty().replace("\t", "  ")
+    val annotationSet = mutableSetOf<String>()
+    val annotation = richText.annotations
+    if (annotation != null) {
+        when {
+            annotation.bold == true -> {
+                annotationSet += "bold"
+            }
 
-                annotation.code == true -> {
-                    classes += "code"
-                }
+            annotation.code == true -> {
+                annotationSet += "code"
+            }
 
-                annotation.color != null -> {
-                    colorClass(annotation.color)?.let { classes += it }
-                }
+            annotation.color != null -> {
+                colorClass(annotation.color)?.let { annotationSet += it }
+            }
 
-                annotation.italic == true -> {
-                    classes += "italic"
-                }
+            annotation.italic == true -> {
+                annotationSet += "italic"
+            }
 
-                annotation.underline == true -> {
-                    classes += "underline"
-                }
+            annotation.underline == true -> {
+                annotationSet += "underline"
+            }
 
-                annotation.strikethrough == true -> {
-                    classes += "strikethrough"
-                }
+            annotation.strikethrough == true -> {
+                annotationSet += "strikethrough"
             }
         }
-        +richText.text?.content.orEmpty().replace("\t", "  ")
     }
+
+    if (richText.href != null)
+        a {
+            classes += "link"
+            href = richText.href!!;
+            classes += annotationSet
+            +text
+        }
+    else
+        t {
+            classes += annotationSet
+            +text
+        }
 }
 
 fun colorClass(color: RichTextColor?): String? {

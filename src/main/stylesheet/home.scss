@@ -7,6 +7,14 @@ body {
   margin: 0;
 }
 
+.cursor_follower {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--bg-color-0);
+  font-weight: bold;
+}
+
 .about {
   display: flex;
   flex-direction: column;

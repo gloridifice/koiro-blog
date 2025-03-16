@@ -13,7 +13,7 @@ import java.nio.file.Path
 class MainSubPage(val context: GlobalContext): SubPage() {
     override fun DIV.show() {
         div {
-            + "top_gap_space"
+            classes += "top_gap_space"
         }
         div {
             classes += "elements"

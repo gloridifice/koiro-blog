@@ -32,6 +32,7 @@
       background-color: var(--bg-color-1);
       background-image: var(--text-tile-bg-image);
       border-radius: 3px;
+      border: solid 1px transparent;
       margin: 12px;
       transition: 0.5s all;
       > * {
@@ -77,6 +78,8 @@
 
     .content.post_preview:hover {
       background-color: var(--bg-color-2);
+      border: solid 1px var(--line-color);
+      box-shadow: 0 4px 12px var(--shadow-color-1);
     }
 
     .content.devlog {
