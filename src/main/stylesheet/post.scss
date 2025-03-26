@@ -9,7 +9,6 @@ body {
 
 .post {
   font-size: 15px;
-  font-weight: 200;
   color: var(--text-color-1);
   display: flex;
   flex-direction: row;
@@ -53,6 +52,7 @@ body {
 
     opacity: 0;
     transition: 0.5s opacity;
+
     div {
       width: 100%;
       height: 100%;
@@ -73,8 +73,15 @@ body {
       li {
         list-style: none;
 
+        a t {
+          color: var(--text-color-2);
+          transition: color 0.16s;
+        }
+
         a:hover {
-          color: var(--text-color-0);
+          t {
+            color: var(--text-color-0);
+          }
         }
       }
     }
@@ -136,7 +143,7 @@ body {
     padding: 24px 52px 52px;
     background-color: var(--bg-color-0);
 
-    .header{
+    .header {
       display: none;
       flex-direction: row;
     }
@@ -188,11 +195,11 @@ body {
     .catalogue {
       display: none;
     }
-    .navi{
+    .navi {
       display: none;
     }
-    .contents{
-      .header{
+    .contents {
+      .header {
         display: flex;
       }
     }
@@ -200,16 +207,18 @@ body {
 }
 
 @media only screen and (max-width: 760px) {
-  html{
+  html {
     box-sizing: content-box;
   }
-  .post{
+  .post {
     display: block;
     width: 100%;
-    .sidebar_wrapper{
+
+    .sidebar_wrapper {
       display: none;
     }
-    .contents{
+
+    .contents {
       padding: 24px;
       width: 100%;
       max-width: none;

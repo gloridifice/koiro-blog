@@ -32,23 +32,21 @@
     min-height: 12px;
   }
 
-  t {
-    line-height: 1.5em;
-  }
-
   blockquote {
     margin: 8px 0;
     border-left: solid 3px var(--text-color-2);
     border-radius: 0 2px 2px 0;
     padding: 2px 12px;
     color: var(--text-color-1);
-    font-weight: 200;
   }
 
   ul {
     padding-left: 1.5em;
     margin: 0.3em 0;
     text-align: start;
+    t {
+      line-height: 1.45;
+    }
   }
 
   ol {
@@ -59,17 +57,13 @@
   .bookmark_block {
     margin: 12px 0;
 
-    .bookmark:hover {
-      background-color: var(--hlt-color-1);
-    }
-
     .bookmark {
-      transition: .2s background-color;
       padding: 8px 16px;
       display: flex;
       flex-direction: column;
       max-width: 100%;
-      border: dashed var(--accents-color-3);
+      border: solid var(--bg-color-2) 1px;
+      background-color: var(--bg-color-1);
       border-radius: 6px;
       margin: 0;
       cursor: pointer;
@@ -82,13 +76,24 @@
       }
 
       .title {
-        color: var(--accents-color-1);
+        transition: color 0.4s;
+        color: var(--text-color-1);
       }
 
       .url {
-        color: var(--accents-color-3);
+        transition: color 0.4s;
+        color: var(--text-color-2);
         font-size: 12px;
       }
+    }
+  }
+
+  .bookmark:hover {
+    .title {
+      color: var(--text-color-0);
+    }
+    .url {
+      color: var(--text-color-1);
     }
   }
 
@@ -121,8 +126,23 @@
     gap: 12px;
 
     .column {
+      table {
+        width: 100%;
+        margin: 0;
+      }
+      flex: 1;
       margin: 4px;
-      max-width: 47%;
+      max-width: 49%;
+    }
+  }
+
+  @media (max-width: 512px) {
+    .column_list {
+      flex-direction: column;
+
+      .column {
+        max-width: 100%;
+      }
     }
   }
 
@@ -161,9 +181,9 @@
 
   .caption {
     t {
-      color: var(--accents-color-1);
+      color: var(--text-color-2);
     }
-    margin: 4px;
+    margin: 4px auto;
     width: fit-content;
     max-width: 100%;
     font-size: 14px;
@@ -176,7 +196,6 @@
     padding: 24px 30px;
     border-radius: 2px;
     font-size: 16px;
-    font-weight: 200;
 
     .icon {
       font-size: 28px;
@@ -213,6 +232,10 @@
       fill: var(--accents-color-2);
     }
   }
+
+  .katex {
+    overflow-x: auto;
+  }
 }
 
 h1 t {
@@ -221,17 +244,20 @@ h1 t {
 }
 
 h2 t {
+  color: var(--text-color-0);
   font-weight: 400;
 }
 
 h3 t {
+  color: var(--text-color-0);
   font-weight: 400;
 }
 
 t {
   white-space: normal;
-  font-weight: 200;
+  font-weight: normal;
   color: var(--text-color-1);
+  line-height: 1.65;
 }
 
 t.code {
