@@ -41,6 +41,10 @@ fun HTML.layout(
     block: BODY.() -> Unit,
 ) {
     head {
+        meta {
+            name = "darkreader-lock"
+            content = "true"
+        }
         universalHeadSetting()
         jsNames.forEach {
             script { src = "/assets/js/$it.js" }
