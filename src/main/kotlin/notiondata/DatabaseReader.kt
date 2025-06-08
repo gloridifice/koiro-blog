@@ -1,6 +1,7 @@
 package notiondata
 
 import childPath
+import com.github.ajalt.mordant.rendering.TextColors
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import hasChildren
@@ -50,13 +51,18 @@ open class DataBlock(val block: Block, parentPath: Path) {
 
 data class Image(val byteArray: ByteArray, val name: String)
 class ImageDataBlock(block: Block, parentPath: Path) : DataBlock(block, parentPath) {
-    val image: Image
+    val image: Image?
 
     init {
-        val file = parentPath.toFile().listFiles()!!.filter {
-            it.name.startsWith("img_${block.id!!}")
-        }[0]
-        image = Image(file.readBytes(), file.name)
+        image = try {
+            val file =  parentPath.toFile().listFiles()!!.filter {
+                it.name.startsWith("img_${block.id!!}")
+            }[0]
+            Image(file.readBytes(), file.name)
+        } catch (e: Exception) {
+            println(TextColors.red("Failed to create image data block, parent path: <$parentPath>, block id: ${block.id}"))
+            null
+        }
     }
 }
 

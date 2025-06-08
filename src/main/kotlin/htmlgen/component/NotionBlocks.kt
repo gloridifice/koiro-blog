@@ -206,15 +206,18 @@ fun FlowContent.notionBlock(
             if (dataBlock is ImageDataBlock)
                 block.image?.let { image ->
                     image.file?.url?.let {
-                        val imgName = dataBlock.image.name
-                        val path = pageData.getStaticAssetsDirectoryPath().childPath(imgName)
-                        path.createParentDirectories()
-                        path.toFile().writeBytes(dataBlock.image.byteArray)
+                        val path = dataBlock.image?.let {
+                            val imgName = dataBlock.image.name
+                            val path = pageData.getStaticAssetsDirectoryPath().childPath(imgName)
+                            path.createParentDirectories()
+                            path.toFile().writeBytes(dataBlock.image.byteArray)
+                            path
+                        }
 
                         div {
                             classes += "image_wrapper"
                             img {
-                                src = path.serverPathString()
+                                src = path?.serverPathString() ?: ""
                             }
                             caption(image.caption)
                         }

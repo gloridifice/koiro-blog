@@ -28,23 +28,6 @@ fun downloadImageTask(
     }
 }
 
-fun collectBlockTask(
-    scope: CoroutineScope,
-    client: NotionClient,
-    request: DatabaseCollector.CollectBlockRequest
-): Deferred<CollectBlockResult> {
-    return scope.async {
-        val json: String = try {
-            client.retrieveBlockJson(RetrieveBlockRequest(request.blockId))
-        } catch (_: Exception) {
-            val parentFile = request.parentPath.parent.childPath("${request.parentId}.json")
-            parentFile.deleteIfExists()
-            throw Exception("Collect Block Failed.")
-        }
-        CollectBlockResult(request, json)
-    }
-}
-
 class DownloadImageResult(val data: ByteArray, val parentPath: Path, val name: String, val suffixName: String) :
     TaskResult {
     override fun run() {
@@ -52,15 +35,4 @@ class DownloadImageResult(val data: ByteArray, val parentPath: Path, val name: S
         val file = parentPath.childPath("$name.$suffixName").toFile()
         file.writeBytes(data)
     }
-}
-
-class CollectBlockResult(request: DatabaseCollector.CollectBlockRequest, json: String) : TaskResult {
-    override fun run() {
-        TODO("Not yet implemented")
-    }
-}
-
-class Collector {
-    var allPageCount: Int = 0;
-    var finishedPageCount: Int = 0;
 }

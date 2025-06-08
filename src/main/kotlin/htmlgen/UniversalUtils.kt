@@ -26,7 +26,7 @@ fun copyDir(src: Path, dest: Path) {
 }
 
 fun HEAD.universalHeadSetting() {
-    lang = "zh_CN"
+//    lang = "zh_CN"
     meta {
         httpEquiv = "Content-Type"
         content = "charset=utf-8"

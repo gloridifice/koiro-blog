@@ -10,7 +10,7 @@ import kotlin.io.path.createParentDirectories
 
 class DevLogPostPage(page: Page, parentPath: Path) : PostPage(page, parentPath) {
     val work: DatabaseProperty.Select.Option? = page.properties["Work"]?.select;
-    val index: Int = page.properties["Index"]!!.number!!.toInt();
+    val index: Int = page.properties["Index"]?.number?.toInt() ?: -1;
     val previewImage: Image?
     val previewImagePath: Path?
 
