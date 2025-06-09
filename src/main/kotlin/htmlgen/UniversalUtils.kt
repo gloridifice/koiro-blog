@@ -200,9 +200,9 @@ open class T(initialAttributes: Map<String, String>, override val consumer: TagC
 
 }
 
-fun downloadImage(urlStr: String, parentPath: Path, name: String): String {
+fun downloadAndCompressImage(urlStr: String, parentPath: Path, name: String): String {
     parentPath.createDirectories()
-    val imageData = URL(urlStr).readBytes()
+    val imageData = ImageCompressor.compressMemory(URL(urlStr).readBytes())
     val suffixName = urlStr.split('?').first().split('.').last()
 
     val file = parentPath.childPath("$name.$suffixName").toFile()

@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
 import kotlin.io.path.exists
 
 
-fun<T: PageData> readNotionDatabase(rootPath: Path, readPage: (page: Page, rootPath: Path) -> T): DatabaseData<T> {
+fun <T : PageData> readNotionDatabase(rootPath: Path, readPage: (page: Page, rootPath: Path) -> T): DatabaseData<T> {
     val queryDatabaseJson = rootPath.childPath("query_result.json").toFile().readText()
     val result = NotionClient.defaultJsonSerializer.toQueryResults(queryDatabaseJson)
 
@@ -55,12 +55,18 @@ class ImageDataBlock(block: Block, parentPath: Path) : DataBlock(block, parentPa
 
     init {
         image = try {
-            val file =  parentPath.toFile().listFiles()!!.filter {
+            val file = parentPath.toFile().listFiles()!!.filter {
                 it.name.startsWith("img_${block.id!!}")
             }[0]
-            Image(file.readBytes(), file.name)
+
+            val byteArray = if (file.length() / 1024.0 > 1024.0)
+                ImageCompressor.compressFile(file)
+            else
+                file.readBytes()
+
+            Image(byteArray, file.name)
         } catch (e: Exception) {
-            println(TextColors.red("Failed to create image data block, parent path: <$parentPath>, block id: ${block.id}"))
+            println(TextColors.red("Failed to create image data block, parent path: <$parentPath>, block id: ${block.id}, error: $e"))
             null
         }
     }

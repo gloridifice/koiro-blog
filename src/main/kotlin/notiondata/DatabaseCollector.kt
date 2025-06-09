@@ -5,11 +5,10 @@ import childPath
 import com.github.ajalt.mordant.rendering.TextColors
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import htmlgen.downloadImage
+import htmlgen.downloadAndCompressImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -28,7 +27,6 @@ import notion.api.v1.request.databases.RetrieveDatabaseRequest
 import notion.api.v1.request.pages.RetrievePageRequest
 import writeJson
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.*
 
 class DatabaseCollector(
@@ -150,7 +148,7 @@ class DatabaseCollector(
             // 2.3 异步下载封面图
             launch(Dispatchers.IO) {
                 page.properties["Preview"]?.files?.firstOrNull()?.file?.url?.let { url ->
-                    downloadImage(url.toString(), parentPath.childPath(pageId), "preview_image")
+                    downloadAndCompressImage(url.toString(), parentPath.childPath(pageId), "preview_image")
                 }
             }
         )
@@ -205,7 +203,7 @@ class DatabaseCollector(
         page.properties["Preview"]?.let {
             it.files?.let { files ->
                 files.getOrNull(0)?.let { file ->
-                    downloadImage(file.file!!.url.toString(), parentPath.childPath(pageId), "preview_image")
+                    downloadAndCompressImage(file.file!!.url.toString(), parentPath.childPath(pageId), "preview_image")
                 }
             }
         }
@@ -282,42 +280,11 @@ class DatabaseCollector(
         childrenProcessor.join()
     }
 
-    private suspend fun collectBlocksOld(requests: List<CollectBlockRequest>): Unit = coroutineScope {
-        val toWrite = ConcurrentLinkedQueue<Pair<CollectBlockRequest, String>>()
-        val toRetrieveChildren = ConcurrentLinkedQueue<CollectBlockRequest>()
-
-        val jobs = requests.map { request ->
-            async {
-                try {
-                    val json = client.retrieveBlockJson(RetrieveBlockRequest(request.blockId))
-                    toWrite.add(request to json)
-                    val block = client.jsonSerializer.toBlock(json)
-                    if (isBlockNeedToUpdate(block, request.parentPath)) {
-                        processSpecialBlock(block, request)
-
-                        if (block.hasChildren == true) {
-                            retrieveChildrenBlocks(request).let(toRetrieveChildren::addAll)
-                        }
-                    }
-                } catch (e: Exception) {
-                    handleException(e, request)
-                    throw e
-                }
-            }
-        }
-        jobs.awaitAll()
-        toWrite.forEach { (block, json) -> writeBlock(block, json) }
-
-        if (toRetrieveChildren.isNotEmpty()) {
-            collectBlocks(toRetrieveChildren.toList())
-        }
-    }
-
     private fun processSpecialBlock(block: Block, request: CollectBlockRequest) {
         when (block) {
             is ImageBlock -> {
                 block.image?.file?.url?.let {
-                    downloadImage(it, request.parentPath, "img_${request.blockId}")
+                    downloadAndCompressImage(it, request.parentPath, "img_${request.blockId}")
                 }
             }
 
@@ -372,7 +339,7 @@ class DatabaseCollector(
         if (isBlockNeedToUpdate(block, parentPath)) {
             if (block is ImageBlock) {
                 block.image?.file?.url?.let {
-                    downloadImage(it, parentPath, "img_$blockId")
+                    downloadAndCompressImage(it, parentPath, "img_$blockId")
                 }
             }
             if (block.hasChildren == true) {
