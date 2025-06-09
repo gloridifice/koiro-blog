@@ -15,7 +15,9 @@ class ActiveElement(
         classes += "active_element"
         div {
             classes += "page_content"
-            pageData.dataBlocks?.let { notionBlocks(it, pageData, PostContext(), true) }
+            pageData.dataBlocks?.let {
+                notionBlocks(it, pageData, PostContext(), true)
+            }
         }
     }
 

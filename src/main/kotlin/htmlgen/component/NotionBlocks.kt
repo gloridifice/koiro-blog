@@ -44,7 +44,7 @@ fun FlowContent.notionBlock(
     when {
         //todo
         block is ParagraphBlock -> {
-            if (!ignoreEmptyBlock || block.paragraph.richText.isEmpty()) {
+            if (!(ignoreEmptyBlock && block.paragraph.richText.isEmpty())) {
                 p {
                     block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.paragraph.richText)

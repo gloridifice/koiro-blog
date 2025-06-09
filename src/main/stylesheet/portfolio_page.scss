@@ -1,8 +1,7 @@
 
 .project {
-  max-width: 90%;
-  width: 512px;
-  margin: 0 auto;
+
+  width: 100%;
   img {
     width: 100%;
     object-fit: contain;
@@ -10,7 +9,7 @@
   }
 
   border-top: var(--bg-color-1) solid 1px;
-  padding: 32px 0;
+  padding: 32px 32px;
 
   .info {
     .title {
