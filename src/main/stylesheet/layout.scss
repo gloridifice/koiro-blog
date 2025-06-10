@@ -134,7 +134,7 @@ svg * {
 }
 
 .contents {
-  max-width: min(90%, max(70%, var(--content-max-width)));
+  max-width: min(90%, max(50vw, var(--content-max-width)));
   text-align: center;
   display: flex;
   flex-direction: column;
