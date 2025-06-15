@@ -10,14 +10,15 @@
     font-weight: 400;
     font-size: 28px;
     border-bottom: solid var(--line-color) 1px;
+    text-align: left;
   }
 
   h2 {
     font-weight: 400;
     color: var(--text-color-0);
-    //border-bottom: dashed var(--theme-color) 2px;
     width: fit-content;
     margin: 22px 0 12px;
+    text-align: left;
   }
 
   h3 {
@@ -25,6 +26,7 @@
     font-weight: 400;
     font-size: 18px;
     margin-bottom: 10px;
+    text-align: left;
   }
 
   p {

@@ -137,6 +137,7 @@ fun FlowContent.post(
         }
         div {
             classes += "contents"
+            div { classes += "top_gap_space" }
             div {
                 classes += "header"
                 // 顶部导航栏
@@ -154,6 +155,7 @@ fun FlowContent.post(
                     classes += "title"
                     +title
                 }
+                hr { }
                 div {
                     classes += "sub_info"
                     p {

@@ -134,17 +134,21 @@ body {
         text-decoration: none;
         cursor: pointer;
         transition: 0.1s color;
-        color: var(--accents-color-1);
+        color: var(--text-color-1);
       }
     }
   }
 
   .contents {
     margin: 0;
-    border-left: solid var(--line-color) 1px;
-    border-right: solid var(--line-color) 1px;
+    border-left: solid var(--bg-color-2) 1px;
+    border-right: solid var(--bg-color-2) 1px;
     padding: 24px 52px 52px;
     background-color: var(--bg-color-0);
+
+    .top_gap_space {
+      height: 5vh;
+    }
 
     .header {
       display: none;
@@ -154,14 +158,26 @@ body {
     }
 
     .page_description {
+      box-shadow: inset 0 -6px var(--bg-color-2);
+      padding: 12px 24px;
+      padding-bottom: 18px;
+      border-radius: 6px;
+      border: solid 1px var(--bg-color-2);
+      background-color: var(--bg-color-1);
       margin: 24px 0;
 
       h1 {
         margin: 6px 0;
         text-align: left;
         font-weight: 400;
-        font-size: 34px;
+        font-size: 28px;
         color: var(--emphasized-color);
+      }
+
+      hr {
+        border: none;
+        border-top: var(--bg-color-2) solid 1px;
+        margin: 18px -24px;
       }
 
       .sub_info {
@@ -171,6 +187,7 @@ body {
         gap: 4px;
 
         p {
+          margin: 0;
           width: fit-content;
           color: var(--text-color-1);
           font-size: 16px;
