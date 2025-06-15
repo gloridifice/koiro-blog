@@ -20,7 +20,6 @@ class BlogsSubPage(val context: GlobalContext) : SubPage() {
 
             div {
                 p {
-                    classes += "reveal"
                     +"最近更新"
                 }
                 largeBlogPostPreview(context.blogDatabaseData.publishedPages.first())
@@ -28,12 +27,10 @@ class BlogsSubPage(val context: GlobalContext) : SubPage() {
 
             div {
                 p {
-                    classes += "reveal"
                     +"分类"
                 }
                 div {
                     classes += "post_type_buttons"
-                    classes += "reveal"
 
                     for (i in typeOptions.indices) {
                         div {
