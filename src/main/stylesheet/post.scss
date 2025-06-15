@@ -8,14 +8,6 @@ body {
 }
 
 .navi_link:-webkit-any-link {
-  padding: 8px;
-  padding-bottom: 10px;
-  &:hover {
-    color: var(--text-color-1);
-    svg {
-      fill: var(--text-color-1);
-    }
-  }
   svg {
     width: fit-content;
     margin: 0;

@@ -108,7 +108,7 @@ body {
   justify-content: center;
   align-items: end;
   margin-top: 24px;
-  gap: 10px;
+  gap: 8px;
 }
 
 .navi_link:-webkit-any-link {
@@ -122,22 +122,23 @@ body {
   font-weight: 200;
   transition: color 0.2s, border 0.2s;
   cursor: pointer;
-  gap: 4px;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 10px;
 
   --temp-color: var(--text-color-2);
-
 
   &.highlighted {
     --temp-color: var(--text-color-1);
 
     svg {
-      width: 32px;
+      width: 40px;
       fill: var(--temp-color);
     }
   }
 
   svg {
-    width: 24px;
+    width: 30px;
     height: fit-content;
     fill: var(--temp-color);
   }
@@ -147,7 +148,7 @@ body {
   }
 
   &:hover {
-    --temp-color: var(--text-color-1);
+    --temp-color: var(--text-color-0);
     font-weight: bold;
   }
 }

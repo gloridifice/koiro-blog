@@ -40,20 +40,6 @@
     color: var(--text-color-1);
   }
 
-  ul {
-    padding-left: 1.5em;
-    margin: 0.3em 0;
-    text-align: start;
-    t {
-      line-height: 1.45;
-    }
-  }
-
-  ol {
-    padding-left: 1.5em;
-    margin: 0.3em 0;
-  }
-
   .bookmark_block {
     margin: 12px 0;
 
@@ -97,11 +83,27 @@
     }
   }
 
-  .divider_block {
+  hr {
     height: 1px;
     border: none;
     border-radius: 6px;
-    background: var(--text-color-2)
+    background: var(--bg-color-2);
+    margin: 24px 0;
+  }
+
+  ul {
+    padding-left: 1.5em;
+    margin: 24px 0;
+  }
+
+  ol {
+    padding-left: 1.5em;
+    margin: 24px 0;
+  }
+
+  li {
+    text-align: start;
+    margin: 8px 0;
   }
 
   .image_wrapper {

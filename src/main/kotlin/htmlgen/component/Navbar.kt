@@ -5,17 +5,13 @@ import htmlgen.page.HomeSelection
 import kotlinx.html.*
 import htmlgen.unsafeSVG
 
-class NaviItem(val title: String, val link: String, val iconSVGString: String, val isLinkOutside: Boolean = false) {
-
-}
-
 fun FlowContent.naviWithHighlightedItem(items: Array<HomeSelection>, highlighted: HomeSelection) {
     div {
         classes += "navi"
         classes += "row"
         for (subpage in items) {
             a {
-                classes += "navi_link"
+                classes += arrayOf("navi_link", "button")
                 if (subpage == highlighted) {
                     classes += "highlighted"
                 }
@@ -24,43 +20,6 @@ fun FlowContent.naviWithHighlightedItem(items: Array<HomeSelection>, highlighted
                 subpage.icon()?.let { unsafeSVG(it) }
                 +subpage.displayName()
             }
-        }
-    }
-}
-
-//todo implement link
-fun FlowContent.navbar(items: List<NaviItem>) {
-    div {
-        classes += "header"
-        div {
-            classes += "navbar"
-            for (item in items) {
-                navbarItem(item)
-            }
-            div {
-                classes += "dark_mode"
-                classes += "switch_visual_mode_button"
-                unsafeSVG(
-                    SVGIcons.SUN
-                )
-            }
-        }
-    }
-}
-
-private fun FlowContent.navbarItem(item: NaviItem) {
-    div {
-        classes += "navbar_item"
-        onClick = if (item.isLinkOutside) {
-            classes += "outside"
-            "window.open('${item.link}')"
-        } else {
-            "window.location='${item.link}'"
-        }
-        unsafeSVG(item.iconSVGString)
-        div {
-            classes += "title"
-            +item.title
         }
     }
 }

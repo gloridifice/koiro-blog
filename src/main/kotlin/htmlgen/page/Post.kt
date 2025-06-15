@@ -11,12 +11,20 @@ import notion.api.v1.model.blocks.*
 import notion.api.v1.model.databases.DatabaseProperty
 import htmlgen.model.PageData
 import htmlgen.unsafeSVG
+import kotlinx.html.attributes.BooleanEncoder
 import kotlin.io.path.*
 
 class PostContext(
     var h1Index: Int = 0,
     var h2Index: Int = 0,
-    var h3Index: Int = 0
+    var h3Index: Int = 0,
+)
+
+class LocalContext(
+    var isInNumberedList: Boolean = false,
+    var numberedListItem: ArrayList<NumberedListItemBlock> = arrayListOf(),
+    var isInBulletedList: Boolean = false,
+    var bulletedListItem: ArrayList<BulletedListItemBlock> = arrayListOf(),
 )
 
 fun headingId(heading: Int, index: Int): String {

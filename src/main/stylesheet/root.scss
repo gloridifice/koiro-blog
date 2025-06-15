@@ -73,7 +73,7 @@ div {
   color: var(--text-color-1);
 
   &:hover {
-    border: solid 1px var(--accents-color-2);
+    border: solid 1px var(--text-color-2);
   }
 
   &:active {
@@ -83,11 +83,8 @@ div {
 
   svg {
     width: 14px;
-    margin-right: 4px;
 
-    * {
-      fill: var(--text-color-2);
-    }
+    fill: var(--text-color-2);
   }
 
   div {

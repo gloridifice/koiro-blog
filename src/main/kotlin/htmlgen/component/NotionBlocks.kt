@@ -10,6 +10,7 @@ import notion.api.v1.model.pages.PageProperty
 import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
 import htmlgen.model.PageData
+import htmlgen.page.LocalContext
 import notiondata.ImageDataBlock
 import serverPathString
 import java.net.URL
@@ -31,16 +32,61 @@ fun FlowContent.notionBlocks(
     postContext: PostContext,
     ignoreEmptyBlock: Boolean = false
 ) {
-    block.forEach { notionBlock(it, page, postContext, ignoreEmptyBlock) }
+    val localContext = LocalContext()
+    block.forEach { notionBlock(it, page, postContext, ignoreEmptyBlock, localContext) }
 }
 
 fun FlowContent.notionBlock(
     dataBlock: DataBlock,
     pageData: PageData,
     postContext: PostContext,
-    ignoreEmptyBlock: Boolean = false
+    ignoreEmptyBlock: Boolean = false,
+    localContext: LocalContext,
 ) {
     val block = dataBlock.block
+
+    if (block is NumberedListItemBlock) {
+        if (!localContext.isInNumberedList) {
+            localContext.isInNumberedList = true
+        }
+        localContext.numberedListItem.add(block)
+    } else {
+        if (localContext.isInNumberedList) {
+            ol {
+                for (block in localContext.numberedListItem)
+                    li {
+                        block.numberedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
+                        richTexts(block.numberedListItem.richText)
+                        tryGenChildren(dataBlock, pageData, postContext)
+                    }
+            }
+
+            localContext.isInNumberedList = false
+            localContext.numberedListItem.clear()
+        }
+    }
+
+    if (block is BulletedListItemBlock) {
+        if (!localContext.isInBulletedList) {
+            localContext.isInBulletedList = true
+        }
+        localContext.bulletedListItem.add(block)
+    } else {
+        if (localContext.isInBulletedList) {
+            ul {
+                for (block in localContext.bulletedListItem)
+                    li {
+                        block.bulletedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
+                        richTexts(block.bulletedListItem.richText)
+                        tryGenChildren(dataBlock, pageData, postContext)
+                    }
+            }
+
+            localContext.isInBulletedList = false
+            localContext.bulletedListItem.clear()
+        }
+    }
+
     when {
         //todo
         block is ParagraphBlock -> {
@@ -84,27 +130,6 @@ fun FlowContent.notionBlock(
             blockQuote {
                 block.quote?.color?.let { color -> colorClass(color)?.let { classes += it } }
                 block.quote?.richText?.let { richTexts(it) }
-            }
-        }
-
-        block is BulletedListItemBlock -> {
-            ul {
-                li {
-                    block.bulletedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
-                    richTexts(block.bulletedListItem.richText)
-                    tryGenChildren(dataBlock, pageData, postContext)
-                }
-            }
-        }
-
-        //todo
-        block is NumberedListItemBlock -> {
-            ol {
-                li {
-                    block.numberedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
-                    richTexts(block.numberedListItem.richText)
-                    tryGenChildren(dataBlock, pageData, postContext)
-                }
             }
         }
 
@@ -257,7 +282,7 @@ fun FlowContent.notionBlock(
             block.equation?.let {
                 div {
                     classes += "equation"
-                    + "$$${it.expression}$$"
+                    +"$$${it.expression}$$"
                 }
             }
         }
