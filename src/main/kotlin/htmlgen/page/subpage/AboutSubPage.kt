@@ -3,7 +3,6 @@ package htmlgen.page.subpage
 import STATIC_PATH
 import childPath
 import htmlgen.*
-import htmlgen.page.introduce
 import kotlinx.html.*
 import java.nio.file.Path
 
@@ -27,7 +26,7 @@ class AboutSubPage : SubPage() {
                     div {
                         classes += "description_wrapper"
                         p {
-                            +introduce
+                            +INTRODUCE
                         }
                     }
                 }
@@ -45,9 +44,11 @@ class AboutSubPage : SubPage() {
                     div {
                         classes += "list"
                         for (it in friendLinkItems) {
-                            div {
-                                onClick = "window.open('${it.link}')"
-                                classes += "friend_link"
+                            a {
+                                href = it.link
+                                target = "_blank"
+                                classes += arrayOf("button", "friend_link")
+
                                 div {
                                     classes += "icon"
                                     classes += "start"
@@ -76,8 +77,12 @@ class AboutSubPage : SubPage() {
         return "关于"
     }
 
+    override fun icon(): String? {
+        return SVGIcons.DOG_BARK
+    }
+
     override fun getCssNames(): Array<String> {
-        return arrayOf("about_page")
+        return arrayOf("subpage/about")
     }
 
     override fun getJsNames(): Array<String> {

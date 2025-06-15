@@ -9,27 +9,28 @@ class BlogElement(
     val blogPost: BlogPostPage
 ) : HomeElement {
     override fun DIV.show() {
-        classes += "post_preview"
-        classes += "regular"
-        onClick = "location.href='${blogPost.htmlServerPath}';"
+        a {
+            classes += arrayOf("post_preview", "blog", "large")
+            href = blogPost.htmlServerPath
 
-        val emoji = blogPost.getEmoji()
+            val emoji = blogPost.getEmoji()
 
-        div {
-            classes += "description"
             div {
-                classes += "title"
-                h2 {
-                    +blogPost.getPlainTitle()
-                }
+                classes += "description"
                 div {
-                    classes += "emoji"
-                    +emoji
+                    classes += "title"
+                    h2 {
+                        +blogPost.getPlainTitle()
+                    }
+                    div {
+                        classes += "emoji"
+                        +emoji
+                    }
                 }
-            }
-            h3 {
-                classes += "slug"
-                +if (blogPost.slug != null) blogPost.slug.toNormalString() else "没有介绍"
+                h3 {
+                    classes += "slug"
+                    +if (blogPost.slug != null) blogPost.slug.toNormalString() else "没有介绍"
+                }
             }
         }
     }

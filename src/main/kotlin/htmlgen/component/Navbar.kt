@@ -13,14 +13,16 @@ fun FlowContent.naviWithHighlightedItem(items: Array<HomeSelection>, highlighted
     div {
         classes += "navi"
         classes += "row"
-        for (item in items) {
+        for (subpage in items) {
             a {
                 classes += "navi_link"
-                if (item == highlighted) {
-                   classes += "highlighted"
+                if (subpage == highlighted) {
+                    classes += "highlighted"
                 }
-                href = item.url()
-                +item.displayName()
+
+                href = subpage.url()
+                subpage.icon()?.let { unsafeSVG(it) }
+                +subpage.displayName()
             }
         }
     }

@@ -2,70 +2,24 @@ package htmlgen.component
 
 import htmlgen.model.BlogPostPage
 import htmlgen.model.DevLogPostPage
+import htmlgen.model.home.BlogElement
 import kotlinx.html.*
 import htmlgen.toNormalString
 import serverPathString
 
 
-fun FlowContent.largePostPreview(post: BlogPostPage) {
+fun FlowContent.largeBlogPostPreview(post: BlogPostPage) {
     div {
-        classes += "post_preview"
-        classes += "preview"
-        classes += "large"
-        classes += "reveal"
-        onClick = "location.href='${post.htmlServerPath}';"
-
-        div {
-            classes += "title_part"
-            val emoji = post.getEmoji()
-            div {
-                classes += "emoji"
-                +emoji
-            }
-
-            h2 {
-                classes += "title"
-                +post.getPlainTitle()
-            }
-        }
-        h3 {
-            classes += "slug"
-            +if (post.slug != null) post.slug.toNormalString() else "没有介绍"
-        }
-
-        div {
-            classes += "info"
-            p {
-                classes += "date"
-                +post.getPreviewDisplayDate()
-            }
-            div {
-                classes += "type_tags"
-
-                post.tags.forEach {
-                    p {
-                        classes += "tag"
-                        +it.name.orEmpty()
-                    }
-                }
-
-                p {
-                    classes += "type"
-                    +post.type.name!!
-                }
-            }
-
+        with(BlogElement(post)) {
+            show()
         }
     }
 }
 
 fun FlowContent.blogPostPreview(blogPost: BlogPostPage) {
-    div {
-        classes += "post_preview"
-        classes += "preview"
-        classes += "regular"
-        classes += "reveal"
-        onClick = "location.href='${blogPost.htmlServerPath}';"
+    a {
+        classes += arrayOf("post_preview", "regular", "reveal", "blog")
+        href = blogPost.htmlServerPath
 
         val emoji = blogPost.getEmoji()
         div {
@@ -100,12 +54,9 @@ fun FlowContent.blogPostPreview(blogPost: BlogPostPage) {
 }
 
 fun FlowContent.devLogPostPreview(devLogPost: DevLogPostPage) {
-    div {
-        classes += "dev_log_post_preview"
-        classes += "preview"
-        classes += "regular"
-        classes += "reveal"
-        onClick = "location.href='${devLogPost.htmlServerPath}';"
+    a {
+        classes += arrayOf("post_preview", "regular", "reveal", "devlog")
+        href = devLogPost.htmlServerPath
 
         val emoji = devLogPost.getEmoji()
         val imageUrl = devLogPost.previewImagePath?.serverPathString();

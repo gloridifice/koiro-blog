@@ -10,6 +10,7 @@ import kotlinx.html.*
 import notion.api.v1.model.blocks.*
 import notion.api.v1.model.databases.DatabaseProperty
 import htmlgen.model.PageData
+import htmlgen.unsafeSVG
 import kotlin.io.path.*
 
 class PostContext(
@@ -27,9 +28,9 @@ fun FlowContent.navi() {
         classes += "navi"
         for (item in HOME_SELECTIONS) {
             a {
-                classes += "navi_link"
+                classes += arrayOf("navi_link", "button")
                 href = item.url()
-                +item.displayName()
+                item.icon()?.let { unsafeSVG(it) }
             }
         }
     }
@@ -38,48 +39,46 @@ fun FlowContent.navi() {
 fun FlowContent.catalogue(page: PageData, context: GlobalContext) {
     div {
         classes += "catalogue"
-        div {
-            val headBlocks = page.dataBlocks?.filter {
-                it.block is HeadingOneBlock || it.block is HeadingTwoBlock || it.block is HeadingThreeBlock
-            }
-            val pCtx = PostContext()
-            ul {
-                headBlocks?.let {
-                    for (index in it.indices) {
-                        val block = it[index].block
+        val headBlocks = page.dataBlocks?.filter {
+            it.block is HeadingOneBlock || it.block is HeadingTwoBlock || it.block is HeadingThreeBlock
+        }
+        val pCtx = PostContext()
+        ul {
+            headBlocks?.let {
+                for (index in it.indices) {
+                    val block = it[index].block
 
-                        if (block is HeadingOneBlock) {
-                            li {
-                                classes += "h1"
-                                a {
-                                    href = "#${headingId(1, pCtx.h1Index)}"
-                                    pCtx.h1Index++
+                    if (block is HeadingOneBlock) {
+                        li {
+                            classes += "h1"
+                            a {
+                                href = "#${headingId(1, pCtx.h1Index)}"
+                                pCtx.h1Index++
 
-                                    richTexts(block.heading1.richText)
-                                }
+                                richTexts(block.heading1.richText)
                             }
                         }
-                        if (block is HeadingTwoBlock) {
-                            li {
-                                classes += "h2"
-                                a {
-                                    href = "#${headingId(2, pCtx.h3Index)}"
-                                    pCtx.h2Index++
+                    }
+                    if (block is HeadingTwoBlock) {
+                        li {
+                            classes += "h2"
+                            a {
+                                href = "#${headingId(2, pCtx.h3Index)}"
+                                pCtx.h2Index++
 
-                                    richTexts(block.heading2.richText)
-                                }
+                                richTexts(block.heading2.richText)
                             }
                         }
+                    }
 
-                        if (block is HeadingThreeBlock) {
-                            li {
-                                classes += "h3"
-                                a {
-                                    href = "#${headingId(3, pCtx.h3Index)}"
-                                    pCtx.h3Index++
+                    if (block is HeadingThreeBlock) {
+                        li {
+                            classes += "h3"
+                            a {
+                                href = "#${headingId(3, pCtx.h3Index)}"
+                                pCtx.h3Index++
 
-                                    richTexts(block.heading3.richText)
-                                }
+                                richTexts(block.heading3.richText)
                             }
                         }
                     }
@@ -123,15 +122,10 @@ fun FlowContent.post(
     script { +"hljs.highlightAll();" }
     div {
         classes += "post"
-        catalogue(pageData, context); //目录
-        navi() //侧边导航栏
         div {
             classes += "sidebar_wrapper_left"
             classes += "sidebar_wrapper"
-        }
-        div {
-            classes += "sidebar_wrapper_right"
-            classes += "sidebar_wrapper"
+            navi() //侧边导航栏
         }
         div {
             classes += "contents"
@@ -140,9 +134,9 @@ fun FlowContent.post(
                 // 顶部导航栏
                 for (item in HOME_SELECTIONS) {
                     a {
-                        classes += "navi_link"
+                        classes += arrayOf("navi_link", "button")
                         href = item.url()
-                        +item.displayName()
+                        item.icon()?.let { unsafeSVG(it) }
                     }
                 }
             }
@@ -182,6 +176,11 @@ fun FlowContent.post(
                 classes += "page_content"
                 pageData.dataBlocks?.let { notionBlocks(it, pageData, postContext) }
             }
+        }
+        div {
+            classes += "sidebar_wrapper_right"
+            classes += "sidebar_wrapper"
+            catalogue(pageData, context); //目录
         }
     }
 }

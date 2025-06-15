@@ -3,34 +3,96 @@
   font-family: var(--universal-font);
   --universal-font: -apple-system, sans-serif;
   --monospace-font: 'JetBrains Mono', monospace;
-  --transparent-color: rgba(1,1,1,0);
+  --transparent-color: rgba(1, 1, 1, 0);
   --post-preview-max-width: 570px;
   --content-max-width: 740px;
   --text-tile-bg-image: url("../resources/text_background.png");
   --text-tile-bg-image-blur: url("../resources/text_background_blur.png");
 }
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Light.woff2") format("woff");
   font-weight: 300;
 }
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Regular.woff2") format("woff");
   font-weight: 400;
 }
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Italic.woff2") format("woff");
   font-style: italic;
 }
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-Bold.woff2") format("woff");
   font-weight: 700;
 }
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../../../static/assets/resources/font/JetBrainsMono-2.304/JetBrainsMono-ExtraBold.woff2") format("woff");
   font-weight: 800;
+}
+
+p {
+  color: var(--text-color-1);
+}
+
+div {
+  color: var(--text-color-1);
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:-webkit-any-link {
+  width: fit-content;
+  border-radius: 5px;
+  margin: 3px;
+  cursor: pointer;
+  transition: .2s border;
+  border: solid 1px var(--bg-color-1);
+  background-color: var(--bg-color-0);
+  font-size: 13px;
+
+  box-shadow: 0 2px 8px var(--shadow-color-0), inset 0 -4px var(--bg-color-1);
+  padding: 2px 8px;
+  padding-bottom: 6px;
+
+  text-decoration: none;
+  color: var(--text-color-1);
+
+  &:hover {
+    border: solid 1px var(--accents-color-2);
+  }
+
+  &:active {
+    box-shadow: 0 2px 4px var(--shadow-color-1);
+    padding-bottom: 4px;
+  }
+
+  svg {
+    width: 14px;
+    margin-right: 4px;
+
+    * {
+      fill: var(--text-color-2);
+    }
+  }
+
+  div {
+    color: var(--text-color-1);
+    height: fit-content;
+    margin: auto 0 auto 8px;
+  }
 }

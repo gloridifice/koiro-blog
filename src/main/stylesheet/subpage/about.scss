@@ -13,7 +13,8 @@
     display: flex;
     flex-direction: row;
     align-items: end;
-    margin-left: 10px;
+    justify-content: center;
+    margin: 20px auto;
 
     svg {
       width: 28px;
@@ -34,23 +35,15 @@
   .list {
     width: 100%;
 
-    .friend_link:hover {
-      border: solid 1px var(--text-color-2);
-    }
-
     .friend_link {
-      box-sizing: content-box;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      align-items: center;
       margin: 8px auto;
-      background-color: var(--bg-color-1);
-      border-radius: 4px;
-      padding: 4px 10px;
       cursor: pointer;
       font-size: 14px;
-      transition: border-color 0.2s;
-      border: solid 1px transparent;
+      width: 100%;
 
       .start {
         display: flex;
@@ -102,9 +95,6 @@
 .introduce {
   margin: 32px auto;
   margin-top: 0;
-  //background-color: transparent;
-  //backdrop-filter: blur(5px);
-  //box-shadow: 0 8px 12px var(--shadow-color-1);
   padding: 12px 24px;
   border-radius: 24px;
   max-width: 330px;
@@ -114,9 +104,6 @@
       height: min(max(168px, 30vh), 328px);
       object-fit: contain;
       box-shadow: 0 8px 12px var(--shadow-color-1);
-
-      //transform: rotate3d(-0.5,1,.2, 15deg);
-      //transition: .3s transform ease-in-out;
     }
     margin: 24px;
   }

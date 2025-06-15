@@ -1,0 +1,199 @@
+/// 这是所有预览卡片的基本样式，所有预览卡片共享
+.post_preview {
+  background-color: var(--bg-color-1);
+  background-image: var(--text-tile-bg-image);
+  border-radius: 6px;
+  border: solid 1px var(--bg-color-1);
+  box-shadow: inset 0 -6px var(--shadow-color-0);
+  padding-bottom: 6px;
+  transition: 0.5s border, 0.5s background-color;
+  width: 100%;
+  margin: 14px auto;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--bg-color-2);
+    border: solid 1px var(--line-color);
+  }
+
+  &:active {
+    box-shadow: none;
+    padding-bottom: 0;
+  }
+}
+
+a.post_preview:-webkit-any-link {
+  display: flex;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+// Regular card
+.post_preview.regular {
+  position: relative;
+  height: 81px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .emoji {
+    text-shadow: 0 6px 8px var(--shadow-color-1);
+    font-size: 36px;
+    padding: 13px 16px 16px;
+    margin: 0 0 0 6px;
+    width: fit-content;
+    transition: 0.2s text-shadow;
+  }
+
+  .description {
+    margin: auto 0;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 500px;
+    min-width: 100px;
+    text-align: left;
+
+    h2 {
+      color: var(--text-color-0);
+      font-size: 18px;
+      margin: 0;
+      font-weight: normal;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    h3 {
+      font-size: 12px;
+      margin: 0;
+      margin-top: 6px;
+      color: var(--text-color-1);
+      font-weight: 200;
+    }
+
+    * {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+
+  .info {
+    flex-direction: column;
+    height: fit-content;
+    width: fit-content;
+    margin: auto 20px auto 10px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 400;
+    min-width: fit-content;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+// Large card
+.blog.large {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+
+  > * {
+    flex: 1 1 auto;
+  }
+
+  .description {
+    display: flex;
+    flex-direction: column;
+    margin: 24px;
+
+    .title {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .emoji {
+      font-size: 24px;
+      flex-basis: 24px;
+    }
+
+    h2 {
+      color: var(--text-color-0);
+      font-weight: normal;
+      font-size: 20px;
+      text-align: left;
+      margin: 0;
+    }
+
+    h3 {
+      color: var(--text-color-1);
+      font-weight: 200;
+      font-size: 14px;
+      text-align: left;
+      margin: 0;
+      margin-top: 12px;
+      max-height: 400px;
+    }
+  }
+}
+
+// ===== Devlog =====
+.devlog.regular {
+  img {
+    margin: 0;
+    width: fit-content;
+    height: 100%;
+  }
+
+  .description {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    h2 {
+      margin: 12px;
+      font-size: 16px;
+      white-space: wrap;
+      height: fit-content;
+      max-height: 100%;
+      text-align: left;
+    }
+  }
+
+  .info {
+    flex-grow: 1;
+    height: fit-content;
+    p {
+      text-wrap: nowrap;
+    }
+  }
+}
+
+.devlog.large {
+  flex-direction: column;
+  padding: 24px;
+  align-items: center;
+
+  .preview {
+    width: 90%;
+    //margin: 24px 24px 0;
+
+    img {
+      width: 100%;
+      border-radius: 2px;
+    }
+  }
+
+  .description {
+    h2 {
+      font-size: 18px;
+    }
+  }
+}

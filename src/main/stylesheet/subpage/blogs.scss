@@ -11,6 +11,9 @@
   padding: 0 0 24px;
 }
 
+.post_preview {
+  max-width: var(--post-preview-max-width);
+}
 
 .post_type_buttons {
   display: flex;

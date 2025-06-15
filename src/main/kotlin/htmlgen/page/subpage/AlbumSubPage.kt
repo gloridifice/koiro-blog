@@ -38,4 +38,8 @@ class AlbumSubPage: SubPage() {
     override fun displayName(): String {
         TODO("Not yet implemented")
     }
+
+    override fun icon(): String? {
+        TODO("Not yet implemented")
+    }
 }

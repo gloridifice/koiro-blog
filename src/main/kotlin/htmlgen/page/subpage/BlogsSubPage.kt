@@ -3,11 +3,9 @@ package htmlgen.page.subpage
 import GlobalContext
 import STATIC_PATH
 import childPath
+import htmlgen.SVGIcons
 import htmlgen.component.blogPostPreview
-import htmlgen.component.footer
-import htmlgen.component.largePostPreview
-import htmlgen.model.BlogPostPage
-import htmlgen.toNormalString
+import htmlgen.component.largeBlogPostPreview
 import kotlinx.html.*
 import java.nio.file.Path
 
@@ -25,7 +23,7 @@ class BlogsSubPage(val context: GlobalContext) : SubPage() {
                     classes += "reveal"
                     +"最近更新"
                 }
-                largePostPreview(context.blogDatabaseData.publishedPages.first())
+                largeBlogPostPreview(context.blogDatabaseData.publishedPages.first())
             }
 
             div {
@@ -79,8 +77,12 @@ class BlogsSubPage(val context: GlobalContext) : SubPage() {
         return "博客"
     }
 
+    override fun icon(): String? {
+        return SVGIcons.BLOGS
+    }
+
     override fun getCssNames(): Array<String> {
-        return arrayOf("blogs_page", "blog_preview", "scroll_animation")
+        return arrayOf("subpage/blogs", "post_preview", "scroll_animation")
     }
 
     override fun getJsNames(): Array<String> {

@@ -25,7 +25,12 @@ body {
 .top_gap_space {
   width: 100%;
   height: 10vh;
+
+  @media only screen and (max-width: 600px) {
+    display: none;
+  }
 }
+
 
 * {
   box-sizing: border-box;
@@ -103,30 +108,48 @@ body {
   justify-content: center;
   align-items: end;
   margin-top: 24px;
+  gap: 10px;
 }
 
-* .navi_link:-webkit-any-link:hover {
-  color: var(--text-color-0);
-  font-weight: bold;
-}
-
-* .navi_link:-webkit-any-link {
+.navi_link:-webkit-any-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 6px 0;
-  color: var(--text-color-2);
-  font-size: 24px;
-  font-family: "Songti SC", "SimSun", "NSimSun", "TW-Sung", "PMingLiU", "MingLiU", "serif", serif;
-  font-weight: bolder;
-  display: inline-block;
-  transform: scaleX(0.75);
-  transition: color 0.2s;
-  cursor: pointer;
-}
-
-* .navi_link.highlighted {
+  color: var(--temp-color);
   text-decoration: none;
-  color: var(--text-color-1);
-  font-weight: bold;
-  font-size: 28px;
+  font-size: 12px;
+  font-weight: 200;
+  transition: color 0.2s, border 0.2s;
+  cursor: pointer;
+  gap: 4px;
+
+  --temp-color: var(--text-color-2);
+
+
+  &.highlighted {
+    --temp-color: var(--text-color-1);
+
+    svg {
+      width: 32px;
+      fill: var(--temp-color);
+    }
+  }
+
+  svg {
+    width: 24px;
+    height: fit-content;
+    fill: var(--temp-color);
+  }
+
+  &:active {
+    --temp-color: var(--text-color-2);
+  }
+
+  &:hover {
+    --temp-color: var(--text-color-1);
+    font-weight: bold;
+  }
 }
 
 svg * {

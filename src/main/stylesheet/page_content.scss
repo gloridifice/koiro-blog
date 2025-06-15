@@ -214,7 +214,8 @@
 
     .icon {
       height: 18px;
-      margin: 8px 6px;
+      margin: 6px 4px;
+      fill: var(--text-color-2);
     }
 
     .text {
@@ -261,10 +262,13 @@ t {
 
 t.code {
   background-color: var(--inline-code-color-bg);
-  color: var(--inline-code-color-text);
+  border: 1px solid var(--inline-code-color-bg);
+  box-shadow: inset 0 -0.2em var(--bg-color-1);
+  //color: var(--inline-code-color-text);
   font-weight: normal;
   border-radius: 0.3em;
-  padding: 0 0.4em;
+  padding: 2px 0.4em;
+  padding-bottom: calc(1px + 0.3em);
   margin: 0 -0.1em;
   font-family: var(--monospace-font), monospace;
   font-size: 0.9em;

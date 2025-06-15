@@ -76,12 +76,11 @@ fun FlowContent.outSidePageButtons(items: Array<OutSidePageItem>) {
     div {
         classes += "outside_pages"
         items.forEach {
-            div {
-                onClick = "window.open('${it.link}')"
-                classes += "outside_page_item"
-
+            a {
+                href = it.link
+                target = "_blank"
+                classes += arrayOf("outside_page_item", "button", "row")
                 unsafeSVG(SVGIcons.EXTERNAL_LINK)
-
                 div {
                     classes += "desc"
                     +it.desc

@@ -43,13 +43,14 @@ class PortfolioSubPage(val context: GlobalContext) : SubPage() {
                         }
                     }
 
-                    div {
-                        classes += "link"
-                        if (project.url != null) {
+                    project.url?.let {
+                        a {
+                            classes += arrayOf("button", "row")
+
+                            href = project.url
+                            target = "_blank"
                             unsafeSVG(SVGIcons.EXTERNAL_LINK)
-                            a {
-                                href = project.url
-                                target = "_blank"
+                            div {
                                 + "主页"
                             }
                         }
@@ -74,8 +75,12 @@ class PortfolioSubPage(val context: GlobalContext) : SubPage() {
         return "项目"
     }
 
+    override fun icon(): String? {
+        return SVGIcons.PROJECTS
+    }
+
     override fun getCssNames(): Array<String> {
-        return arrayOf("blog_preview", "portfolio_page", "scroll_animation")
+        return arrayOf("post_preview", "subpage/portfolio", "scroll_animation")
     }
 
     override fun getJsNames(): Array<String> {

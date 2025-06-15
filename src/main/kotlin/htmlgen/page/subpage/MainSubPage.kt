@@ -3,6 +3,7 @@ package htmlgen.page.subpage
 import GlobalContext
 import STATIC_PATH
 import childPath
+import htmlgen.SVGIcons
 import htmlgen.dateDisplayWithoutYearString
 import kotlinx.html.DIV
 import kotlinx.html.classes
@@ -46,8 +47,12 @@ class MainSubPage(val context: GlobalContext): SubPage() {
         return "主页"
     }
 
+    override fun icon(): String? {
+        return SVGIcons.HOME
+    }
+
     override fun getCssNames(): Array<String> {
-        return arrayOf("scroll_animation", "main_home_page")
+        return arrayOf("scroll_animation", "subpage/main", "post_preview", "page_content")
     }
 
     override fun getJsNames(): Array<String> {
