@@ -155,7 +155,7 @@
     .code_part {
       background-color: var(--bg-color-1);
       font-family: var(--monospace-font), sans-serif;
-      border-radius: 2px;
+      border-radius: 6px;
       padding: 1.3em 1.7em;
 
       .code_lang {
@@ -229,11 +229,11 @@
   }
 
   .checked {
-    color: var(--accents-color-2);
+    color: var(--text-color-2);
     text-decoration: line-through;
 
     svg * {
-      fill: var(--accents-color-2);
+      fill: var(--text-color-2);
     }
   }
 

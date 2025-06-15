@@ -12,7 +12,13 @@ body {
     width: fit-content;
     margin: 0;
     height: 24px;
-    transition: fill 0.2s;
+    transition: fill 0.2s, height 0.2s ease-in-out;
+  }
+
+  &:hover {
+    svg {
+      height: 32px;
+    }
   }
 }
 
@@ -154,6 +160,7 @@ body {
       display: none;
       flex-direction: row;
       gap: 8px;
+      height: 48px;
       align-items: center;
     }
 
@@ -162,7 +169,7 @@ body {
       padding: 12px 24px;
       padding-bottom: 18px;
       border-radius: 6px;
-      border: solid 1px var(--bg-color-2);
+      border: solid 1px var(--bg-color-3);
       background-color: var(--bg-color-1);
       margin: 24px 0;
 
@@ -176,7 +183,7 @@ body {
 
       hr {
         border: none;
-        border-top: var(--bg-color-2) solid 1px;
+        border-top: var(--bg-color-3) solid 1px;
         margin: 18px -24px;
       }
 
