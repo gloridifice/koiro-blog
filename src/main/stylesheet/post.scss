@@ -7,7 +7,7 @@ body {
   width: 100%;
 }
 
-.navi_link:-webkit-any-link {
+.navi_link:any-link {
   svg {
     width: fit-content;
     margin: 0;
