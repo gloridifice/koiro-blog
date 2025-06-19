@@ -11,6 +11,7 @@ import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
 import htmlgen.model.PageData
 import htmlgen.page.LocalContext
+import htmlgen.page.post
 import notiondata.ImageDataBlock
 import serverPathString
 import java.net.URL
@@ -102,6 +103,7 @@ fun FlowContent.notionBlock(
         block is HeadingOneBlock -> {
             h1 {
                 id = "heading1_${postContext.h1Index}"
+                attributes["index-text"] = FormatUtils.intToRoman(postContext.h1Index + 1)
                 postContext.h1Index++
                 block.heading1.color?.let { color -> colorClass(color)?.let { classes += it } }
                 richTexts(block.heading1.richText)
@@ -253,28 +255,26 @@ fun FlowContent.notionBlock(
         block is BookmarkBlock && dataBlock is BookmarkDataBlock -> {
             block.bookmark?.let {
                 div {
-                    classes += "bookmark_block"
-                    div {
-                        classes += "bookmark"
+                    classes += "caption_block"
+                    a {
+                        classes += arrayOf("bookmark", "button")
 
-                        it.url?.let { url ->
-                            onClick = "window.open('${url}')"
+                        val url = it.url ?: ""
+                        href = it.url ?: ""
 
-                            val title = dataBlock.title
-                            val titleText = title ?: url
-                            div {
-                                classes += "title"
-                                +titleText
-                            }
-                            div {
-                                classes += "url"
-                                +url
-                            }
+                        val title = dataBlock.title
+                        val titleText = title ?: url
+                        div {
+                            classes += "title"
+                            +titleText
+                        }
+                        div {
+                            classes += "url"
+                            +url
                         }
                     }
                     caption(it.caption)
                 }
-
             }
         }
 

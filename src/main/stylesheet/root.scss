@@ -6,8 +6,9 @@
   --transparent-color: rgba(1, 1, 1, 0);
   --post-preview-max-width: 570px;
   --content-max-width: 740px;
-  --text-tile-bg-image: url("../resources/text_background.png");
-  --text-tile-bg-image-blur: url("../resources/text_background_blur.png");
+  --bg-image-koiro-text-tile: url("../resources/text_background.png");
+  --bg-image-koiro-text-tile-blur: url("../resources/text_background_blur.png");
+  --bg-image-pattern: url("../resources/pattern_background.png");
 }
 
 @font-face {
@@ -61,11 +62,16 @@ div {
   margin: 3px;
   cursor: pointer;
   transition: .2s border;
-  border: solid 1px var(--bg-color-1);
-  background-color: var(--bg-color-0);
+
+  --button-bg-color: var(--bg-color-0);
+  --button-border-color: var(--bg-color-1);
+  --button-hover-border-color: var(--text-color-2);
+
+  border: solid 1px var(--button-border-color);
+  background-color: var(--button-bg-color);
   font-size: 13px;
 
-  box-shadow: 0 2px 8px var(--shadow-color-0), inset 0 -4px var(--bg-color-1);
+  box-shadow: 0 2px 8px var(--shadow-color-0), inset 0 -4px var(--button-border-color);
   padding: 2px 8px;
   padding-bottom: 6px;
 
@@ -73,7 +79,7 @@ div {
   color: var(--text-color-1);
 
   &:hover {
-    border: solid 1px var(--text-color-2);
+    border: solid 1px var(--button-hover-border-color);
   }
 
   &:active {

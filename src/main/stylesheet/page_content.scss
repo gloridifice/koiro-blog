@@ -4,13 +4,26 @@
 
   h1 {
     color: var(--text-color-0);
-    margin: 48px 0 12px;
+    margin: 32px 0 12px;
     width: 100%;
     padding: 2px 0;
     font-weight: 400;
     font-size: 28px;
     border-bottom: solid var(--line-color) 1px;
     text-align: left;
+    position: relative;
+    &::before {
+      content: attr(index-text);
+      top: 10px;
+      left: -8px;
+      font-family: serif;
+      font-weight: bolder;
+      color: var(--text-color-2);
+      transform: translateX(-100%);
+      position: absolute;
+      pointer-events: none;
+      font-size: 24px;
+    }
   }
 
   h2 {
@@ -42,46 +55,30 @@
     color: var(--text-color-1);
   }
 
-  .bookmark_block {
-    margin: 12px 0;
-
-    .bookmark {
-      padding: 8px 16px;
-      display: flex;
-      flex-direction: column;
-      max-width: 100%;
-      border: solid var(--bg-color-2) 1px;
-      background-color: var(--bg-color-1);
-      border-radius: 6px;
-      margin: 0;
-      cursor: pointer;
-
-      div {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        margin: 3px 0;
-      }
-
-      .title {
-        transition: color 0.4s;
-        color: var(--text-color-1);
-      }
-
-      .url {
-        transition: color 0.4s;
-        color: var(--text-color-2);
-        font-size: 12px;
-      }
-    }
+  .caption_block {
+    display: flex;
+    flex-direction: column;
   }
 
-  .bookmark:hover {
+  .bookmark {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 10px 12px;
+    padding-bottom: 14px;
+    margin-left: 0;
+    margin-right: 0;
+    gap: 4px;
+    --button-border-color: var(--bg-color-2);
+    --button-bg-color: var(--bg-color-1);
+
+    background-image: var(--bg-image-pattern);
     .title {
-      color: var(--text-color-0);
+      font-size: 16px;
     }
     .url {
-      color: var(--text-color-1);
+      font-size: 12px;
+      color: var(--text-color-2);
     }
   }
 
@@ -95,7 +92,7 @@
 
   ul {
     padding-left: 1.5em;
-    margin: 24px 0;
+    margin: 16px 0;
   }
 
   ol {
@@ -153,17 +150,20 @@
     margin: 12px auto;
 
     .code_part {
-      background-color: var(--bg-color-1);
+      background-color: var(--bg-color-2);
       font-family: var(--monospace-font), sans-serif;
       border-radius: 6px;
-      padding: 1.3em 1.7em;
+      padding: 1em 1.5em;
+      padding-bottom: calc(1em + 4px);
+      border: 1px solid var(--inline-code-color-bg);
+      box-shadow: inset 0 -4px var(--bg-color-1);
 
       .code_lang {
         text-align: right;
         position: relative;
         height: 0;
-        top: -18px;
-        right: -18px;
+        top: -8px;
+        right: -8px;
         color: var(--text-color-2);
         font-size: 12px;
       }
@@ -175,7 +175,7 @@
           padding: 0;
           overflow-x: auto;
           font-size: 13px;
-          background-color: var(--bg-color-1);
+          background-color: var(--bg-color-2);
           white-space: pre;
         }
       }
@@ -195,9 +195,14 @@
   .callout {
     display: flex;
     flex-direction: row;
+
+    box-shadow: inset 0 -4px var(--bg-color-2);
+    padding: 12px 24px;
+    padding-bottom: 16px;
+    border-radius: 6px;
+    border: solid 1px var(--bg-color-3);
     background-color: var(--bg-color-1);
-    padding: 24px 30px;
-    border-radius: 2px;
+    margin: 24px 0;
     font-size: 16px;
 
     .icon {
@@ -243,7 +248,7 @@
 }
 
 h1 t {
-  font-weight: 400;
+  font-weight: bold;
   color: var(--text-color-0);
 }
 
@@ -272,7 +277,6 @@ t.code {
   font-weight: normal;
   border-radius: 0.3em;
   padding: 2px 0.4em;
-  padding-bottom: calc(1px + 0.3em);
   margin: 0 -0.1em;
   font-family: var(--monospace-font), monospace;
   font-size: 0.9em;
