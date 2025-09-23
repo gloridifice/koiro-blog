@@ -127,3 +127,41 @@ function readCookie(name) {
 function eraseCookie(name) {
     createCookie(name, "", -1);
 }
+
+
+// ========= Touchable Avatar ==========
+function setupTouchableAvatar(selector: string) {
+    const els = document.querySelectorAll<HTMLElement>(selector);
+    if (!els) return;
+    els.forEach((el) => {
+        el.addEventListener("click", () => {
+            // 如果正在动画，先取消
+            if ((el as any)._anim) {
+                (el as any)._anim.cancel();
+            }
+
+            const keyframes: Keyframe[] = [
+                {transform: "scaleY(1)", offset: 0},
+                {transform: "scaleY(0.22)", offset: 0.4}, // 压缩
+                {transform: "scaleY(1)", offset: 1}       // 回到原始
+            ];
+
+            const timing: KeyframeAnimationOptions = {
+                duration: 500,
+                easing: "cubic-bezier(.2,.7,.2,1)",
+                fill: "forwards"
+            };
+
+            const anim = el.animate(keyframes, timing);
+            (el as any)._anim = anim;
+
+            anim.onfinish = () => {
+                (el as any)._anim = null;
+            };
+        });
+    })
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setupTouchableAvatar(".touchable-avatar");
+});

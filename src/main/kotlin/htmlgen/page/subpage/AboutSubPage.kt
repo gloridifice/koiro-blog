@@ -3,6 +3,7 @@ package htmlgen.page.subpage
 import STATIC_PATH
 import childPath
 import htmlgen.*
+import htmlgen.component.touchableAvatar
 import kotlinx.html.*
 import java.nio.file.Path
 
@@ -19,9 +20,10 @@ class AboutSubPage : SubPage() {
                     classes += "introduce"
                     div {
                         classes += "avatar_wrapper"
-                        img {
-                            src = resourcesServerPath("Koiro_Arc.png".asLoc())
-                        }
+                        touchableAvatar(resourcesServerPath("doiro.png".asLoc()))
+//                        img {
+//                            src = resourcesServerPath("Koiro_Arc.png".asLoc())
+//                        }
                     }
                     div {
                         classes += "description_wrapper"

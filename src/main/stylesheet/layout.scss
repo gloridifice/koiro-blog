@@ -204,3 +204,14 @@ svg * {
 .outside {
   text-decoration: underline dashed var(--text-color-2);
 }
+
+.touchable-avatar {
+  transform-origin: center 83%;
+  cursor: url("/assets/resources/hand.png") 16 16, auto; /* 16 16 是热点位置 */
+  user-select: none;       /* 禁止选中内容 */
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  img {
+    -webkit-user-drag: none; /* 禁止拖拽图片 */
+  }
+}

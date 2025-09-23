@@ -85,18 +85,11 @@ body {
     }
 
     .icon {
-      svg {
-        width: 36px;
-        height: 36px;
-
-        * {
-          fill: var(--text-color-2);
-        }
+      img {
+        height: 72px;
+        width: 72px;
       }
-
-      height: fit-content;
-      width: fit-content;
-      padding-right: 18px;
+      padding-right: 8px;
     }
   }
 

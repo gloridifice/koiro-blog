@@ -15,6 +15,7 @@ fun HTML.homePage(subPage: SubPage, show: DIV.() -> Unit) {
         headFont = "你好",
     ) {
         div {
+            // ========== Sidebar =========
             classes += "about"
             div {
                 classes += "up"
@@ -35,7 +36,8 @@ fun HTML.homePage(subPage: SubPage, show: DIV.() -> Unit) {
                     classes += "introduction"
                     div {
                         classes += "icon"
-                        unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
+                        touchableAvatar(resourcesServerPath("doiro.png".asLoc()))
+//                        unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
                     }
                     div {
                         classes += "texts"
