@@ -21,9 +21,6 @@ class AboutSubPage : SubPage() {
                     div {
                         classes += "avatar_wrapper"
                         touchableAvatar(resourcesServerPath("doiro.png".asLoc()))
-//                        img {
-//                            src = resourcesServerPath("Koiro_Arc.png".asLoc())
-//                        }
                     }
                     div {
                         classes += "description_wrapper"

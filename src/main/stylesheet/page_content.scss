@@ -12,18 +12,6 @@
     border-bottom: solid var(--line-color) 1px;
     text-align: left;
     position: relative;
-    &::before {
-      content: attr(index-text);
-      top: 10px;
-      left: -8px;
-      font-family: serif;
-      font-weight: bolder;
-      color: var(--text-color-2);
-      transform: translateX(-100%);
-      position: absolute;
-      pointer-events: none;
-      font-size: 24px;
-    }
   }
 
   h2 {

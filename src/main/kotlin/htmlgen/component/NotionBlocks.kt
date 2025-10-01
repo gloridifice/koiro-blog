@@ -204,7 +204,7 @@ fun FlowContent.notionBlock(
                         classes += "code_part"
                         code.language?.let {
                             div {
-                                classes += "code_lang"
+                                classes += arrayOf("code_lang", "rss-ignore")
                                 +it
                             }
                         }
