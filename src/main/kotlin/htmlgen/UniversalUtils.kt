@@ -26,7 +26,14 @@ fun copyDir(src: Path, dest: Path) {
 }
 
 fun HEAD.universalHeadSetting() {
-//    lang = "zh_CN"
+    // For RSS
+    link {
+        rel = "alternate"
+        type = "application/rss+xml"
+        title = "Koiro's Cat Café"
+        href = "/rss.xml"
+    }
+
     meta {
         httpEquiv = "Content-Type"
         content = "charset=utf-8"
