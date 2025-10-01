@@ -8,6 +8,7 @@ import htmlgen.page.subpage.*
 import notiondata.*
 import java.io.File
 import java.nio.file.Path
+import java.util.Date
 import kotlin.io.path.*
 
 const val OUT_PUT_PATH_STRING = "static/"
@@ -21,7 +22,7 @@ val HOME_SELECTIONS: Array<HomeSelection> = arrayOf(
     AboutSubPage()
 )
 
-fun readData(): GlobalContext{
+fun readData(): GlobalContext {
     val blog = readNotionDatabase(Path(NOTION_BLOG_DATABASE_ROOT_PATH), ::BlogPostPage)
     val devLog = readNotionDatabase(Path(NOTION_DEV_LOG_DATABASE_ROOT_PATH), ::DevLogPostPage)
     val active = readNotionDatabase(Path(NOTION_ACTIVE_DATABASE_ROOT_PATH), ::ActivePage)
@@ -43,6 +44,15 @@ fun main(args: Array<String>) {
 
     createBlogPostPages(GLOBAL_CONTEXT)
     createDevLogPostPages(GLOBAL_CONTEXT)
+
+    // create xml file
+    File("${OUT_PUT_PATH_STRING}/rss.xml")
+        .writeText(
+            genRssXmlString(
+                GLOBAL_CONTEXT.blogDatabaseData.publishedPages,
+                Date()
+            )
+        )
 }
 
 fun createBlogPostPages(context: GlobalContext) {
