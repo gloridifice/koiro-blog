@@ -15,7 +15,11 @@ class DevLogPostPage(page: Page, parentPath: Path) : PostPage(page, parentPath) 
     val previewImagePath: Path?
 
     override fun getPlainTitle(): String {
-        return super.getPlainTitle() + "｜${work?.name} 开发日志 #${"%04d".format(index)}"
+        return super.getPlainTitle()
+    }
+
+    fun getDevLogInfoText(): String {
+        return "${work?.name} 开发日志 #${"%04d".format(index)}";
     }
 
     override fun getStaticHtmlName(): String {

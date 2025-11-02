@@ -32,6 +32,10 @@ class DevLogElement(
                     classes += "title"
                     +devLogPost.getPlainTitle()
                 }
+                p {
+                    classes += "info"
+                    +devLogPost.getDevLogInfoText();
+                }
             }
         }
     }

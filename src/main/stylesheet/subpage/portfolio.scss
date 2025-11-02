@@ -10,6 +10,7 @@
     width: 100%;
     object-fit: contain;
     border-radius: 4px;
+    border: solid 1px var(--outline-color);
   }
 
   border-top: var(--bg-color-1) solid 1px;
@@ -59,7 +60,11 @@
   }
 }
 
-
-.dev_log_post_preview{
-  max-width: 96%;
+@media only screen and (min-width: 1200px) {
+  .project img {
+      width: 75%;
+  }
+  .post_preview.devlog{
+    max-width: 75%;
+  }
 }

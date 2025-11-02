@@ -139,8 +139,8 @@ body {
   width: 100%;
   min-height: 100vh;
   margin: 0;
-  border-left: solid var(--bg-color-1) 1px;
-  border-right: solid var(--bg-color-1) 1px;
+  border-left: solid var(--outline-color) var(--outline-thickness);
+  border-right: solid var(--outline-color) var(--outline-thickness);
 }
 
 @media only screen and (max-width: 600px) {

@@ -1,6 +1,6 @@
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--bg-color-2) transparent;
+  scrollbar-color: var(--text-color-2) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -171,7 +171,7 @@ svg * {
 
 .footer {
   padding: 24px;
-  border-top: 1px var(--bg-color-1) solid;
+  border-top: var(--outline-color) var(--outline-thickness) solid;
   width: 100%;
   margin-top: 64px;
 

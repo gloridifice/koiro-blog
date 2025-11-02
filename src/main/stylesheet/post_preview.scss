@@ -180,6 +180,7 @@ a.post_preview:any-link {
   flex-direction: column;
   padding: 24px;
   align-items: center;
+  gap: 12px;
 
   .preview {
     width: 90%;
@@ -193,7 +194,15 @@ a.post_preview:any-link {
 
   .description {
     h2 {
+      color: var(--text-color-0);
       font-size: 18px;
+      margin: 0;
+      font-weight: normal;
+    }
+    p.info {
+      color: var(--text-color-1);
+      font-size: 14px;
+      margin: 6px 0 0;
     }
   }
 }

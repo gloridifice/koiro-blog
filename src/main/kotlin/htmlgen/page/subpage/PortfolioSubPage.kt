@@ -51,7 +51,7 @@ class PortfolioSubPage(val context: GlobalContext) : SubPage() {
                             target = "_blank"
                             unsafeSVG(SVGIcons.EXTERNAL_LINK)
                             div {
-                                + "主页"
+                                + "前往主页"
                             }
                         }
                     }

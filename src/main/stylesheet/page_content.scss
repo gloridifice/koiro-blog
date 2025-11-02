@@ -208,10 +208,12 @@
   .todo_block {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: left;
 
     .icon {
       height: 18px;
-      margin: 6px 4px;
+      margin: 0 4px 0 0;
       fill: var(--text-color-2);
     }
 
