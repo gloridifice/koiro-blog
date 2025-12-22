@@ -24,7 +24,6 @@ fun Path.hasChildren(): Boolean{
 }
 
 fun writeJson(path: Path, content: String) {
-    assert(path.endsWith(".json"))
     path.createParentDirectories()
     FileWriter(path.pathString).append(content).close()
 }
