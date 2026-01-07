@@ -11,7 +11,6 @@ import notion.api.v1.model.blocks.*
 import notion.api.v1.model.databases.DatabaseProperty
 import htmlgen.model.PageData
 import htmlgen.unsafeSVG
-import kotlinx.html.attributes.BooleanEncoder
 import kotlin.io.path.*
 
 class PostContext(
@@ -22,9 +21,11 @@ class PostContext(
 
 class LocalContext(
     var isInNumberedList: Boolean = false,
-    var numberedListItem: ArrayList<NumberedListItemBlock> = arrayListOf(),
+    var numberedList: ArrayList<NumberedListItemBlock> = arrayListOf(),
     var isInBulletedList: Boolean = false,
-    var bulletedListItem: ArrayList<BulletedListItemBlock> = arrayListOf(),
+    var bulletedList: ArrayList<BulletedListItemBlock> = arrayListOf(),
+    var isInTodoList: Boolean = false,
+    var todoList: ArrayList<ToDoBlock> = arrayListOf()
 )
 
 fun headingId(heading: Int, index: Int): String {

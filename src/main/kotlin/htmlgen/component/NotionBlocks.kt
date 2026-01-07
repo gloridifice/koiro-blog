@@ -11,15 +11,15 @@ import notiondata.BookmarkDataBlock
 import notiondata.DataBlock
 import htmlgen.model.PageData
 import htmlgen.page.LocalContext
-import htmlgen.page.post
+import kotlinx.html.li
+import kotlinx.html.ul
 import notiondata.ImageDataBlock
 import serverPathString
 import java.net.URL
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 
-fun FlowContent.tryGenChildren(
+fun FlowContent.tryGenerateChildren(
     dataBlock: DataBlock,
     pageData: PageData,
     postContext: PostContext, ignoreEmptyBlock: Boolean = false
@@ -28,13 +28,50 @@ fun FlowContent.tryGenChildren(
 }
 
 fun FlowContent.notionBlocks(
-    block: List<DataBlock>,
+    blocks: List<DataBlock>,
     page: PageData,
     postContext: PostContext,
     ignoreEmptyBlock: Boolean = false
 ) {
     val localContext = LocalContext()
-    block.forEach { notionBlock(it, page, postContext, ignoreEmptyBlock, localContext) }
+    val size = blocks.size
+    blocks.forEachIndexed { i, block ->
+        notionBlock(
+            block,
+            page,
+            postContext,
+            ignoreEmptyBlock,
+            localContext,
+            i == size - 1
+        )
+    }
+}
+
+
+inline fun <reified T> FlowContent.collectListBlock(
+    block: Block,
+    list: MutableList<T>,
+    isInState: Boolean,
+    isLastBlock: Boolean,
+    function: FlowContent.(MutableList<T>) -> Unit
+): Boolean {
+    var ret = isInState;
+    if (block is T) {
+        if (!isInState) {
+            ret = true
+        }
+        list.add(block)
+    }
+
+    if(block !is T || isLastBlock){
+        if (isInState) {
+            function(list)
+
+            ret = false
+            list.clear()
+        }
+    }
+    return ret
 }
 
 fun FlowContent.notionBlock(
@@ -43,64 +80,67 @@ fun FlowContent.notionBlock(
     postContext: PostContext,
     ignoreEmptyBlock: Boolean = false,
     localContext: LocalContext,
+    isLastBlock: Boolean
 ) {
     val block = dataBlock.block
 
-    if (block is NumberedListItemBlock) {
-        if (!localContext.isInNumberedList) {
-            localContext.isInNumberedList = true
+    localContext.isInTodoList =
+        collectListBlock(block, localContext.todoList, localContext.isInTodoList, isLastBlock) { list ->
+            ul {
+                classes += "todo_list"
+                for (block in list)
+                    li {
+                        classes += "todo_list_item"
+                        label {
+                            input {
+                                checked = block.toDo.checked
+                                disabled = true
+                                type = InputType.checkBox
+                            }
+                            block.toDo.richText?.let {
+                                richTexts(it)
+                            }
+                        }
+                    }
+            }
         }
-        localContext.numberedListItem.add(block)
-    } else {
-        if (localContext.isInNumberedList) {
+
+    localContext.isInNumberedList =
+        collectListBlock(block, localContext.numberedList, localContext.isInNumberedList, isLastBlock) { list ->
             ol {
-                for (block in localContext.numberedListItem)
+                for (block in list)
                     li {
                         block.numberedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                         richTexts(block.numberedListItem.richText)
-                        tryGenChildren(dataBlock, pageData, postContext)
+                        tryGenerateChildren(dataBlock, pageData, postContext)
                     }
             }
-
-            localContext.isInNumberedList = false
-            localContext.numberedListItem.clear()
         }
-    }
 
-    if (block is BulletedListItemBlock) {
-        if (!localContext.isInBulletedList) {
-            localContext.isInBulletedList = true
-        }
-        localContext.bulletedListItem.add(block)
-    } else {
-        if (localContext.isInBulletedList) {
+    localContext.isInBulletedList =
+        collectListBlock(block, localContext.bulletedList, localContext.isInBulletedList, isLastBlock) { list ->
             ul {
-                for (block in localContext.bulletedListItem)
+                for (block in list)
                     li {
                         block.bulletedListItem.color?.let { color -> colorClass(color)?.let { classes += it } }
                         richTexts(block.bulletedListItem.richText)
-                        tryGenChildren(dataBlock, pageData, postContext)
+                        tryGenerateChildren(dataBlock, pageData, postContext)
                     }
             }
-
-            localContext.isInBulletedList = false
-            localContext.bulletedListItem.clear()
         }
-    }
 
-    when {
-        //todo
-        block is ParagraphBlock -> {
+    when (block) {
+        is ParagraphBlock -> {
             if (!(ignoreEmptyBlock && block.paragraph.richText.isEmpty())) {
                 p {
                     block.paragraph.color?.let { color -> colorClass(color)?.let { classes += it } }
                     richTexts(block.paragraph.richText)
-                    tryGenChildren(dataBlock, pageData, postContext)
+                    tryGenerateChildren(dataBlock, pageData, postContext)
                 }
             }
         }
 
-        block is HeadingOneBlock -> {
+        is HeadingOneBlock -> {
             h1 {
                 id = "heading1_${postContext.h1Index}"
                 attributes["index-text"] = FormatUtils.intToRoman(postContext.h1Index + 1)
@@ -110,7 +150,7 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is HeadingTwoBlock -> {
+        is HeadingTwoBlock -> {
             h2 {
                 id = "heading2_${postContext.h2Index}"
                 postContext.h2Index++
@@ -119,7 +159,7 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is HeadingThreeBlock -> {
+        is HeadingThreeBlock -> {
             h3 {
                 id = "heading3_${postContext.h3Index}"
                 postContext.h3Index++
@@ -128,50 +168,32 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is QuoteBlock -> {
+        is QuoteBlock -> {
             blockQuote {
                 block.quote?.color?.let { color -> colorClass(color)?.let { classes += it } }
                 block.quote?.richText?.let { richTexts(it) }
             }
         }
 
-        block is ColumnListBlock -> {
+        is ColumnListBlock -> {
             div {
                 classes += "column_list"
-                tryGenChildren(dataBlock, pageData, postContext)
+                tryGenerateChildren(dataBlock, pageData, postContext)
             }
         }
 
-        block is ColumnBlock -> {
+        is ColumnBlock -> {
             div {
                 classes += "column"
-                tryGenChildren(dataBlock, pageData, postContext)
+                tryGenerateChildren(dataBlock, pageData, postContext)
             }
         }
 
-        block is ToDoBlock -> {
-            div {
-                classes += "todo_block"
-                if (block.toDo.checked) classes += "checked"
-                div {
-                    classes += "icon"
-                    val icon = if (block.toDo.checked) SVGIcons.CHECK_BOX_CHECKED else SVGIcons.CHECK_BOX_EMPTY
-                    unsafeSVG(icon)
-                }
-                div {
-                    classes += "text"
-                    block.toDo.richText?.let {
-                        richTexts(it)
-                    }
-                }
-            }
-        }
-
-        block is ToggleBlock -> {
+        is ToggleBlock -> {
 
         }
 
-        block is CalloutBlock -> {
+        is CalloutBlock -> {
             block.callout?.let { callout ->
                 div {
                     classes += "callout"
@@ -190,13 +212,13 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is DividerBlock -> {
+        is DividerBlock -> {
             hr {
                 classes += "divider_block"
             }
         }
 
-        block is CodeBlock -> {
+        is CodeBlock -> {
             block.code?.let { code ->
                 div {
                     classes += "code_block"
@@ -229,7 +251,7 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is ImageBlock -> {
+        is ImageBlock -> {
             if (dataBlock is ImageDataBlock)
                 block.image?.let { image ->
                     image.file?.url?.let {
@@ -252,7 +274,7 @@ fun FlowContent.notionBlock(
                 }
         }
 
-        block is BookmarkBlock && dataBlock is BookmarkDataBlock -> {
+        is BookmarkBlock if dataBlock is BookmarkDataBlock -> {
             block.bookmark?.let {
                 div {
                     classes += "caption_block"
@@ -278,7 +300,7 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is EquationBlock -> {
+        is EquationBlock -> {
             block.equation?.let {
                 div {
                     classes += "equation"
@@ -287,7 +309,7 @@ fun FlowContent.notionBlock(
             }
         }
 
-        block is TableBlock -> {
+        is TableBlock -> {
             div {
                 classes += "table"
                 val hasHeaderColumn = block.table.hasColumnHeader;
