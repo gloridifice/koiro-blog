@@ -57,37 +57,38 @@ fun FlowContent.catalogue(page: PageData, context: GlobalContext) {
                 for (index in it.indices) {
                     val block = it[index].block
 
-                    if (block is HeadingOneBlock) {
-                        li {
-                            classes += "h1"
-                            a {
-                                href = "#${headingId(1, pCtx.h1Index)}"
-                                pCtx.h1Index++
+                    when(block) {
+                        is HeadingOneBlock -> {
+                            li {
+                                classes += "h1"
+                                a {
+                                    href = "#${headingId(1, pCtx.h1Index)}"
+                                    pCtx.h1Index++
 
-                                richTexts(block.heading1.richText)
+                                    richTexts(block.heading1.richText)
+                                }
                             }
                         }
-                    }
-                    if (block is HeadingTwoBlock) {
-                        li {
-                            classes += "h2"
-                            a {
-                                href = "#${headingId(2, pCtx.h3Index)}"
-                                pCtx.h2Index++
+                        is HeadingTwoBlock -> {
+                            li {
+                                classes += "h2"
+                                a {
+                                    href = "#${headingId(2, pCtx.h3Index)}"
+                                    pCtx.h2Index++
 
-                                richTexts(block.heading2.richText)
+                                    richTexts(block.heading2.richText)
+                                }
                             }
                         }
-                    }
+                        is HeadingThreeBlock -> {
+                            li {
+                                classes += "h3"
+                                a {
+                                    href = "#${headingId(3, pCtx.h3Index)}"
+                                    pCtx.h3Index++
 
-                    if (block is HeadingThreeBlock) {
-                        li {
-                            classes += "h3"
-                            a {
-                                href = "#${headingId(3, pCtx.h3Index)}"
-                                pCtx.h3Index++
-
-                                richTexts(block.heading3.richText)
+                                    richTexts(block.heading3.richText)
+                                }
                             }
                         }
                     }
