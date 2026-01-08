@@ -116,11 +116,6 @@
     gap: 12px;
 
     .column {
-      table {
-        width: 100%;
-        margin: 0;
-      }
-
       flex: 1;
       margin: 4px;
       max-width: 49%;
@@ -133,6 +128,10 @@
 
       .column {
         max-width: 100%;
+
+        .image_wrapper {
+          margin: 0;
+        }
       }
     }
   }
@@ -161,11 +160,11 @@
 
       pre {
         margin: 0;
+        overflow-x: auto;
 
         code {
           line-height: 1.5em;
           padding: 0;
-          overflow-x: auto;
           font-size: 13px;
           background-color: var(--bg-color-2);
           white-space: pre;
