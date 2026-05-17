@@ -43,3 +43,4 @@ bin/
 
 /rust/target/
 /notionData/
+crates/

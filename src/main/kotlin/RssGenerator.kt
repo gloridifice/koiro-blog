@@ -1,12 +1,10 @@
-import htmlgen.model.BlogPostPage
-import htmlgen.model.PostPage
-import htmlgen.toNormalString
+import markdown.BlogRecord
 import java.text.SimpleDateFormat
 import java.util.Date
 
 val FORMATTER = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z")
 
-fun genRssXmlString(pages: List<PostPage>, lastBuildDate: Date): String =
+fun genRssXmlString(pages: List<BlogRecord>, lastBuildDate: Date): String =
     buildString {
         appendLine("""<?xml version="1.0" encoding="UTF-8"?>""")
         appendLine("""<rss version="2.0">""")
@@ -19,14 +17,12 @@ fun genRssXmlString(pages: List<PostPage>, lastBuildDate: Date): String =
 
         pages.forEach { post ->
             appendLine("<item>")
-            appendLine("<title>${post.getPlainTitle()}</title>")
-            appendLine("<link>https://blog.koiro.xyz/${post.getStaticHtmlName()}.html</link>")
-            appendLine("<guid>${post.uuid}</guid>")
-            appendLine("<pubDate>${FORMATTER.format(post.publishedDate ?: post.lastEditedTimeDate)}</pubDate>")
-            var desc = post.slug?.toNormalString() ?: "No description."
-            if (post is BlogPostPage) {
-                desc += " #${post.type.name}"
-            }
+            appendLine("<title>${post.header.title}</title>")
+            appendLine("<link>https://blog.koiro.xyz/${post.serverPath}.html</link>")
+            // appendLine("<guid>${post.}</guid>")
+            appendLine("<pubDate>${FORMATTER.format(post.header.date)}</pubDate>")
+            var desc = post.header.slug
+            desc += " #${post.header.blogClass}"
             appendLine("<description><![CDATA[$desc]]></description>")
             appendLine("</item>")
         }
