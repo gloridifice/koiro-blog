@@ -1,6 +1,7 @@
 package markdown.htmlgen.component.home_element
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.html.*
 import markdown.BlogRecord
 import java.util.Date
@@ -35,7 +36,7 @@ class BlogElement(
         }
     }
 
-    override fun getDate(): LocalDate {
+    override fun getDate(): LocalDateTime {
         return blogRecord.header.date
     }
 }

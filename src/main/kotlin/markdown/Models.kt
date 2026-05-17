@@ -2,13 +2,13 @@ package markdown
 
 import ServerPath
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 
 class BlogRecord(
@@ -25,7 +25,7 @@ class DevlogRecord(val header: DevlogHeader, val serverPath: ServerPath)
 
 @Serializable
 class ActiveHeader(
-    val date: LocalDate,
+    val date: LocalDateTime,
     val published: Boolean
 )
 
@@ -50,9 +50,10 @@ class DevlogHeader(
     val workName: String,
     val index: Int,
     val published: Boolean,
-    val date: LocalDate,
+    val date: LocalDateTime,
+
     @SerialName("preview")
-    val previewImagePath: String?,
+    val previewImagePath: String? = null,
 )
 
 @Serializable
@@ -62,10 +63,10 @@ class BlogHeader(
     val published: Boolean,
     @SerialName("class")
     val blogClass: String,
-    val date: LocalDate,
-    val tags: List<String> = listOf(),
-    val emoji: String?
+    val date: LocalDateTime,
 
+    val tags: List<String> = listOf(),
+    val emoji: String? = null
 ) {
     @OptIn(ExperimentalTime::class)
     fun displayDate(): String {

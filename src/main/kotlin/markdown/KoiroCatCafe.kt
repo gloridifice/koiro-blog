@@ -2,6 +2,7 @@ package markdown
 
 import ServerPath
 import com.akuleshov7.ktoml.Toml
+import com.akuleshov7.ktoml.TomlInputConfig
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import kotlinx.html.HTML
 import kotlinx.html.html
@@ -46,22 +47,36 @@ class KoiroCatCafe(
     }
 
     /// return header and content without header
-    private inline fun<reified T> parseHeader(contentWithHeader: String): Pair<T, String>? {
+    private inline fun <reified T> parseHeader(contentWithHeader: String): Pair<T, String>? {
         val metaIndex = contentWithHeader.indexOf("```toml")
         val hasMeta = metaIndex != -1 && contentWithHeader.take(metaIndex).isBlank()
         if (!hasMeta) {
             return null
         }
 
-        val startIndex = metaIndex + 7;
-        val endIndex = contentWithHeader.substring(startIndex, contentWithHeader.length).indexOf("```")
-        val metaInfoString = contentWithHeader.substring(startIndex, endIndex)
+        val startIndex = metaIndex + 7
+        // 直接从 startIndex 开始查找闭合标签，获取绝对索引
+        val endIndex = contentWithHeader.indexOf("```", startIndex)
+
+        // 校验是否存在闭合标签
+        if (endIndex == -1) {
+            return null
+        }
+
+        val headerString = contentWithHeader.substring(startIndex, endIndex).trim()
+        val contentString = contentWithHeader.substring(endIndex + 3).trimStart()
+
+        val toml = Toml(
+            inputConfig = TomlInputConfig(
+                ignoreUnknownNames = true
+            )
+        )
+
         return Pair(
-            Toml.decodeFromString<T>(metaInfoString),
-            contentWithHeader.substring(endIndex + 3, contentWithHeader.length)
+            toml.decodeFromString<T>(headerString),
+            contentString
         )
     }
-
 
     private fun writeHTML(path: Path, block: HTML.() -> Unit) {
         path.createParentDirectories()
@@ -106,12 +121,18 @@ class KoiroCatCafe(
 
 
     private inline fun<reified T> walkDatabaseAndParseHeader(relPath: String, run: (T, String) -> Unit) {
-        databasePath.resolve(relPath).walk().forEach {
-            if (it.isRegularFile() && it.extension == "md") {
-                val content = it.readText()
-                val result = parseHeader<T>(content) ?: return@forEach
-                val (header, restMdString) = result
-                run(header, restMdString)
+        databasePath.resolve(relPath).walk().forEach { path ->
+            if (path.isRegularFile() && path.extension == "md") {
+                val content = path.readText()
+                try {
+                    val result = parseHeader<T>(content)!!
+                    val (header, restMdString) = result
+                    run(header, restMdString)
+                }
+                catch (e: Exception) {
+                    println(path)
+                    println(e.toString())
+                }
             }
         }
     }

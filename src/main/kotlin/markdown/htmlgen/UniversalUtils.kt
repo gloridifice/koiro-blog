@@ -2,6 +2,7 @@ package markdown.htmlgen
 
 import childPath
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.html.*
 import java.io.File
 import java.net.URL
@@ -196,7 +197,7 @@ fun dateDisplayString(date: Date): String {
     } else fmtOtherYear.format(date)
 }
 
-fun dateDisplayWithoutYearString(date: LocalDate): String {
+fun dateDisplayWithoutYearString(date: LocalDateTime): String {
     return fmtThisYear.format(date)
 }
 

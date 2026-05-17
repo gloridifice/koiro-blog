@@ -1,6 +1,7 @@
 package markdown.htmlgen.component.home_element
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.html.DIV
 import kotlinx.html.classes
 import kotlinx.html.div
@@ -19,7 +20,7 @@ class ActiveElement(
         }
     }
 
-    override fun getDate(): LocalDate {
+    override fun getDate(): LocalDateTime {
         return record.header.date
     }
 }
