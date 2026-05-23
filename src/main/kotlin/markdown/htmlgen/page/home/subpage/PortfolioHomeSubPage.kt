@@ -2,12 +2,11 @@ package markdown.htmlgen.page.home.subpage
 
 import kotlinx.html.*
 import markdown.DevlogRecord
-import markdown.Portfolio
+import markdown.PortfolioRecord
 import markdown.htmlgen.SvgIcons
-import markdown.htmlgen.component.devLogPostPreview
-import markdown.htmlgen.unsafeSVG
+import markdown.htmlgen.component.devlogPostPreview
 
-class PortfolioHomeSubPage(val pages: Iterable<Portfolio>, val devlogs: List<DevlogRecord>) : HomeSubPage() {
+class PortfolioHomeSubPage(val pages: Iterable<PortfolioRecord>, val devlogs: List<DevlogRecord>) : HomeSubPage() {
     override fun DIV.showSubPage() {
         div {
             classes += "top_gap_space"
@@ -16,44 +15,49 @@ class PortfolioHomeSubPage(val pages: Iterable<Portfolio>, val devlogs: List<Dev
             classes += "projects"
             pages.forEach { project ->
                 val relatedDevLogs = devlogs.filter {
-                    it.header.workName == project.workName
+                    it.header.workName == project.header.workName
                 }
 
                 div {
                     classes += "project"
-                    project.previewImage.let {
-                        img {
-                            //todo
-                            //src = it.serverPathString()
-                        }
-                    }
 
                     div {
                         classes += "info"
-                        h3 {
-                            classes += "title"
-                            +project.title
+                        div {
+                            classes += "headings"
+                            h3 {
+                                classes += "title"
+                                +project.header.title
+                            }
+
+                            a {
+                                classes += arrayOf("button", "row")
+
+                                href = project.header.url
+                                target = "_blank"
+                                SvgIcons.EXTERNAL_LINK.apply { showSvg() }
+                                div {
+                                    + "前往主页"
+                                }
+                            }
                         }
                         p {
-                            +project.description
+                            +project.header.description
                         }
                     }
 
-                    a {
-                        classes += arrayOf("button", "row")
 
-                        href = project.url
-                        target = "_blank"
-                        SvgIcons.EXTERNAL_LINK.apply { showSvg() }
-                        div {
-                            + "前往主页"
+                    project.previewImagePath.let {
+                        img {
+                            src = it.serverPath
                         }
                     }
+
 
                     div {
                         classes += "previews"
                         relatedDevLogs.forEach {
-                            devLogPostPreview(it)
+                            devlogPostPreview(it)
                         }
                     }
                 }

@@ -1,10 +1,7 @@
 package markdown.htmlgen.component.home_element
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.html.*
 import markdown.DevlogRecord
-import java.util.*
 
 class DevlogElement(
     val devlogRecord: DevlogRecord,
@@ -13,16 +10,15 @@ class DevlogElement(
     override fun DIV.show() {
         a {
             classes += arrayOf("post_preview", "devlog", "large")
-            href = devlogRecord.serverPath.serverPath()
+            href = devlogRecord.serverPath.serverPath
 //            onClick = "location.href='${devLogPost.htmlServerPath}';"
 
             val emoji = ""//todo
-            val imageUrl = devlogRecord.header.previewImagePath;//todo
-            if (imageUrl != null) {
+            devlogRecord.previewImagePath?.let {
                 div {
                     classes += "preview"
                     img {
-                        src = imageUrl
+                        src = it.serverPath
                     }
                 }
             }
@@ -33,15 +29,15 @@ class DevlogElement(
                     classes += "title"
                     +devlogRecord.header.title
                 }
-                p {
-                    classes += "info"
-                    +"info text" //todo
-                }
+//                p {
+//                    classes += "info"
+//                    +"info text" //todo
+//                }
             }
         }
     }
 
-    override fun getDate(): LocalDateTime {
+    override fun getDate(): String {
         return devlogRecord.header.date
     }
 }

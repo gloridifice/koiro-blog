@@ -13,7 +13,9 @@ import markdown.htmlgen.component.home_element.ActiveElement
 import markdown.htmlgen.component.home_element.BlogElement
 import markdown.htmlgen.component.home_element.DevlogElement
 import markdown.htmlgen.component.home_element.HomeElement
-import markdown.htmlgen.page.BlogHtml
+import markdown.htmlgen.copyImageToStatic
+import markdown.htmlgen.page.BlogArticlePage
+import markdown.htmlgen.page.DevlogArticlePage
 import markdown.htmlgen.page.home.HomeSubPageInfo
 import markdown.htmlgen.page.home.homePage
 import markdown.htmlgen.page.home.subpage.AboutHomeSubPage
@@ -21,22 +23,25 @@ import markdown.htmlgen.page.home.subpage.BlogsHomeSubPage
 import markdown.htmlgen.page.home.subpage.MainHomeSubPage
 import markdown.htmlgen.page.home.subpage.PortfolioHomeSubPage
 import org.intellij.markdown.lexer.push
-import java.io.File
+import java.net.URLDecoder
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
-import kotlin.io.path.exists
 import kotlin.io.path.extension
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
 import kotlin.io.path.walk
 
 class KoiroCatCafe(
-    val databasePath: Path,
+    databasePath: Path,
     val outputPath: String
 ) {
+    init {
+        KoiroCatCafe.databasePath = databasePath
+    }
     companion object {
+        var databasePath: Path? = null
+
         private val mainSubPageInfo = HomeSubPageInfo(ServerPath("home.html"), "主页", SvgIcons.HOME, null)
         private val blogSubPageInfo = HomeSubPageInfo(ServerPath("blogs.html"), "博客", SvgIcons.BLOGS, null)
         private val portfolioSubPageInfo =
@@ -80,7 +85,7 @@ class KoiroCatCafe(
 
     private fun writeHTML(path: Path, block: HTML.() -> Unit) {
         path.createParentDirectories()
-        val file = File(path.toUri())
+        val file = path.toFile()
         val isExist = !file.createNewFile()
         val log =
             if (isExist) "File $path already exists."
@@ -94,44 +99,43 @@ class KoiroCatCafe(
     }
 
     /// return server path
-    private fun generateBlogPage(header: BlogHeader, contentWithoutHeader: String): ServerPath {
-        val serverPath = "pages/blogs/${header.title}.html"
-        val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
-        if (!fsPath.exists()) fsPath.createFile()
+    private fun generateBlogPage(header: BlogHeader, markdownContent: String, sourceFilePath: Path): ServerPath {
+        val safeTitle = header.title.replace("/", "／")
+        val serverPath = "pages/blogs/$safeTitle.html"
+        val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(URLDecoder.decode(serverPath, "UTF-8"))
 
         writeHTML(fsPath) {
-            BlogHtml(header, contentWithoutHeader).apply { show() }
+            BlogArticlePage(header, markdownContent, sourceFilePath).apply { showPage() }
         }
 
         return ServerPath(serverPath)
     }
 
-    private fun generateDevlogPage(header: DevlogHeader, contentWithoutHeader: String): ServerPath {
-        val serverPath = "pages/devlogs/${header.title}.html"
+    private fun generateDevlogPage(header: DevlogHeader, markdownContent: String, sourceFilePath: Path): ServerPath {
+        val safeTitle = header.title.replace("/", "／")
+        val serverPath = "pages/devlogs/$safeTitle.html"
         val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
-        if (!fsPath.exists()) fsPath.createFile()
 
         writeHTML(fsPath) {
-            //todo
-            //BlogHtml(header, contentWithoutHeader).apply { show() }
+            DevlogArticlePage(header, markdownContent, sourceFilePath).apply { showPage() }
         }
 
         return ServerPath(serverPath)
     }
 
 
-    private inline fun<reified T> walkDatabaseAndParseHeader(relPath: String, run: (T, String) -> Unit) {
-        databasePath.resolve(relPath).walk().forEach { path ->
+    private inline fun <reified T> walkDatabaseAndParseHeader(relPath: String, run: (T, String, Path) -> Unit) {
+        databasePath!!.resolve(relPath).walk().forEach { path ->
             if (path.isRegularFile() && path.extension == "md") {
                 val content = path.readText()
                 try {
                     val result = parseHeader<T>(content)!!
                     val (header, restMdString) = result
-                    run(header, restMdString)
-                }
-                catch (e: Exception) {
+                    run(header, restMdString, path)
+                } catch (e: Exception) {
                     println(path)
                     println(e.toString())
+                    throw e;
                 }
             }
         }
@@ -140,31 +144,45 @@ class KoiroCatCafe(
 
     fun generateAll() {
         val blogRecords = ArrayList<BlogRecord>()
-        val portfolios = ArrayList<Portfolio>()
+        val portfolioRecords = ArrayList<PortfolioRecord>()
         val devlogRecords = ArrayList<DevlogRecord>()
         val activeRecords = ArrayList<ActiveRecord>()
 
         // 生成博客文章
-        walkDatabaseAndParseHeader<BlogHeader>("blogs") { header, restMarkdown ->
-            val serverPath = generateBlogPage(header, restMarkdown)
-            blogRecords.push(BlogRecord(header, serverPath))
+        walkDatabaseAndParseHeader<BlogHeader>("blogs") { header, restMarkdown, sourcePath ->
+            if (header.published) {
+                val serverPath = generateBlogPage(header, restMarkdown, sourcePath)
+                blogRecords.push(BlogRecord(header, serverPath))
+            }
         }
 
         // 生成 devlog 文章
-        walkDatabaseAndParseHeader<DevlogHeader>("devlogs") { header, restMarkdown ->
-            val serverPath = generateDevlogPage(header, restMarkdown)
-            devlogRecords.push(DevlogRecord(header, serverPath))
+        walkDatabaseAndParseHeader<DevlogHeader>("devlogs") { header, restMarkdown, sourcePath ->
+            if (header.published) {
+                val previewImagePath = header.previewImagePath?.let { copyImageToStatic(sourcePath, it) }
+                val serverPath = generateDevlogPage(header, restMarkdown, sourcePath)
+                devlogRecords.push(DevlogRecord(header, serverPath, previewImagePath))
+            }
         }
 
         // 收集 Portfolio
-        walkDatabaseAndParseHeader<Portfolio>("portfolios") { header, _  ->
-            portfolios.push(header)
+        walkDatabaseAndParseHeader<PortfolioHeader>("portfolio") { header, _, sourcePath ->
+            if (header.published) {
+                val previewImagePath = copyImageToStatic(sourcePath, header.previewImagePath)
+                portfolioRecords.push(PortfolioRecord(header, previewImagePath))
+            }
         }
 
         // 收集 Actives
-        walkDatabaseAndParseHeader<ActiveHeader>("actives") { header, restMarkdown  ->
-            activeRecords.push(ActiveRecord(header, restMarkdown))
+        walkDatabaseAndParseHeader<ActiveHeader>("actives") { header, restMarkdown, sourcePath ->
+            if (header.published) {
+                activeRecords.push(ActiveRecord(header, restMarkdown, sourcePath))
+            }
         }
+
+        blogRecords.sortByDescending { it.header.date }
+        devlogRecords.sortByDescending { it.header.date }
+        activeRecords.sortByDescending { it.header.date }
 
         // 生成 Home Pages
         val elements = arrayListOf<HomeElement>()
@@ -172,13 +190,15 @@ class KoiroCatCafe(
         elements += devlogRecords.map { DevlogElement(it) }
         elements += activeRecords.map { ActiveElement(it) }
 
+        elements.sortByDescending { it.getDate() }
+
         mainSubPageInfo.page = MainHomeSubPage(elements);
         blogSubPageInfo.page = BlogsHomeSubPage(blogRecords);
-        portfolioSubPageInfo.page = PortfolioHomeSubPage(portfolios, devlogRecords);
+        portfolioSubPageInfo.page = PortfolioHomeSubPage(portfolioRecords, devlogRecords);
         aboutSubPageInfo.page = AboutHomeSubPage();
 
         for (info in homeSubPageInfos) {
-            writeHTML(Path(info.serverPath.staticPath())) {
+            writeHTML(Path(info.serverPath.staticPath)) {
                 homePage(info)
             }
         }

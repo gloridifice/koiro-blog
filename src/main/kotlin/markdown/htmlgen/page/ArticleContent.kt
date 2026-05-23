@@ -1,5 +1,6 @@
 package markdown.htmlgen.page
 
+import ServerPath
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.LI
@@ -35,26 +36,32 @@ import kotlinx.html.tr
 import kotlinx.html.ul
 import kotlinx.html.unsafe
 import markdown.htmlgen.component.Catalogue
+import markdown.htmlgen.copyImageToStatic
+import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.findChildOfType
 import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.intellij.markdown.flavours.space.SFMFlavourDescriptor
 import org.intellij.markdown.lexer.push
 import org.intellij.markdown.parser.MarkdownParser
+import java.nio.file.Path
 import kotlin.collections.plus
 
-class ArticleContent(val markdownText: String) {
+class ArticleContent(val markdownText: String, val filePath: Path) {
     var h1Index = 0
     var h2Index = 0
     var h3Index = 0
-    val collectedData = CollectedData(arrayListOf())
+    var collectedData = CollectedData(arrayListOf())
+    var imageStack = arrayListOf<Pair<ServerPath, String>>()
+    var lastNoBlankElementType: IElementType? = null
 
     class CollectedData(val headingInfos: ArrayList<Catalogue.HeadingInfo>)
 
-    fun FlowContent.showPostContent() : CollectedData {
+    fun FlowContent.showPostContent(): CollectedData {
         val parser = MarkdownParser(SFMFlavourDescriptor())
         val root = parser.buildMarkdownTreeFromString(markdownText)
         markdownBlock(root)
@@ -173,7 +180,7 @@ class ArticleContent(val markdownText: String) {
                 }
             }
 
-            MarkdownTokenTypes.Companion.HORIZONTAL_RULE -> {
+            MarkdownTokenTypes.HORIZONTAL_RULE -> {
                 hr { classes += "divider_block" }
             }
 
@@ -188,6 +195,41 @@ class ArticleContent(val markdownText: String) {
     }
 
     private fun FlowContent.renderInlineNode(node: ASTNode) {
+        val currentNodeText = node.getTextInNode(markdownText).toString()
+
+        if (!currentNodeText.isBlank() && node.type != MarkdownElementTypes.IMAGE && lastNoBlankElementType == MarkdownElementTypes.IMAGE) {
+            // render images
+            if(imageStack.size == 1) {
+                div {
+                    classes += "image_wrapper"
+                    img {
+                        this.src = imageStack.first().first.serverPath
+                        this.alt = imageStack.first().second
+                    }
+                }
+            } else {
+                div {
+                    classes += "stack-container"
+                    imageStack.forEachIndexed { i, (path, alt) ->
+                        div {
+                            classes += "stack-card"
+                            attributes["data-index"] = i.toString()
+                            img {
+                                this.src = path.serverPath
+                                this.alt = alt
+                            }
+                        }
+                    }
+                }
+            }
+            imageStack.clear()
+            lastNoBlankElementType = null
+        }
+
+        if (!currentNodeText.isBlank() && node.type != MarkdownTokenTypes.TEXT) {
+            lastNoBlankElementType = node.type
+        }
+
         when (node.type) {
             MarkdownTokenTypes.Companion.TEXT -> +node.getTextInNode(markdownText).toString()
 
@@ -246,6 +288,7 @@ class ArticleContent(val markdownText: String) {
                 }
             }
         }
+
     }
 
     private fun LI.renderItemContent(node: ASTNode, isTodoList: Boolean) {
@@ -262,10 +305,12 @@ class ArticleContent(val markdownText: String) {
         }
         for (child in node.children) {
             when (child.type) {
-                MarkdownTokenTypes.Companion.LIST_BULLET,
-                MarkdownTokenTypes.Companion.LIST_NUMBER,
+                MarkdownTokenTypes.LIST_BULLET,
+                MarkdownTokenTypes.LIST_NUMBER,
                 GFMTokenTypes.CHECK_BOX,
-                MarkdownTokenTypes.Companion.EOL -> {}
+                MarkdownTokenTypes.EOL -> {
+                }
+
                 else -> markdownBlock(child)
             }
         }
@@ -319,17 +364,12 @@ class ArticleContent(val markdownText: String) {
     }
 
     private fun FlowContent.renderImage(node: ASTNode) {
-        val linkTextNode = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
-        val alt = linkTextNode?.let { extractText(it) } ?: ""
-        val linkDestNode = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }
-        val src = linkDestNode?.getTextInNode(markdownText)?.toString() ?: ""
-        div {
-            classes += "image_wrapper"
-            img {
-                this.src = src
-                this.alt = alt
-            }
-        }
+        val inlineLink = node.children.find { it.type == MarkdownElementTypes.INLINE_LINK }
+        val alt = inlineLink!!.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
+        val src = inlineLink.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) } ?: ""
+
+        val imageServerPath = copyImageToStatic(filePath, src)
+        imageStack.push(Pair(imageServerPath, alt))
     }
 
     private fun FlowContent.renderInlineLink(node: ASTNode) {

@@ -4,7 +4,6 @@ import kotlinx.html.*
 import markdown.BlogRecord
 import markdown.DevlogRecord
 import markdown.htmlgen.component.home_element.BlogElement
-import serverPathString
 
 
 fun FlowContent.largeBlogPostPreview(post: BlogRecord) {
@@ -18,7 +17,7 @@ fun FlowContent.largeBlogPostPreview(post: BlogRecord) {
 fun FlowContent.blogPostPreview(blogPost: BlogRecord) {
     a {
         classes += arrayOf("post_preview", "regular", "reveal", "blog")
-        href = blogPost.serverPath.serverPath()
+        href = blogPost.serverPath.serverPath
 
         val emoji = blogPost.header.emoji
         div {
@@ -32,7 +31,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogRecord) {
                 classes += "title"
                 +blogPost.header.title
             }
-            h3 {
+            p {
                 classes += "slug"
                 +blogPost.header.slug
             }
@@ -52,15 +51,15 @@ fun FlowContent.blogPostPreview(blogPost: BlogRecord) {
     }
 }
 
-fun FlowContent.devLogPostPreview(devLogPost: DevlogRecord) {
+fun FlowContent.devlogPostPreview(devlog: DevlogRecord) {
     a {
         classes += arrayOf("post_preview", "regular", "reveal", "devlog")
-        href = devLogPost.serverPath.serverPath()
+        href = devlog.serverPath.serverPath
 
-        val imageUrl = devLogPost.header.previewImagePath;
+        val imageUrl = devlog.previewImagePath;
         if (imageUrl != null) {
             img {
-                src = imageUrl
+                src = imageUrl.serverPath
             }
         } else {
             div {
@@ -73,7 +72,7 @@ fun FlowContent.devLogPostPreview(devLogPost: DevlogRecord) {
             classes += "description"
             h2 {
                 classes += "title"
-                +devLogPost.header.title
+                +devlog.header.title
             }
         }
 

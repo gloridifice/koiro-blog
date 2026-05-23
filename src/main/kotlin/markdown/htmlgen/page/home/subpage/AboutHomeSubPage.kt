@@ -36,7 +36,7 @@ class AboutHomeSubPage : HomeSubPage() {
                     classes += "friends"
                     div {
                         classes += "title"
-                        SvgIcons.PARTNER_EXCHANGE.apply { showSubPage() }
+                        SvgIcons.PARTNER_EXCHANGE.apply { showSvg() }
                         div {
                             +"友情链接"
                         }
@@ -52,7 +52,7 @@ class AboutHomeSubPage : HomeSubPage() {
                                 div {
                                     classes += "icon"
                                     classes += "start"
-                                    SvgIcons.EXTERNAL_LINK.apply { showSubPage() }
+                                    SvgIcons.EXTERNAL_LINK.apply { showSvg() }
                                     div {
                                         +it.name
                                     }

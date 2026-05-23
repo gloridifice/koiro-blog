@@ -1,6 +1,7 @@
 package markdown.htmlgen
 
 import childPath
+import parseTomlDateTime
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.html.*
@@ -197,8 +198,8 @@ fun dateDisplayString(date: Date): String {
     } else fmtOtherYear.format(date)
 }
 
-fun dateDisplayWithoutYearString(date: LocalDateTime): String {
-    return fmtThisYear.format(date)
+fun dateDisplayWithoutYearString(date: String): String {
+    return fmtThisYear.format(parseTomlDateTime(date))
 }
 
 val notionDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");

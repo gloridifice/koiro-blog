@@ -13,7 +13,7 @@ class BlogsHomeSubPage(
 ) : HomeSubPage() {
 
     val map: TreeMap<String, ArrayList<BlogRecord>> = TreeMap();
-    val latestBlog: BlogRecord = blogs.first()
+    val latestBlog: BlogRecord? = blogs.firstOrNull()
 
     init {
         for (record in blogs) {
@@ -30,11 +30,13 @@ class BlogsHomeSubPage(
 
             val typeOptions = map.keys.toTypedArray()
 
-            div {
-                p {
-                    +"最近更新"
+            if (latestBlog != null) {
+                div {
+                    p {
+                        +"最近更新"
+                    }
+                    largeBlogPostPreview(latestBlog)
                 }
-                largeBlogPostPreview(latestBlog)
             }
 
             div {

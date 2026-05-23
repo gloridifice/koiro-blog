@@ -7,6 +7,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.nio.file.Path
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -19,28 +20,32 @@ class BlogRecord(
 class ActiveRecord(
     val header: ActiveHeader,
     val markdownContent: String, // in markdown
+    val sourcePath: Path
 )
 
-class DevlogRecord(val header: DevlogHeader, val serverPath: ServerPath)
+class DevlogRecord(val header: DevlogHeader, val serverPath: ServerPath, val previewImagePath: ServerPath?)
 
 @Serializable
 class ActiveHeader(
-    val date: LocalDateTime,
+    val date: String,
     val published: Boolean
 )
 
+class PortfolioRecord(val header: PortfolioHeader, val previewImagePath: ServerPath)
+
 @Serializable
-class Portfolio(
+class PortfolioHeader(
     val title: String,
     @SerialName("project")
     val workName: String,
     val description: String,
     val url: String,
-    @SerialName("preview_image")
-    val previewImage: String,
+    @SerialName("preview")
+    val previewImagePath: String,
     val published: Boolean,
     val status: String,
     val type: String,
+    val lite: Boolean
 )
 
 @Serializable
@@ -50,7 +55,7 @@ class DevlogHeader(
     val workName: String,
     val index: Int,
     val published: Boolean,
-    val date: LocalDateTime,
+    val date: String,
 
     @SerialName("preview")
     val previewImagePath: String? = null,
@@ -59,19 +64,24 @@ class DevlogHeader(
 @Serializable
 class BlogHeader(
     val title: String,
-    val slug: String,
+    val slug: String = "",
     val published: Boolean,
     @SerialName("class")
     val blogClass: String,
-    val date: LocalDateTime,
+    val date: String,
 
     val tags: List<String> = listOf(),
     val emoji: String? = null
 ) {
     @OptIn(ExperimentalTime::class)
     fun displayDate(): String {
+        val localDate = try {
+            LocalDateTime.parse(date).date
+        } catch (_: Exception) {
+            LocalDate.parse(date)
+        }
         val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-        val mmDd = "${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}"
-        return if (date.year == currentYear) mmDd else "${date.year}-$mmDd"
+        val mmDd = "${localDate.month.toString().padStart(2, '0')}-${localDate.day.toString().padStart(2, '0')}"
+        return if (localDate.year == currentYear) mmDd else "${localDate.year}-$mmDd"
     }
 }

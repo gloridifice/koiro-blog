@@ -9,7 +9,7 @@ fun FlowContent.navi() {
         for (item in KoiroCatCafe.homeSubPageInfos) {
             a {
                 classes += arrayOf("navi_link", "button")
-                href = item.serverPath.serverPath()
+                href = item.serverPath.serverPath
                 item.svgIcon.apply { showSvg() }
             }
         }

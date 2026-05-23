@@ -1,6 +1,8 @@
 package markdown.htmlgen.page
 
 import FORMATTER
+import kotlinx.datetime.LocalDateTime
+import kotlinx.html.FlowContent
 import kotlinx.html.HTML
 import kotlinx.html.a
 import kotlinx.html.classes
@@ -9,12 +11,18 @@ import kotlinx.html.h1
 import kotlinx.html.hr
 import kotlinx.html.p
 import kotlinx.html.script
-import markdown.BlogHeader
 import markdown.KoiroCatCafe
 import markdown.htmlgen.component.Catalogue
+import java.util.Date
+import kotlin.collections.plus
 
-class BlogHtml(val header: BlogHeader, val markdownText: String) {
-    fun HTML.show() {
+open class ArticlePage(
+    val title: String,
+    val date: Date,
+    val content: FlowContent.() -> ArticleContent.CollectedData?
+) {
+
+    fun HTML.showPage() {
         var collectedData: ArticleContent.CollectedData? = null
         layout(
             siteTitle = "hello",
@@ -38,7 +46,7 @@ class BlogHtml(val header: BlogHeader, val markdownText: String) {
                         for (item in KoiroCatCafe.homeSubPageInfos) {
                             a {
                                 classes += arrayOf("navi_link", "button")
-                                href = item.serverPath.serverPath()
+                                href = item.serverPath.serverPath
                                 item.svgIcon.apply { showSvg() }
                             }
                         }
@@ -47,30 +55,30 @@ class BlogHtml(val header: BlogHeader, val markdownText: String) {
                         classes += "page_description"
                         h1 {
                             classes += "title"
-                            +header.title
+                            +title
                         }
                         hr { }
                         div {
                             classes += "sub_info"
                             p {
                                 classes += "date"
-                                +FORMATTER.format(header.date)
+                                +FORMATTER.format(date)
                             }
                         }
                     }
                     div {
                         classes += "page_content"
 
-                        ArticleContent(markdownText).apply { collectedData = showPostContent() }
+                        collectedData = content()
                     }
                 }
                 div {
                     classes += "sidebar_wrapper_right"
                     classes += "sidebar_wrapper"
-                    Catalogue(collectedData!!.headingInfos).apply { show() }
+                    if (collectedData != null)
+                        Catalogue(collectedData!!.headingInfos).apply { show() }
                 }
             }
         }
     }
-
 }

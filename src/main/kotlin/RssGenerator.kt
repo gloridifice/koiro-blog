@@ -3,6 +3,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 val FORMATTER = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z")
+private val TOML_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+private val TOML_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
+
+fun parseTomlDateTime(dateString: String): Date =
+    try {
+        TOML_DATETIME_FORMAT.parse(dateString)
+    } catch (_: Exception) {
+        TOML_DATE_FORMAT.parse(dateString)
+    }
 
 fun genRssXmlString(pages: List<BlogRecord>, lastBuildDate: Date): String =
     buildString {
@@ -20,7 +29,7 @@ fun genRssXmlString(pages: List<BlogRecord>, lastBuildDate: Date): String =
             appendLine("<title>${post.header.title}</title>")
             appendLine("<link>https://blog.koiro.xyz/${post.serverPath}.html</link>")
             // appendLine("<guid>${post.}</guid>")
-            appendLine("<pubDate>${FORMATTER.format(post.header.date)}</pubDate>")
+            appendLine("<pubDate>${FORMATTER.format(parseTomlDateTime(post.header.date))}</pubDate>")
             var desc = post.header.slug
             desc += " #${post.header.blogClass}"
             appendLine("<description><![CDATA[$desc]]></description>")

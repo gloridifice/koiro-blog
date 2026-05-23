@@ -1,10 +1,7 @@
 package markdown.htmlgen.component.home_element
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.html.*
 import markdown.BlogRecord
-import java.util.Date
 
 class BlogElement(
     val blogRecord: BlogRecord
@@ -12,7 +9,7 @@ class BlogElement(
     override fun DIV.show() {
         a {
             classes += arrayOf("post_preview", "blog", "large")
-            href = blogRecord.serverPath.serverPath()
+            href = blogRecord.serverPath.serverPath
 
             val emoji = blogRecord.header.emoji
 
@@ -28,7 +25,7 @@ class BlogElement(
                         +emoji.orEmpty()
                     }
                 }
-                h3 {
+                p {
                     classes += "slug"
                     +blogRecord.header.slug
                 }
@@ -36,7 +33,7 @@ class BlogElement(
         }
     }
 
-    override fun getDate(): LocalDateTime {
+    override fun getDate(): String {
         return blogRecord.header.date
     }
 }

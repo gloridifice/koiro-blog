@@ -17,7 +17,7 @@ fun FlowContent.naviWithHighlightedItem(
                     classes += "highlighted"
                 }
 
-                href = subpage.serverPath.serverPath()
+                href = subpage.serverPath.serverPath
 
                 subpage.svgIcon.apply { showSvg() }
                 +subpage.name
