@@ -42,8 +42,16 @@ fun HEAD.universalHeadSetting() {
         name = "viewport"
         content = "width=device-width, initial-scale=1.0"
     }
+//    script {
+//        src = "/assets/js/header.js"
+//    }
     script {
-        src = "/assets/js/header.js"
+        type = "module"
+        +"""
+             import init, { init_all } from '/pkg/rs_wasm_script.js';                                                                                                                           
+             await init();                                                                                                                                                                      
+             init_all();     
+            """.trimIndent()
     }
     script {
         src = "/assets/katex/katex.js"

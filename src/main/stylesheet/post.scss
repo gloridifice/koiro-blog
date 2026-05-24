@@ -63,6 +63,7 @@ body {
       left: 0;
 
       transition: 0.5s opacity;
+      opacity: 0.3;
 
       &:hover {
         opacity: 1;
@@ -81,6 +82,11 @@ body {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          opacity: 0.6;
+          transition: opacity 0.2s;
+          &:hover {
+            opacity: 1.0;
+          }
 
           a t {
             overflow: hidden;

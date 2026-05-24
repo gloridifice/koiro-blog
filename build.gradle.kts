@@ -41,5 +41,5 @@ kotlin {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("markdown.MainKt")
 }

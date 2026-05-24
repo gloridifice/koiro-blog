@@ -93,6 +93,20 @@
   li {
     text-align: start;
     margin: 8px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    label {
+      input {
+        margin: 0
+      }
+      margin-right: 8px;
+    }
+
+    p {
+      display: inline-block;
+      margin: 0;
+    }
   }
 
   .image_wrapper {
@@ -104,6 +118,7 @@
     justify-content: center;
 
     img {
+      max-width: 100%;
       border-radius: 4px;
     }
   }
@@ -367,4 +382,52 @@ a.link:hover {
       }
     }
   }
+}
+
+.stack-container {
+  position: relative;
+  max-height: 80vh;
+  width: 100%;
+  height: fit-content;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none; /* Prevent default touch actions for better swipe handling */
+}
+
+.stack-card {
+  position: absolute;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), z-index 0s;
+  transform-origin: center center;
+  cursor: pointer;
+  will-change: transform;
+  background-color: #333; /* Fallback color */
+}
+
+/* Card images */
+.stack-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none; /* Prevent image dragging issues */
+}
+
+/* The card currently at the top of the stack */
+.stack-card.active {
+  z-index: 10;
+}
+
+/* Cards underneath the active one */
+.stack-card.underneath {
+}
+
+/* Card being swiped away (animating out) */
+.stack-card.animating-out {
+  z-index: 11;
+  pointer-events: none;
 }

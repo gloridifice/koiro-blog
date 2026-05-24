@@ -17,15 +17,26 @@
   padding: 32px 32px;
 
   .info {
+    margin-bottom: 12px;
     .title {
       color: var(--text-color-0);
-      font-weight: normal;
-      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+    }
+    .headings {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .button {
+      margin: 0;
     }
     p {
       color: var(--text-color-1);
       font-family: sans-serif;
       font-weight: 200;
+      text-align: left;
+      line-height: 1.5;
     }
   }
   .link {

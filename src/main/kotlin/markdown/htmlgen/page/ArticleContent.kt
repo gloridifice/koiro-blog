@@ -37,7 +37,6 @@ import kotlinx.html.ul
 import kotlinx.html.unsafe
 import markdown.htmlgen.component.Catalogue
 import markdown.htmlgen.copyImageToStatic
-import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
@@ -57,7 +56,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
     var h3Index = 0
     var collectedData = CollectedData(arrayListOf())
     var imageStack = arrayListOf<Pair<ServerPath, String>>()
-    var lastNoBlankElementType: IElementType? = null
+    var lastIsImage: Boolean = false
 
     class CollectedData(val headingInfos: ArrayList<Catalogue.HeadingInfo>)
 
@@ -65,10 +64,25 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
         val parser = MarkdownParser(SFMFlavourDescriptor())
         val root = parser.buildMarkdownTreeFromString(markdownText)
         markdownBlock(root)
+        if (!imageStack.isEmpty()) {
+            renderImageStack()
+        }
         return collectedData
     }
 
     private fun FlowContent.markdownBlock(node: ASTNode) {
+        val text = node.getTextInNode(markdownText)
+        // Image region
+        val isImage =
+            node.type == MarkdownElementTypes.PARAGRAPH && node.children.getOrNull(0)?.type == MarkdownElementTypes.IMAGE
+        val isEmpty = node.type == MarkdownTokenTypes.EOL || node.getTextInNode(markdownText).isEmpty()
+        if (lastIsImage && !isImage && !isEmpty) {
+            renderImageStack()
+        }
+        // 忽略空元素
+        if (!isEmpty) {
+            lastIsImage = isImage
+        }
 
         when (node.type) {
             MarkdownElementTypes.MARKDOWN_FILE -> {
@@ -163,7 +177,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
 
             MarkdownElementTypes.CODE_FENCE -> renderCodeFence(node)
             MarkdownElementTypes.CODE_BLOCK -> renderCodeBlock(node)
-            MarkdownElementTypes.IMAGE -> renderImage(node)
+            MarkdownElementTypes.IMAGE -> pushImage(node)
 
             MarkdownElementTypes.LINK_DEFINITION -> {}
 
@@ -194,12 +208,13 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
         for (child in node.children) renderInlineNode(child)
     }
 
-    private fun FlowContent.renderInlineNode(node: ASTNode) {
-        val currentNodeText = node.getTextInNode(markdownText).toString()
+    private fun FlowContent.renderImageStack() {
+        when (imageStack.size) {
+            0 -> {
+                return
+            }
 
-        if (!currentNodeText.isBlank() && node.type != MarkdownElementTypes.IMAGE && lastNoBlankElementType == MarkdownElementTypes.IMAGE) {
-            // render images
-            if(imageStack.size == 1) {
+            1 -> {
                 div {
                     classes += "image_wrapper"
                     img {
@@ -207,7 +222,9 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
                         this.alt = imageStack.first().second
                     }
                 }
-            } else {
+            }
+
+            else -> {
                 div {
                     classes += "stack-container"
                     imageStack.forEachIndexed { i, (path, alt) ->
@@ -222,14 +239,11 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
                     }
                 }
             }
-            imageStack.clear()
-            lastNoBlankElementType = null
         }
+        imageStack.clear()
+    }
 
-        if (!currentNodeText.isBlank() && node.type != MarkdownTokenTypes.TEXT) {
-            lastNoBlankElementType = node.type
-        }
-
+    private fun FlowContent.renderInlineNode(node: ASTNode) {
         when (node.type) {
             MarkdownTokenTypes.Companion.TEXT -> +node.getTextInNode(markdownText).toString()
 
@@ -255,7 +269,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
                 code { +node.getTextInNode(markdownText).toString().trim('`') }
             }
 
-            MarkdownElementTypes.IMAGE -> renderImage(node)
+            MarkdownElementTypes.IMAGE -> pushImage(node)
 
             MarkdownElementTypes.INLINE_LINK -> renderInlineLink(node)
             MarkdownElementTypes.FULL_REFERENCE_LINK -> renderReferenceLink(node)
@@ -363,7 +377,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
         }
     }
 
-    private fun FlowContent.renderImage(node: ASTNode) {
+    private fun FlowContent.pushImage(node: ASTNode) {
         val inlineLink = node.children.find { it.type == MarkdownElementTypes.INLINE_LINK }
         val alt = inlineLink!!.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
         val src = inlineLink.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) } ?: ""
