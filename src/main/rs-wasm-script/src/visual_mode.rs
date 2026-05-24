@@ -205,28 +205,21 @@ pub fn init_type_buttons() -> Result<(), JsValue> {
     Ok(())
 }
 
-/// Initialize all visual-mode related functionality (mode + buttons on window.load).
+/// Initialize all visual-mode related functionality.
 #[wasm_bindgen]
 pub fn init_visual_mode_all() -> Result<(), JsValue> {
     init_visual_mode()?;
-    let win = window().ok_or_else(|| JsValue::from_str("no window"))?;
-    let cb = Closure::wrap(Box::new(move || {
-        let _ = init_visual_mode_buttons();
-        let _ = init_type_buttons();
-    }) as Box<dyn FnMut()>);
-    win.add_event_listener_with_callback("load", cb.as_ref().unchecked_ref())?;
-    cb.forget();
+    let _ = init_visual_mode_buttons();
+    let _ = init_type_buttons();
     Ok(())
 }
 
 // --- DomTokenList helpers (web-sys 0.3 uses &js_sys::Array for add/remove) ---
 
 fn dom_token_list_add(list: &web_sys::DomTokenList, token: &str) {
-    let arr = js_sys::Array::of1(&JsValue::from_str(token));
-    let _ = list.add(&arr);
+    let _ = list.add_1(token);
 }
 
 fn dom_token_list_remove(list: &web_sys::DomTokenList, token: &str) -> Result<(), JsValue> {
-    let arr = js_sys::Array::of1(&JsValue::from_str(token));
-    list.remove(&arr)
+    list.remove_1(token)
 }

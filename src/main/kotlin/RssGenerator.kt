@@ -1,8 +1,7 @@
-import markdown.BlogRecord
 import java.text.SimpleDateFormat
 import java.util.Date
 
-val FORMATTER = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z")
+val FORMATTER = SimpleDateFormat("EEE, MMM dd yyyy")
 private val TOML_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
 private val TOML_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
 

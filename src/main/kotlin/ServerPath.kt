@@ -1,3 +1,5 @@
+import java.net.URLEncoder
+
 data class ServerPath(val string: String) {
     val serverPath = if(string.startsWith("/")) string else "/$string"
 
