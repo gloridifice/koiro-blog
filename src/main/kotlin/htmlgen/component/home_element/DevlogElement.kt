@@ -2,6 +2,7 @@ package htmlgen.component.home_element
 
 import kotlinx.html.*
 import DevlogRecord
+import kotlinx.datetime.LocalDateTime
 
 class DevlogElement(
     val devlogRecord: DevlogRecord,
@@ -37,7 +38,7 @@ class DevlogElement(
         }
     }
 
-    override fun getDate(): String {
-        return devlogRecord.header.date
+    override fun getDate(): LocalDateTime {
+        return devlogRecord.date
     }
 }

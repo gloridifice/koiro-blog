@@ -2,6 +2,7 @@ package htmlgen.component.home_element
 
 import kotlinx.html.*
 import BlogRecord
+import kotlinx.datetime.LocalDateTime
 
 class BlogElement(
     val blogRecord: BlogRecord
@@ -33,7 +34,7 @@ class BlogElement(
         }
     }
 
-    override fun getDate(): String {
-        return blogRecord.header.date
+    override fun getDate(): LocalDateTime {
+        return blogRecord.date
     }
 }

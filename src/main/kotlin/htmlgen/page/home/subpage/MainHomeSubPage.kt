@@ -5,7 +5,7 @@ import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.p
 import htmlgen.component.home_element.HomeElement
-import htmlgen.dateDisplayWithoutYearString
+import htmlgen.fmtThisYear
 
 class MainHomeSubPage(val elements: Iterable<HomeElement>) : HomeSubPage() {
     override fun DIV.showSubPage() {
@@ -21,7 +21,7 @@ class MainHomeSubPage(val elements: Iterable<HomeElement>) : HomeSubPage() {
                     div {
                         classes += "time"
                         p {
-                            +dateDisplayWithoutYearString(element.getDate())
+                            +fmtThisYear.format(element.getDate())
                         }
                     }
                     div {

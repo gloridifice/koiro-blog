@@ -9,18 +9,21 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
+open class DateRecord(val date: LocalDateTime)
+
 class BlogRecord(
     val header: BlogHeader,
-    val serverPath: ServerPath
-)
+    val serverPath: ServerPath,
+) : DateRecord(KoiroCatCafe.parseTomlDateTime(header.date))
 
 class ActiveRecord(
     val header: ActiveHeader,
     val markdownContent: String, // in markdown
-    val sourcePath: Path
-)
+    val sourcePath: Path,
+) : DateRecord(KoiroCatCafe.parseTomlDateTime(header.date))
 
-class DevlogRecord(val header: DevlogHeader, val serverPath: ServerPath, val previewImagePath: ServerPath?)
+class DevlogRecord(val header: DevlogHeader, val serverPath: ServerPath, val previewImagePath: ServerPath?) :
+    DateRecord(KoiroCatCafe.parseTomlDateTime(header.date))
 
 @Serializable
 class ActiveHeader(

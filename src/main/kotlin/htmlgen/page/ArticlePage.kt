@@ -1,6 +1,5 @@
 package htmlgen.page
 
-import FORMATTER
 import htmlgen.component.Catalogue
 import kotlinx.html.FlowContent
 import kotlinx.html.HTML
@@ -12,12 +11,14 @@ import kotlinx.html.hr
 import kotlinx.html.p
 import kotlinx.html.script
 import KoiroCatCafe
-import java.util.Date
+import KoiroCatCafe.Companion.formatter
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 import kotlin.collections.plus
 
 open class ArticlePage(
     val title: String,
-    val date: Date,
+    val date: LocalDateTime,
     val content: FlowContent.() -> ArticleContent.CollectedData?
 ) {
 
@@ -61,7 +62,7 @@ open class ArticlePage(
                             classes += "sub_info"
                             p {
                                 classes += "date"
-                                +FORMATTER.format(date)
+                                +date.format(formatter)
                             }
                         }
                     }

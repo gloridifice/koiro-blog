@@ -1,7 +1,8 @@
 package htmlgen
 
 import childPath
-import parseTomlDateTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format.char
 import kotlinx.html.*
 import java.io.File
 import java.net.URL
@@ -190,22 +191,12 @@ fun findFile(filePath: String): Pair<File, String> {
 }
 
 
-val fmtThisYear = SimpleDateFormat("MM-dd")
-val fmtOtherYear = SimpleDateFormat("yyyy-MM-dd")
-
-fun dateDisplayString(date: Date): String {
-    val timeCal = Calendar.getInstance()
-    val currentCal = Calendar.getInstance()
-
-    timeCal.time = date
-
-    return if (timeCal.get(Calendar.YEAR) == currentCal.get(Calendar.YEAR)) {
-        fmtThisYear.format(date)
-    } else fmtOtherYear.format(date)
+val fmtThisYear = LocalDateTime.Format {
+    monthNumber(); char('-'); day()
 }
 
-fun dateDisplayWithoutYearString(date: String): String {
-    return fmtThisYear.format(parseTomlDateTime(date))
+val fmtOtherYear = LocalDateTime.Format {
+    year(); char('-'); monthNumber(); char('-'); day()
 }
 
 val notionDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");

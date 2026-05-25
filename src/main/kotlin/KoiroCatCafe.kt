@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 import com.akuleshov7.ktoml.Toml
 import com.akuleshov7.ktoml.TomlInputConfig
 import com.github.ajalt.mordant.rendering.TextColors.yellow
@@ -19,14 +21,26 @@ import htmlgen.page.home.subpage.AboutHomeSubPage
 import htmlgen.page.home.subpage.BlogsHomeSubPage
 import htmlgen.page.home.subpage.MainHomeSubPage
 import htmlgen.page.home.subpage.PortfolioHomeSubPage
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import org.intellij.markdown.lexer.push
+import java.io.File
 import java.nio.file.Path
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeParseException
+import java.util.Date
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
 import kotlin.io.path.walk
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class KoiroCatCafe(
     databasePath: Path,
@@ -35,6 +49,7 @@ class KoiroCatCafe(
     init {
         KoiroCatCafe.databasePath = databasePath
     }
+
     companion object {
         var databasePath: Path? = null
 
@@ -44,7 +59,47 @@ class KoiroCatCafe(
             HomeSubPageInfo(ServerPath("portfolio.html"), "项目", SvgIcons.PROJECTS, null)
         private val aboutSubPageInfo = HomeSubPageInfo(ServerPath("about.html"), "关于", SvgIcons.DOG_BARK, null)
         val homeSubPageInfos =
-            arrayListOf<HomeSubPageInfo>(mainSubPageInfo, blogSubPageInfo, portfolioSubPageInfo, aboutSubPageInfo)
+            arrayListOf(mainSubPageInfo, blogSubPageInfo, portfolioSubPageInfo, aboutSubPageInfo)
+
+
+        val formatter = LocalDateTime.Format {
+            date(LocalDate.Formats.ISO)
+        }
+
+        fun parseTomlDateTime(dateString: String): LocalDateTime {
+            return try {
+                LocalDateTime.parse(dateString)
+            } catch (e: Exception) {
+                LocalDate.parse(dateString).atTime(0, 0, 0)
+            }
+        }
+
+        fun generateRssXmlString(pages: List<BlogRecord>, lastBuildDate: LocalDateTime): String =
+            buildString {
+                appendLine("""<?xml version="1.0" encoding="UTF-8"?>""")
+                appendLine("""<rss version="2.0">""")
+                appendLine("<channel>")
+                appendLine("<title>Koiro's Cat Café</title>")
+                appendLine("<link>https://blog.koiro.xyz</link>")
+                appendLine("<description>这里是宏楼 Koiro 的个人博客。宏楼是人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。</description>")
+                appendLine("<language>zh-cn</language>")
+                appendLine("<lastBuildDate>${formatter.format(lastBuildDate)}</lastBuildDate>")
+
+                pages.forEach { post ->
+                    appendLine("<item>")
+                    appendLine("<title>${post.header.title}</title>")
+                    appendLine("<link>https://blog.koiro.xyz/${post.serverPath}.html</link>")
+                    // appendLine("<guid>${post.}</guid>")
+                    appendLine("<pubDate>${formatter.format(parseTomlDateTime(post.header.date))}</pubDate>")
+                    var desc = post.header.slug
+                    desc += " #${post.header.blogClass}"
+                    appendLine("<description><![CDATA[$desc]]></description>")
+                    appendLine("</item>")
+                }
+
+                appendLine("</channel>")
+                appendLine("</rss>")
+            }
     }
 
     /// return header and content without header
@@ -96,29 +151,32 @@ class KoiroCatCafe(
 
 
     /// return server path
-    private fun generateBlogPage(header: BlogHeader, markdownContent: String, sourceFilePath: Path): ServerPath {
+    private fun generateBlogPage(header: BlogHeader, markdownContent: String, sourceFilePath: Path): BlogRecord {
         val safeTitle = header.title.toFileSystemSafe()
         val serverPath = "pages/blogs/$safeTitle.html"
 
         val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
 
+        val ret = BlogRecord(header, ServerPath(serverPath))
         writeHTML(fsPath) {
-            BlogArticlePage(header, markdownContent, sourceFilePath).apply { showPage() }
+            BlogArticlePage(ret, markdownContent, sourceFilePath).apply { showPage() }
         }
 
-        return ServerPath(serverPath)
+        return ret
     }
 
-    private fun generateDevlogPage(header: DevlogHeader, markdownContent: String, sourceFilePath: Path): ServerPath {
+    private fun generateDevlogPage(header: DevlogHeader, markdownContent: String, sourceFilePath: Path): DevlogRecord {
         val safeTitle = header.title.toFileSystemSafe()
         val serverPath = "pages/devlogs/$safeTitle.html"
         val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
 
+        val previewImagePath = header.previewImagePath?.let { copyImageToStatic(sourceFilePath, it) }
+        val ret = DevlogRecord(header, ServerPath(serverPath), previewImagePath)
         writeHTML(fsPath) {
-            DevlogArticlePage(header, markdownContent, sourceFilePath).apply { showPage() }
+            DevlogArticlePage(ret, markdownContent, sourceFilePath).apply { showPage() }
         }
 
-        return ServerPath(serverPath)
+        return ret
     }
 
 
@@ -149,17 +207,14 @@ class KoiroCatCafe(
         // 生成博客文章
         walkDatabaseAndParseHeader<BlogHeader>("blogs") { header, restMarkdown, sourcePath ->
             if (header.published) {
-                val serverPath = generateBlogPage(header, restMarkdown, sourcePath)
-                blogRecords.push(BlogRecord(header, serverPath))
+                blogRecords.push(generateBlogPage(header, restMarkdown, sourcePath))
             }
         }
 
         // 生成 devlog 文章
         walkDatabaseAndParseHeader<DevlogHeader>("devlogs") { header, restMarkdown, sourcePath ->
             if (header.published) {
-                val previewImagePath = header.previewImagePath?.let { copyImageToStatic(sourcePath, it) }
-                val serverPath = generateDevlogPage(header, restMarkdown, sourcePath)
-                devlogRecords.push(DevlogRecord(header, serverPath, previewImagePath))
+                devlogRecords.push(generateDevlogPage(header, restMarkdown, sourcePath))
             }
         }
 
@@ -200,5 +255,11 @@ class KoiroCatCafe(
                 homePage(info)
             }
         }
+
+        // Generate RSS
+        val rssString =
+            generateRssXmlString(blogRecords, Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+        File("static/rss.xml").writeText(rssString)
     }
 }
+

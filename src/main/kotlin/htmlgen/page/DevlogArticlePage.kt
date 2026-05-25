@@ -1,12 +1,11 @@
 package htmlgen.page
 
-import DevlogHeader
-import parseTomlDateTime
+import DevlogRecord
 import java.nio.file.Path
 
 
-class DevlogArticlePage(val header: DevlogHeader, val markdownText: String, val filePath: Path) : ArticlePage(
-    header.title, parseTomlDateTime(header.date),
+class DevlogArticlePage(val record: DevlogRecord, val markdownText: String, val filePath: Path) : ArticlePage(
+    record.header.title, record.date,
     {
         with(ArticleContent(markdownText, filePath)) {
             showPostContent()
