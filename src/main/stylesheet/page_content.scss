@@ -348,17 +348,15 @@ t.italic {
 }
 
 a.link {
-  color: var(--theme-color-1);
+  color: var(--text-color-2);
+  transition: color 0.3s;
+  &:hover {
+    color: var(--text-color-1);
+  }
   cursor: pointer;
-  text-decoration: underline solid;
-  transition: color .2s;
+  text-decoration: underline solid var(--bg-color-3);
   max-width: 100%;
   overflow-wrap: break-word;
-}
-
-a.link:hover {
-  color: var(--theme-color);
-  text-decoration: underline solid 3px;
 }
 
 .table {
@@ -395,6 +393,7 @@ a.link:hover {
   justify-content: center;
   align-items: center;
   touch-action: none; /* Prevent default touch actions for better swipe handling */
+  margin: 12px 0;
 }
 
 .stack-card {

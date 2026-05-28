@@ -2,6 +2,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::{window, Element, HtmlElement, HtmlImageElement};
 use std::cell::RefCell;
 use std::rc::Rc;
+use log::info;
+use web_sys::console::info;
 
 const CARD_WIDTH_STEP_PCT: f64 = 10.0;
 
@@ -230,7 +232,8 @@ fn update_container_height(container: &Element, cards: &[HtmlElement]) {
                 .and_then(|w| w.inner_height().ok())
                 .and_then(|v| v.as_f64())
                 .unwrap_or(f64::MAX);
-            let h = (w as f64 * nh as f64 / nw as f64).min(win_h * 0.75);
+            let h = (w as f64 * nh as f64 / nw as f64).min(win_h * 0.75).min(nh as f64);
+            info!("nw: {}, nh: {}, w: {}, h: {}, winh: {}, src: {}", nw, nh, w, h, win_h, img_for_closure.src());
             let h_px = format!("{}px", h as u32);
             for card in &cards {
                 let _ = set_style_property(card, "height", &h_px);

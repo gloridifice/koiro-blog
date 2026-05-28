@@ -25,6 +25,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.intellij.markdown.lexer.push
@@ -60,7 +62,6 @@ class KoiroCatCafe(
         private val aboutSubPageInfo = HomeSubPageInfo(ServerPath("about.html"), "关于", SvgIcons.DOG_BARK, null)
         val homeSubPageInfos =
             arrayListOf(mainSubPageInfo, blogSubPageInfo, portfolioSubPageInfo, aboutSubPageInfo)
-
 
         val formatter = LocalDateTime.Format {
             date(LocalDate.Formats.ISO)

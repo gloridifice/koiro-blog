@@ -152,8 +152,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
 
             MarkdownElementTypes.UNORDERED_LIST -> {
                 val hasCheckBox = node.children.any {
-                    it.type == MarkdownElementTypes.LIST_ITEM &&
-                            it.children.any { c -> c.type == GFMTokenTypes.CHECK_BOX }
+                    it.type == MarkdownElementTypes.LIST_ITEM && it.children.any { c -> c.type == GFMTokenTypes.CHECK_BOX }
                 }
                 ul {
                     if (hasCheckBox) classes += "todo_list"
@@ -294,6 +293,9 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
                 }
             }
 
+            MarkdownTokenTypes.LBRACKET, MarkdownTokenTypes.RBRACKET -> {
+            }
+
             else -> {
                 if (node.children.isNotEmpty()) renderInlineContent(node)
                 else {
@@ -319,10 +321,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
         }
         for (child in node.children) {
             when (child.type) {
-                MarkdownTokenTypes.LIST_BULLET,
-                MarkdownTokenTypes.LIST_NUMBER,
-                GFMTokenTypes.CHECK_BOX,
-                MarkdownTokenTypes.EOL -> {
+                MarkdownTokenTypes.LIST_BULLET, MarkdownTokenTypes.LIST_NUMBER, GFMTokenTypes.CHECK_BOX, MarkdownTokenTypes.EOL -> {
                 }
 
                 else -> markdownBlock(child)
@@ -331,16 +330,11 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
     }
 
     private fun FlowContent.renderCodeFence(node: ASTNode) {
-        val lang = node.children
-            .find { it.type == MarkdownTokenTypes.FENCE_LANG }
-            ?.getTextInNode(markdownText)?.toString()
-        val codeLines = node.children
-            .filter {
-                it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT ||
-                        it.type == MarkdownTokenTypes.CODE_LINE
-            }
-            .joinToString("\n") { it.getTextInNode(markdownText).toString() }
-            .replace("\t", "  ")
+        val lang =
+            node.children.find { it.type == MarkdownTokenTypes.FENCE_LANG }?.getTextInNode(markdownText)?.toString()
+        val codeLines = node.children.filter {
+                it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT || it.type == MarkdownTokenTypes.CODE_LINE
+            }.joinToString("\n") { it.getTextInNode(markdownText).toString() }.replace("\t", "  ")
         div {
             classes += "code_block"
             div {
@@ -362,10 +356,8 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
     }
 
     private fun FlowContent.renderCodeBlock(node: ASTNode) {
-        val codeLines = node.children
-            .filter { it.type == MarkdownTokenTypes.CODE_LINE }
-            .joinToString("\n") { it.getTextInNode(markdownText).toString() }
-            .replace("\t", "  ")
+        val codeLines = node.children.filter { it.type == MarkdownTokenTypes.CODE_LINE }
+            .joinToString("\n") { it.getTextInNode(markdownText).toString() }.replace("\t", "  ")
         div {
             classes += "code_block"
             div {
@@ -387,9 +379,8 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
     }
 
     private fun FlowContent.renderInlineLink(node: ASTNode) {
-        val href = node.children
-            .find { it.type == MarkdownElementTypes.LINK_DESTINATION }
-            ?.getTextInNode(markdownText)?.toString() ?: ""
+        val href = node.children.find { it.type == MarkdownElementTypes.LINK_DESTINATION }?.getTextInNode(markdownText)
+            ?.toString() ?: ""
         val linkTextNode = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
         val linkTitleNode = node.children.find { it.type == MarkdownElementTypes.LINK_TITLE }
         a {

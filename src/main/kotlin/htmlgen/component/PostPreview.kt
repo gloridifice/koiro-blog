@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalTime::class)
+
 package htmlgen.component
 
 import htmlgen.component.home_element.BlogElement
 import kotlinx.html.*
 import BlogRecord
 import DevlogRecord
+import htmlgen.formatToString
+import kotlin.time.ExperimentalTime
 
 
 fun FlowContent.largeBlogPostPreview(post: BlogRecord) {
@@ -41,7 +45,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogRecord) {
             classes += "info"
             p {
                 classes += "date"
-                +blogPost.header.displayDate()
+                + blogPost.date.formatToString()
             }
             p {
                 classes += "type"

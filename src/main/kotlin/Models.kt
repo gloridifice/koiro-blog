@@ -73,15 +73,4 @@ class BlogHeader(
     val tags: List<String> = listOf(),
     val emoji: String? = null
 ) {
-    @OptIn(ExperimentalTime::class)
-    fun displayDate(): String {
-        val localDate = try {
-            LocalDateTime.parse(date).date
-        } catch (_: Exception) {
-            LocalDate.parse(date)
-        }
-        val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-        val mmDd = "${localDate.month.toString().padStart(2, '0')}-${localDate.day.toString().padStart(2, '0')}"
-        return if (localDate.year == currentYear) mmDd else "${localDate.year}-$mmDd"
-    }
 }
