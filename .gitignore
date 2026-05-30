@@ -44,3 +44,7 @@ bin/
 /rust/target/
 /notionData/
 crates/
+
+static/pages
+static/pkg
+static/images
