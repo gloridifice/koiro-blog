@@ -12,7 +12,6 @@ repositories {
 }
 
 val kotlinxHtmlVersion = "0.12.0"
-val notionSdkVersion = "1.11.1"
 val mordantVersion = "2.1.0"
 val kotlinCoroutinesVersion = "1.7.3"
 val markdownVersion = "0.7.3"
@@ -22,7 +21,6 @@ dependencies {
 
     // include for JVM target
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
-    // no use implementation("com.github.seratch:notion-sdk-jvm-core:${notionSdkVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     implementation("com.github.ajalt.mordant:mordant:${mordantVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCoroutinesVersion}")
@@ -41,5 +39,5 @@ kotlin {
 }
 
 application {
-    mainClass.set("markdown.MainKt")
+    mainClass.set("MainKt")
 }

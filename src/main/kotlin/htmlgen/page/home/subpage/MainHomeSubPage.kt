@@ -36,8 +36,4 @@ class MainHomeSubPage(val elements: Iterable<HomeElement>) : HomeSubPage() {
     override fun getCssNames(): Array<String> {
         return arrayOf("scroll_animation", "subpage/main", "post_preview", "page_content")
     }
-
-    override fun getJsNames(): Array<String> {
-        return arrayOf("scroll_animation")
-    }
 }
