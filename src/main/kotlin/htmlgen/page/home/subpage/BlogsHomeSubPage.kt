@@ -82,8 +82,4 @@ class BlogsHomeSubPage(
         return arrayOf("subpage/blogs", "post_preview", "scroll_animation")
     }
 
-    override fun getJsNames(): Array<String> {
-        return arrayOf("scroll_animation")
-    }
-
 }

@@ -70,8 +70,4 @@ class PortfolioHomeSubPage(val pages: Iterable<PortfolioRecord>, val devlogs: Li
     override fun getCssNames(): Array<String> {
         return arrayOf("post_preview", "subpage/portfolio", "scroll_animation")
     }
-
-    override fun getJsNames(): Array<String> {
-        return arrayOf("scroll_animation")
-    }
 }
