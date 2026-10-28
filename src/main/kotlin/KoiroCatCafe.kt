@@ -89,7 +89,7 @@ class KoiroCatCafe(
                 pages.forEach { post ->
                     appendLine("<item>")
                     appendLine("<title>${post.header.title}</title>")
-                    appendLine("<link>https://blog.koiro.xyz/${post.serverPath}.html</link>")
+                    appendLine("<link>https://blog.koiro.xyz${post.serverPath}</link>")
                     // appendLine("<guid>${post.}</guid>")
                     appendLine("<pubDate>${formatter.format(parseTomlDateTime(post.header.date))}</pubDate>")
                     var desc = post.header.slug
