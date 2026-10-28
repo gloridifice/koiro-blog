@@ -38,6 +38,10 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Image preparation tools ###
+.venv/
+__pycache__/
+
 ### Mac OS ###
 .DS_Store
 
