@@ -50,7 +50,10 @@ import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
 import kotlin.collections.plus
 
-class ArticleContent(val markdownText: String, val filePath: Path, private val images: ImageAssets) {
+class ArticleContent(markdownText: String, val filePath: Path, private val images: ImageAssets) {
+    // The Markdown parser expects LF, including for blank lines that terminate HTML blocks.
+    // Keep AST offsets and all text extraction on the same normalized source.
+    val markdownText = markdownText.replace("\r\n", "\n").replace('\r', '\n')
     var h1Index = 0
     var h2Index = 0
     var h3Index = 0
@@ -203,8 +206,23 @@ class ArticleContent(val markdownText: String, val filePath: Path, private val i
         }
     }
 
+    private fun inlineContentChildren(node: ASTNode): List<ASTNode> {
+        // Delimiters belong to their formatting node, not to the rendered text.
+        // Strip only matched boundaries so literal/unmatched markers survive.
+        val delimiterCount = when (node.type) {
+            MarkdownElementTypes.EMPH, MarkdownElementTypes.CODE_SPAN, MarkdownElementTypes.LINK_TEXT -> 1
+            MarkdownElementTypes.STRONG, GFMElementTypes.STRIKETHROUGH -> 2
+            else -> 0
+        }
+        val children = node.children.drop(delimiterCount).dropLast(delimiterCount)
+        return if (node.type == MarkdownTokenTypes.ATX_CONTENT) {
+            children.dropWhile { it.type == MarkdownTokenTypes.WHITE_SPACE }
+                .dropLastWhile { it.type == MarkdownTokenTypes.WHITE_SPACE }
+        } else children
+    }
+
     private fun FlowContent.renderInlineContent(node: ASTNode) {
-        for (child in node.children) renderInlineNode(child)
+        for (child in inlineContentChildren(node)) renderInlineNode(child)
     }
 
     private fun FlowContent.renderImageStack() {
@@ -247,14 +265,14 @@ class ArticleContent(val markdownText: String, val filePath: Path, private val i
             MarkdownTokenTypes.TEXT -> +node.getTextInNode(markdownText).toString()
 
             MarkdownTokenTypes.ATX_CONTENT -> {
-                val text = node.getTextInNode(markdownText).toString().trim()
-                val content = collectedData.headingInfos.last().content
-                if (content.isEmpty()) collectedData.headingInfos.last().content = text;
-                if (text.isNotEmpty()) +text
+                collectedData.headingInfos.lastOrNull()?.let {
+                    if (it.content.isEmpty()) it.content = extractText(node).trim()
+                }
+                renderInlineContent(node)
             }
 
-            MarkdownTokenTypes.ATX_HEADER -> {
-                // do nothing
+            MarkdownTokenTypes.ATX_HEADER, MarkdownTokenTypes.SETEXT_1, MarkdownTokenTypes.SETEXT_2 -> {
+                // Heading markers are syntax, not content.
             }
 
             MarkdownTokenTypes.CODE_LINE -> +node.getTextInNode(markdownText).toString()
@@ -265,7 +283,13 @@ class ArticleContent(val markdownText: String, val filePath: Path, private val i
             MarkdownElementTypes.STRONG -> strong { renderInlineContent(node) }
 
             MarkdownElementTypes.CODE_SPAN -> {
-                code { +node.getTextInNode(markdownText).toString().trim('`') }
+                val text = inlineContentChildren(node)
+                    .joinToString("") { it.getTextInNode(markdownText) }.replace('\n', ' ')
+                // CommonMark removes one padding space only when the span is not all spaces.
+                val content = if (text.startsWith(' ') && text.endsWith(' ') && text.any { it != ' ' }) {
+                    text.substring(1, text.length - 1)
+                } else text
+                code { +content }
             }
 
             MarkdownElementTypes.IMAGE -> pushImage(node)
@@ -431,7 +455,7 @@ class ArticleContent(val markdownText: String, val filePath: Path, private val i
         return if (node.children.isEmpty()) {
             node.getTextInNode(markdownText).toString()
         } else {
-            node.children.joinToString("") { extractText(it) }
+            inlineContentChildren(node).joinToString("") { extractText(it) }
         }
     }
 }

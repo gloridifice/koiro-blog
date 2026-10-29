@@ -1,4 +1,3 @@
-
 .page_content {
   text-align: justify;
 
@@ -33,6 +32,7 @@
   p {
     margin: 8px auto;
     min-height: 12px;
+    line-height: 1.5;
   }
 
   blockquote {
@@ -95,7 +95,7 @@
     margin: 8px 0;
     line-height: 1.65;
 
-    > p {
+    >p {
       margin: 0;
     }
   }
@@ -220,12 +220,13 @@
 
   .todo_list {
     padding: 0;
-    > .todo_list_item {
+
+    >.todo_list_item {
       list-style: none;
       position: relative;
       padding-inline-start: 26px;
 
-      > label {
+      >label {
         position: absolute;
         inset-inline-start: 0;
         top: 0;
@@ -235,7 +236,7 @@
         align-items: center;
       }
 
-      > label > input {
+      >label>input {
         margin: 0;
         -webkit-appearance: none;
         appearance: none;
@@ -245,7 +246,7 @@
         border-radius: 4px;
         background: var(--bg-color-3);
         place-items: center;
-        display:inline-grid;
+        display: inline-grid;
 
         &:checked {
           background: var(--theme-color)
@@ -258,7 +259,7 @@
           border: 3px solid #fff;
           border-top: 0;
           border-left: 0;
-          transform: rotate(45deg) ;
+          transform: rotate(45deg);
         }
 
         &:focus-visible {
@@ -328,7 +329,8 @@ t {
   line-height: 1.65;
 }
 
-code, t.code {
+code,
+t.code {
   background-color: var(--inline-code-color-bg);
   border: 1px solid var(--inline-code-color-bg);
   box-shadow: inset 0 -0.2em var(--bg-color-1);
@@ -352,9 +354,11 @@ t.italic {
 a.link {
   color: var(--text-color-2);
   transition: color 0.3s;
+
   &:hover {
     color: var(--text-color-1);
   }
+
   cursor: pointer;
   text-decoration: underline solid var(--bg-color-3);
   max-width: 100%;
@@ -394,7 +398,8 @@ a.link {
   display: flex;
   justify-content: center;
   align-items: center;
-  touch-action: none; /* Prevent default touch actions for better swipe handling */
+  touch-action: none;
+  /* Prevent default touch actions for better swipe handling */
   margin: 12px 0;
 }
 
@@ -407,7 +412,8 @@ a.link {
   transform-origin: center center;
   cursor: pointer;
   will-change: transform;
-  background-color: #333; /* Fallback color */
+  background-color: #333;
+  /* Fallback color */
 }
 
 /* Card images */
@@ -416,7 +422,8 @@ a.link {
   max-height: 100%;
   object-fit: contain;
   display: block;
-  pointer-events: none; /* Prevent image dragging issues */
+  pointer-events: none;
+  /* Prevent image dragging issues */
 }
 
 /* The card currently at the top of the stack */
@@ -425,8 +432,7 @@ a.link {
 }
 
 /* Cards underneath the active one */
-.stack-card.underneath {
-}
+.stack-card.underneath {}
 
 /* Card being swiped away (animating out) */
 .stack-card.animating-out {
