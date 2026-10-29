@@ -2,7 +2,7 @@ package htmlgen.page
 
 import ServerPath
 import htmlgen.component.Catalogue
-import htmlgen.copyImageToStatic
+import htmlgen.ImageAssets
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.LI
@@ -50,7 +50,7 @@ import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
 import kotlin.collections.plus
 
-class ArticleContent(val markdownText: String, val filePath: Path) {
+class ArticleContent(val markdownText: String, val filePath: Path, private val images: ImageAssets) {
     var h1Index = 0
     var h2Index = 0
     var h3Index = 0
@@ -374,7 +374,7 @@ class ArticleContent(val markdownText: String, val filePath: Path) {
         val alt = inlineLink!!.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
         val src = inlineLink.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) } ?: ""
 
-        val imageServerPath = copyImageToStatic(filePath, src)
+        val imageServerPath = images.copy(filePath, src)
         imageStack.push(Pair(imageServerPath, alt))
     }
 

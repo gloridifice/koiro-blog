@@ -1,11 +1,6 @@
-import java.net.URLEncoder
-
 data class ServerPath(val string: String) {
-    val serverPath = if(string.startsWith("/")) string else "/$string"
+    val relativePath = string.trimStart('/')
+    val serverPath = "/$relativePath"
 
-    val staticPath = "static/$string"
-
-    override fun toString(): String {
-        return serverPath;
-    }
+    override fun toString(): String = serverPath
 }

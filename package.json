@@ -1,0 +1,7 @@
+{
+  "name": "koiro-blog",
+  "private": true,
+  "devDependencies": {
+    "sass": "1.101.0"
+  }
+}

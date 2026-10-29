@@ -1,4 +1,4 @@
-static/* linguist-vendored
+assets/** linguist-vendored
 
 # Binary images and fonts use Git LFS; source and text assets stay in Git.
 *.png filter=lfs diff=lfs merge=lfs -text

@@ -1,66 +1,54 @@
 # Koiro's Cat Café
 
+English | [简体中文](readme/zh-CN.md) | [日本語](readme/ja-JP.md) | [Français](readme/fr-FR.md)
+
 A static blog generator powered by local Markdown files with TOML metadata. No Notion account or API is required.
 
 ![Main Page Showcase](readme/main_page.jpg)
+
+## Build from source
+
+Requires Python 3.11+, JDK 21, Node.js 24, Git LFS and Rust installed through rustup. Set `JAVA_HOME` to JDK 21. `rust-toolchain.toml` selects the Rust version and Wasm target; Sass is installed from the npm lockfile during the build.
+
+```sh
+git lfs install --local
+git lfs pull
+cargo install wasm-pack --version 0.15.0 --locked
+python scripts/build_site.py
+python -m http.server 8000 --directory dist
+```
+
+Open <http://localhost:8000>. On systems where Python is named `python3`, use that command instead. Run `python scripts/build_site.py --help` for build commands.
 
 ## Stack
 
 - Kotlin/JVM 21, kotlinx-html, JetBrains Markdown and ktoml
 - Rust/WebAssembly for browser interactions
-- SCSS for styles
+- SCSS compiled with Dart Sass
+- Python for cross-platform build orchestration and output validation
 
 ## Structure
 
 - `src/main/kotlin/` — content parsing, HTML and RSS generation; entry point: `Main.kt`.
 - `src/main/rs-wasm-script/` — browser interactions.
-- `src/main/stylesheet/` — stylesheets.
-- `static/` — generated site and static assets.
-- `data/` — Markdown content and attachments, grouped into `blogs/`, `devlogs/`, `portfolio/` and `actives/`.
+- `src/main/stylesheet/` — stylesheet sources.
+- `assets/` — tracked static inputs copied into `dist/`. The nested `assets/` preserves `/assets/...` URLs.
+- `data/` — Markdown and attachments, grouped into `blogs/`, `devlogs/`, `portfolio/` and `actives/`. Each Markdown file starts with fenced TOML metadata; fields are defined in `Models.kt`.
+- `dist/` — complete generated site, ignored by Git and recreated on every full build.
 
 ## Git LFS
 
 Binary images (`png`, `jpg`, `jpeg`, `gif`, `webp`, `avif`, `ico`) and fonts (`otf`, `ttf`, `woff`, `woff2`) use Git LFS. Markdown, code and SVG files remain ordinary Git text.
 
-Install [Git LFS](https://git-lfs.com/) (`brew install git-lfs` on macOS), then run from this repository:
+New assets become LFS pointers when staged. For already tracked binary files, use `git add --renormalize -- <asset-paths>` before committing, then review `git lfs status`. This does not rewrite existing history.
 
-```sh
-git lfs install --local
-git lfs pull
-```
+CI checks out actual LFS objects and publishes ordinary asset bytes to the separate Pages repository. GitHub Pages does not serve LFS pointers.
 
-New assets become LFS pointers when staged. For already tracked binary files, use `git add --renormalize -- <asset-paths>` before committing, then review `git lfs status`. This does not rewrite existing history. CI must also fetch LFS objects before building (with `actions/checkout`, set `lfs: true`).
+## Deployment
 
-If `static/` is a separate GitHub Pages checkout, keep its Git configuration independent and publish actual asset files, not LFS pointers; GitHub Pages does not serve LFS objects.
+GitHub Actions builds on `master` pushes, pull requests and manual runs. Publishing to a separate Pages repository is disabled until its repository variables and deployment secret are configured. See [deployment setup](docs/deployment.md), including precautions after the local history rewrite.
 
-## Prepare content images
+## Development
 
-`scripts/prepare_images.py` scans JPEG, PNG and GIF files under `data/`. It removes descriptive metadata (GPS, camera details, capture dates, EXIF comments, XMP/IPTC and PNG text), retaining orientation and ICC color profiles. Existing JPEG image data is not recompressed. GIFs, transparent PNGs and animated PNGs retain their formats; only fully opaque, still PNGs become quality-80 JPGs. Markdown image/link destinations, reference links and TOML `preview` paths are updated together.
-
-Install ExifTool and the Python dependencies, then preview or apply the changes (commands below are for macOS):
-
-```sh
-brew install exiftool
-python3 -m venv .venv
-.venv/bin/python -m pip install -r scripts/requirements.txt
-.venv/bin/python scripts/prepare_images.py data         # dry run
-.venv/bin/python scripts/prepare_images.py data --apply # validate, then write
-.venv/bin/python -m unittest discover -s scripts -p 'test_*.py'
-```
-
-Run this **before staging assets for LFS**. The script prepares and validates a temporary copy first, refuses JPEG filename collisions and does not leave metadata-bearing backups in `data/`. Keep originals outside the repository. It does not detect private information visible in pixels or present in filenames. Unsupported image formats are not processed.
-
-## Build
-
-Requires JDK 21, Rust with `wasm-pack`, and the Sass CLI. Run from the repository root:
-
-1. Place content in the repository's `data/` directory, which is read relative to the working directory. It must contain `blogs/`, `devlogs/`, `portfolio/` and `actives/`. Each Markdown file starts with a fenced `toml` metadata block; fields are defined in `Models.kt`.
-2. Generate the site and assets:
-
-   ```sh
-   ./gradlew run # Windows: .\gradlew.bat run
-   bash compileScript.sh
-   sass src/main/stylesheet:static/assets/css --style expanded
-   ```
-
-Serve `static/` with a static HTTP server. For stylesheet development, run `bash compileSCSS_watch.sh`.
+- [Build, validation and deployment](docs/deployment.md)
+- [Prepare content images before staging](docs/image-preparation.md)

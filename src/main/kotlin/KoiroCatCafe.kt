@@ -12,7 +12,7 @@ import kotlinx.html.html
 import kotlinx.html.stream.appendHTML
 import kotlinx.serialization.decodeFromString
 import htmlgen.component.home_element.HomeElement
-import htmlgen.copyImageToStatic
+import htmlgen.ImageAssets
 import htmlgen.page.BlogArticlePage
 import htmlgen.page.DevlogArticlePage
 import htmlgen.page.home.HomeSubPageInfo
@@ -45,15 +45,13 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class KoiroCatCafe(
-    databasePath: Path,
-    val outputPath: String
+    private val databasePath: Path,
+    outputPath: String
 ) {
-    init {
-        KoiroCatCafe.databasePath = databasePath
-    }
+    private val outputRoot = Path(outputPath)
+    private val images = ImageAssets(databasePath, outputRoot)
 
     companion object {
-        var databasePath: Path? = null
 
         private val mainSubPageInfo = HomeSubPageInfo(ServerPath("home.html"), "主页", SvgIcons.HOME, null)
         private val blogSubPageInfo = HomeSubPageInfo(ServerPath("blogs.html"), "博客", SvgIcons.BLOGS, null)
@@ -156,11 +154,11 @@ class KoiroCatCafe(
         val safeTitle = header.title.toFileSystemSafe()
         val serverPath = "pages/blogs/$safeTitle.html"
 
-        val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
+        val fsPath = outputRoot.resolve(serverPath)
 
         val ret = BlogRecord(header, ServerPath(serverPath))
         writeHTML(fsPath) {
-            BlogArticlePage(ret, markdownContent, sourceFilePath).apply { showPage() }
+            BlogArticlePage(ret, markdownContent, sourceFilePath, images).apply { showPage() }
         }
 
         return ret
@@ -169,12 +167,12 @@ class KoiroCatCafe(
     private fun generateDevlogPage(header: DevlogHeader, markdownContent: String, sourceFilePath: Path): DevlogRecord {
         val safeTitle = header.title.toFileSystemSafe()
         val serverPath = "pages/devlogs/$safeTitle.html"
-        val fsPath = Path(this@KoiroCatCafe.outputPath).resolve(serverPath)
+        val fsPath = outputRoot.resolve(serverPath)
 
-        val previewImagePath = header.previewImagePath?.let { copyImageToStatic(sourceFilePath, it) }
+        val previewImagePath = header.previewImagePath?.let { images.copy(sourceFilePath, it) }
         val ret = DevlogRecord(header, ServerPath(serverPath), previewImagePath)
         writeHTML(fsPath) {
-            DevlogArticlePage(ret, markdownContent, sourceFilePath).apply { showPage() }
+            DevlogArticlePage(ret, markdownContent, sourceFilePath, images).apply { showPage() }
         }
 
         return ret
@@ -182,7 +180,7 @@ class KoiroCatCafe(
 
 
     private inline fun <reified T> walkDatabaseAndParseHeader(relPath: String, run: (T, String, Path) -> Unit) {
-        databasePath!!.resolve(relPath).walk().forEach { path ->
+        databasePath.resolve(relPath).walk().forEach { path ->
             if (path.isRegularFile() && path.extension == "md") {
                 val content = path.readText()
                 try {
@@ -222,7 +220,7 @@ class KoiroCatCafe(
         // 收集 Portfolio
         walkDatabaseAndParseHeader<PortfolioHeader>("portfolio") { header, _, sourcePath ->
             if (header.published) {
-                val previewImagePath = copyImageToStatic(sourcePath, header.previewImagePath)
+                val previewImagePath = images.copy(sourcePath, header.previewImagePath)
                 portfolioRecords.push(PortfolioRecord(header, previewImagePath))
             }
         }
@@ -242,7 +240,7 @@ class KoiroCatCafe(
         val elements = arrayListOf<HomeElement>()
         elements += blogRecords.map { BlogElement(it) }
         elements += devlogRecords.map { DevlogElement(it) }
-        elements += activeRecords.map { ActiveElement(it) }
+        elements += activeRecords.map { ActiveElement(it, images) }
 
         elements.sortByDescending { it.getDate() }
 
@@ -252,7 +250,7 @@ class KoiroCatCafe(
         aboutSubPageInfo.page = AboutHomeSubPage();
 
         for (info in homeSubPageInfos) {
-            writeHTML(Path(info.serverPath.staticPath)) {
+            writeHTML(outputRoot.resolve(info.serverPath.relativePath)) {
                 homePage(info)
             }
         }
@@ -260,7 +258,7 @@ class KoiroCatCafe(
         // Generate RSS
         val rssString =
             generateRssXmlString(blogRecords, Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
-        File("static/rss.xml").writeText(rssString)
+        outputRoot.resolve("rss.xml").toFile().writeText(rssString)
     }
 }
 

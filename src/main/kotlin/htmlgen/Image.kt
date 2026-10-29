@@ -1,36 +1,35 @@
 package htmlgen
 
+import ImageCompressor
 import ServerPath
 import decodeURL
-import KoiroCatCafe
-import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
+import kotlin.io.path.extension
+import kotlin.io.path.invariantSeparatorsPathString
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.readBytes
+import kotlin.io.path.writeBytes
 
-/**
- * @param sourceFilePath 源路径
- * @param imageRelPath 图片相对于源文件的路径 url
- */
-fun copyImageToStatic(sourceFilePath: Path, imageRelPath: String): ServerPath {
-    val imageDatabasePath = sourceFilePath.resolveSibling(imageRelPath.decodeURL())
-    val imageServerPath = ServerPath("images/${KoiroCatCafe.databasePath!!.relativize(imageDatabasePath)}")
-    if (imageDatabasePath.exists() && !imageDatabasePath.isDirectory()) {
-        val outputFile = File(imageServerPath.staticPath)
-        if (!outputFile.exists() || imageDatabasePath.toFile().lastModified() > outputFile.lastModified()) {
-            val compressedImage = if (outputFile.extension != "gif") {
-                ImageCompressor.compressMemory(imageDatabasePath.readBytes())
-            } else {
-                // 不压缩 gif
-                imageDatabasePath.readBytes()
-            }
-            Path(imageServerPath.staticPath).createParentDirectories()
-            outputFile.writeBytes(compressedImage)
-            println("Write Image: <${imageServerPath.staticPath}>")
+/** Copies article attachments into the same output tree as the generated pages. */
+class ImageAssets(databasePath: Path, private val outputPath: Path) {
+    private val databaseRoot = databasePath.toAbsolutePath().normalize()
+
+    fun copy(sourceFilePath: Path, imageRelPath: String): ServerPath {
+        val source = sourceFilePath.toAbsolutePath().resolveSibling(imageRelPath.decodeURL()).normalize()
+        require(source.startsWith(databaseRoot)) { "Image is outside the content directory: $source" }
+        require(source.isRegularFile()) { "Missing image referenced by $sourceFilePath: $imageRelPath" }
+
+        val relativePath = databaseRoot.relativize(source).invariantSeparatorsPathString
+        val serverPath = ServerPath("images/$relativePath")
+        val output = outputPath.resolve(serverPath.relativePath)
+        if (!output.isRegularFile() || source.toFile().lastModified() > output.toFile().lastModified()) {
+            val bytes = source.readBytes()
+            val image = if (source.extension.equals("gif", ignoreCase = true)) bytes
+                else ImageCompressor.compressMemory(bytes)
+            output.createParentDirectories().writeBytes(image)
+            println("Write Image: <$output>")
         }
+        return serverPath
     }
-    return imageServerPath
 }
