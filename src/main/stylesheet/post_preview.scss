@@ -3,17 +3,15 @@
   background-color: var(--bg-color-1);
   background-image: var(--bg-image-koiro-text-tile);
   border-radius: 6px;
-  border: solid 1px var(--bg-color-1);
   box-shadow: inset 0 -6px var(--shadow-color-0);
   padding-bottom: 6px;
-  transition: 0.5s border, 0.5s background-color;
+  transition: 0.4s background-color;
   width: 100%;
   margin: 14px auto;
   cursor: pointer;
 
   &:hover {
     background-color: var(--bg-color-2);
-    border: solid 1px var(--line-color);
   }
 
   &:active {
@@ -102,7 +100,7 @@ a.post_preview:any-link {
   justify-content: space-between;
   align-items: center;
 
-  > * {
+  >* {
     flex: 1 1 auto;
   }
 
@@ -170,6 +168,7 @@ a.post_preview:any-link {
   .info {
     flex-grow: 1;
     height: fit-content;
+
     p {
       text-wrap: nowrap;
     }
@@ -199,6 +198,7 @@ a.post_preview:any-link {
       margin: 0;
       font-weight: normal;
     }
+
     p.info {
       color: var(--text-color-1);
       font-size: 14px;

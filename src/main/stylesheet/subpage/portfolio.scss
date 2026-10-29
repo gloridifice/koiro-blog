@@ -1,4 +1,3 @@
-
 .project {
   width: 100%;
 
@@ -19,19 +18,24 @@
   .info {
     margin: 0 auto;
     margin-bottom: 12px;
+
     .title {
       color: var(--text-color-0);
       font-weight: bold;
+      text-align: left;
       margin: 0;
     }
+
     .headings {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
     }
+
     .button {
       margin: 0;
     }
+
     p {
       color: var(--text-color-1);
       font-family: sans-serif;
@@ -40,6 +44,7 @@
       line-height: 1.5;
     }
   }
+
   .link {
     padding: 4px 10px;
     background-color: var(--bg-color-1);
@@ -55,10 +60,12 @@
     svg {
       height: 14px;
       width: 14px;
+
       * {
         fill: var(--text-color-0);
       }
     }
+
     a {
       color: var(--text-color-0);
       text-decoration: underline transparent;
@@ -66,6 +73,7 @@
       font-size: 14px;
       transition: text-decoration 0.3s;
     }
+
     a:hover {
       text-decoration: underline var(--text-color-0);
     }
@@ -73,10 +81,13 @@
 }
 
 @media only screen and (min-width: 1200px) {
-  .info, .project img {
-      width: 75%;
+
+  .info,
+  .project img {
+    width: 75%;
   }
-  .post_preview.devlog{
+
+  .post_preview.devlog {
     max-width: 75%;
   }
 }
