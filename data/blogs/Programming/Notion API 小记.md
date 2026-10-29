@@ -1,5 +1,6 @@
 ```toml
 title = "Notion API 小记"
+icon = "blocks"
 english_title = "Notion API quick note"
 slug = "NotionAPI 的一些笔记"
 published = true

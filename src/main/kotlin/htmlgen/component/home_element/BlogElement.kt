@@ -2,6 +2,7 @@ package htmlgen.component.home_element
 
 import kotlinx.html.*
 import BlogRecord
+import htmlgen.component.blogIcon
 import kotlinx.datetime.LocalDateTime
 
 class BlogElement(
@@ -12,18 +13,13 @@ class BlogElement(
             classes += arrayOf("post_preview", "blog", "large")
             href = blogRecord.serverPath.serverPath
 
-            val emoji = blogRecord.header.emoji
-
             div {
                 classes += "description"
+                blogIcon(blogRecord.header)
                 div {
                     classes += "title"
                     h2 {
                         +blogRecord.header.title
-                    }
-                    div {
-                        classes += "emoji"
-                        +emoji.orEmpty()
                     }
                 }
                 p {

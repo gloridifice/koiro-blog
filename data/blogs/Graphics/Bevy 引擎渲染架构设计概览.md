@@ -1,5 +1,6 @@
 ```toml
 title = "Bevy 引擎渲染架构设计概览"
+icon = "workflow"
 english_title = "Design of Bevy engine’s rendering system."
 slug = "本文简单介绍了 Bevy 的渲染架构设计，包括有管理渲染顺序的向无环图、渲染流程中 System 顺序、不同物体的渲染阶段、主世界和渲染世界的互动等等。以 Bevy Core 3D 的渲染实现为参考。此外还简单介绍了在一般开发中，如何使用 Bevy 渲染相关的 API。"
 published = true

@@ -23,11 +23,7 @@ fun FlowContent.blogPostPreview(blogPost: BlogRecord) {
         classes += arrayOf("post_preview", "regular", "reveal", "blog")
         href = blogPost.serverPath.serverPath
 
-        val emoji = blogPost.header.emoji
-        div {
-            classes += "emoji"
-            +emoji.orEmpty()
-        }
+        blogIcon(blogPost.header)
 
         div {
             classes += "description"

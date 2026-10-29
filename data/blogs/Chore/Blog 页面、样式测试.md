@@ -1,5 +1,6 @@
 ```toml
 title = "Blog 页面、样式测试"
+icon = "flask-conical"
 slug = "页面样式测试"
 published = true
 last_edited_date = "2024-11-14T04:26:00"

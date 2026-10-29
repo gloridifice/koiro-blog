@@ -4,6 +4,7 @@ import com.akuleshov7.ktoml.Toml
 import com.akuleshov7.ktoml.TomlInputConfig
 import com.github.ajalt.mordant.rendering.TextColors.yellow
 import htmlgen.SvgIcons
+import htmlgen.LucideIcons
 import htmlgen.component.home_element.ActiveElement
 import htmlgen.component.home_element.BlogElement
 import htmlgen.component.home_element.DevlogElement
@@ -205,6 +206,13 @@ class KoiroCatCafe(
 
         // 生成博客文章
         walkDatabaseAndParseHeader<BlogHeader>("blogs") { header, restMarkdown, sourcePath ->
+            header.icon?.let { name ->
+                try {
+                    LucideIcons.load(name)
+                } catch (e: IllegalArgumentException) {
+                    throw IllegalArgumentException("$sourcePath: ${e.message}", e)
+                }
+            }
             if (header.published) {
                 blogRecords.push(generateBlogPage(header, restMarkdown, sourcePath))
             }

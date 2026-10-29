@@ -1,5 +1,6 @@
 ```toml
 title = "Kotlin jvm 实现静态博客生成器随记"
+icon = "code-xml"
 slug = "用 kotlin-jvm、notion 和 typescript 实现了自己的静态博客生成器，此博客就是用其生成的。写得过程很愉快。"
 published = true
 last_edited_date = "2026-05-07T22:30:00"

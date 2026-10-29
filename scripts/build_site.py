@@ -109,7 +109,7 @@ def validate_site(output: Path) -> None:
     required = (
         "index.html", "home.html", "blogs.html", "portfolio.html", "about.html", "rss.xml",
         "CNAME", ".nojekyll", "assets/css/root.css", "pkg/rs_wasm_script.js",
-        "pkg/rs_wasm_script_bg.wasm",
+        "pkg/rs_wasm_script_bg.wasm", "assets/licenses/lucide.txt",
     )
     for relative in required:
         path = output / relative
@@ -143,6 +143,9 @@ def build() -> None:
     check_tree(ROOT / "data")
     run("npm", "ci", "--no-audit", "--no-fund")
     prepare_output(ROOT / "assets", DIST)
+    license_path = DIST / "assets/licenses/lucide.txt"
+    license_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / "node_modules/lucide-static/LICENSE", license_path)
     wrapper = ROOT / ("gradlew.bat" if os.name == "nt" else "gradlew")
     run(wrapper, "--no-daemon", "test", "run")
     styles()

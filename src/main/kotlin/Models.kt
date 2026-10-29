@@ -71,6 +71,7 @@ class BlogHeader(
     val date: String,
 
     val tags: List<String> = listOf(),
-    val emoji: String? = null
+    val emoji: String? = null,
+    val icon: String? = null
 ) {
 }

@@ -1,5 +1,6 @@
 ```toml
 title = "在 wgpu 进行 HDRI 到 Cubemap 的转换与 IBL 预滤波环境贴图"
+icon = "box"
 published = false
 last_edited_date = "2025-06-13T19:42:00"
 authors = "宏楼 Koiro"

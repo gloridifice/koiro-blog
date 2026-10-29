@@ -1,5 +1,6 @@
 ```toml
 title = "Unreal 5 垃圾回收源码梳理"
+icon = "recycle"
 english_title = "Unreal 5 Grabage Collection Source Reading"
 slug = "UE 5 采用标记清扫的垃圾回收策略，同时支持增量回收和集群优化计数。本文梳理了 UE 5 垃圾回收相关的源码，并总结了其部分编程范式。"
 published = true

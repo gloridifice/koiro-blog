@@ -93,16 +93,9 @@
   li {
     text-align: start;
     margin: 8px 0;
-    align-items: center;
-    label {
-      input {
-        margin: 0
-      }
-      margin-right: 8px;
-    }
+    line-height: 1.65;
 
-    p {
-      display: inline-block;
+    > p {
       margin: 0;
     }
   }
@@ -227,14 +220,23 @@
 
   .todo_list {
     padding: 0;
-    .todo_list_item {
+    > .todo_list_item {
       list-style: none;
-      label {
-        display:inline-flex;
-        align-items:center;   /* 关键：和文字垂直居中 */
-        gap:8px;
+      position: relative;
+      padding-inline-start: 26px;
+
+      > label {
+        position: absolute;
+        inset-inline-start: 0;
+        top: 0;
+        // Keep the checkbox centered on the first line, not the whole item.
+        height: 1lh;
+        display: flex;
+        align-items: center;
       }
-      input {
+
+      > label > input {
+        margin: 0;
         -webkit-appearance: none;
         appearance: none;
         width: 18px;

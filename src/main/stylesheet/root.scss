@@ -11,6 +11,12 @@
   --bg-image-pattern: url("../resources/pattern_background.png");
 }
 
+*,
+*::before,
+*::after {
+  corner-shape: squircle;
+}
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../resources/font/JetBrainsMono-2.304/JetBrainsMono-Light.woff2") format("woff");

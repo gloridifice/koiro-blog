@@ -1,5 +1,6 @@
 ```toml
 title = "Unreal 5 多人网络同步源码梳理（基础）"
+icon = "network"
 english_title = "Unreal 5 multiplayer network source code reading."
 slug = "本文结合 UE 源码与注释梳理了 UE 5 的多人网络同步（服务器-客户端模式）下的网络同步过程。"
 published = true

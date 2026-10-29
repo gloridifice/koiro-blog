@@ -21,7 +21,7 @@ python scripts/build_site.py
 python -m http.server 8000 --directory dist
 ```
 
-The Python script works on Windows, macOS and Linux, and resolves paths relative to its own location rather than the caller's working directory. It selects `gradlew.bat` on Windows and `gradlew` elsewhere. Java, Node/npm and wasm-pack must be on PATH. The build installs the locked Sass dependency with `npm ci`; no global Sass installation or shell script is needed.
+The Python script works on Windows, macOS and Linux, and resolves paths relative to its own location rather than the caller's working directory. It selects `gradlew.bat` on Windows and `gradlew` elsewhere. Java, Node/npm and wasm-pack must be on PATH. The build installs locked Sass and `lucide-static` dependencies with `npm ci`; no global npm packages or frontend bundler are needed.
 
 A full build validates input files, recreates `dist/`, copies static inputs including hidden files, runs Kotlin tests and generation, compiles styles and Wasm, then validates the resulting site. It rejects LFS pointers, repository metadata, missing local image/script/stylesheet references, invalid RSS and invalid Wasm output. External URLs are not fetched. The build does not run the image-preparation script or modify content.
 
@@ -30,6 +30,20 @@ Use `python scripts/build_site.py --help` for incremental styles/Wasm commands a
 ```sh
 python scripts/build_site.py watch-styles
 ```
+
+## Blog icons
+
+Set `icon` in a blog's fenced TOML header to a Lucide kebab-case name:
+
+````markdown
+```toml
+icon = "book-open"
+```
+````
+
+Browse names at <https://lucide.dev/icons/>. Both large and regular blog cards use this field. An explicit `icon` takes precedence over the legacy `emoji` field; without `icon`, a nonblank `emoji` is preserved. If neither is supplied, the card uses `file-text`. Unknown or malformed names fail generation with the source filename, including for unpublished drafts. Paths and raw SVG are not accepted.
+
+Kotlin reads SVGs from `node_modules/lucide-static/icons/` at build time and inlines only the icons used in cards. No Lucide JavaScript, icon font or CDN request is needed in the browser. The full build copies the package's ISC/MIT notices to `dist/assets/licenses/lucide.txt`. Run `npm ci` from the project root before invoking Gradle directly, including Kotlin tests.
 
 ## GitHub Actions
 

@@ -1,5 +1,6 @@
 ```toml
 title = "GameJam 中的灵感发现"
+icon = "lightbulb"
 slug = "这是一些做 GameJam 时时间管理的方法论，希望它们能在你没有头绪或着遇到困难的时候帮到你。它们不对所有项目和所有人适用，请根据实际情况调整。"
 published = true
 last_edited_date = "2023-11-10T12:03:00"

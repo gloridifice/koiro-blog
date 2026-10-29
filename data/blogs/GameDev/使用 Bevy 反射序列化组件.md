@@ -1,5 +1,6 @@
 ```toml
 title = "使用 Bevy 反射序列化组件"
+icon = "braces"
 english_title = "Serialize components in Bevy with bevy_reflect."
 slug = "我们的游戏的场景文件是自定义的，因此涉及到大量场景序列化的工作。本文简单介绍如何使用 bevy_reflect 序列化和反序列化 Component（到 toml 文件）。并且包括如何将反序列化后的反射插入 Entity. 过程中会以猫方块的自定义场景序列化为例解释。"
 published = true

@@ -26,6 +26,36 @@ a.post_preview:any-link {
   cursor: pointer;
 }
 
+// Shared blog icon, including legacy emoji content.
+.blog .blog_icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--bg-color-0);
+  color: var(--text-color-0);
+
+  svg,
+  .blog_icon_emoji {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+
+  svg * {
+    fill: none;
+  }
+
+  .blog_icon_emoji {
+    font-size: 20px;
+    line-height: 20px;
+    text-align: center;
+  }
+}
+
 // Regular card
 .post_preview.regular {
   position: relative;
@@ -93,6 +123,16 @@ a.post_preview:any-link {
   }
 }
 
+.blog.regular {
+  .blog_icon {
+    margin: 0 16px 0 20px;
+  }
+
+  .description {
+    min-width: 0;
+  }
+}
+
 // Large card
 .blog.large {
   display: flex;
@@ -105,20 +145,21 @@ a.post_preview:any-link {
   }
 
   .description {
-    display: flex;
-    flex-direction: column;
-    margin: 24px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 12px;
+    margin: 16px 20px;
+    min-width: 0;
 
-    .title {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
+    .blog_icon {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      align-self: start;
     }
 
-    .emoji {
-      font-size: 24px;
-      flex-basis: 24px;
+    .title {
+      grid-column: 2;
+      grid-row: 1;
     }
 
     h2 {
@@ -130,6 +171,8 @@ a.post_preview:any-link {
     }
 
     .slug {
+      grid-column: 2;
+      grid-row: 2;
       color: var(--text-color-1);
       font-weight: 200;
       font-size: 14px;

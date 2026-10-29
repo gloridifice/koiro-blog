@@ -1,5 +1,6 @@
 ```toml
 title = "Unreal 5 C++ 多人游戏入门资料"
+icon = "gamepad-2"
 english_title = "Unreal 5 C++ multiplayer starter note."
 slug = "本文为个人笔记，是一篇轻量化的资料类的入门文章，适合非 UE 开发者和无多人游戏开发经验者阅读。包括使用 Rider 开发的注意事项、UE C++ 常用类、垃圾回收、多人网络同步概念与特性等。"
 published = true

@@ -1,5 +1,6 @@
 ```toml
 title = "UI 设计与开发经验 [Unity] 2023.2.8 版"
+icon = "panels-top-left"
 slug = "自我总结"
 published = true
 last_edited_date = "2025-06-13T19:25:00"
