@@ -1,0 +1,7 @@
+id = "kotlin_jvm_static_blog"
+icon = "code-xml"
+published = true
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2023-10-02T19:01:00"
+tags = ["Kotlin", "Notion"]

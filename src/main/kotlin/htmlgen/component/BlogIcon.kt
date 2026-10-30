@@ -1,12 +1,12 @@
 package htmlgen.component
 
-import BlogHeader
+import content.BlogMetadata
 import htmlgen.LucideIcons
 import kotlinx.html.FlowContent
 import kotlinx.html.div
 import kotlinx.html.span
 
-fun FlowContent.blogIcon(header: BlogHeader) {
+fun FlowContent.blogIcon(header: BlogMetadata) {
     div(classes = "blog_icon") {
         attributes["aria-hidden"] = "true"
         if (header.icon == null && !header.emoji.isNullOrBlank()) {

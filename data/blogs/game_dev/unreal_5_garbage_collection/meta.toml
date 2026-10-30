@@ -1,0 +1,8 @@
+id = "unreal_5_garbage_collection"
+icon = "recycle"
+published = true
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2025-05-22"
+tags = ["Cpp", "Unreal"]
+legacy_dates = ["2025-06-05T13:28:00"]

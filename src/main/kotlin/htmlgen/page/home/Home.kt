@@ -1,99 +1,45 @@
 package htmlgen.page.home
 
 import htmlgen.SvgIcons
-import htmlgen.asLoc
+import htmlgen.component.languageTools
+import htmlgen.component.message
 import htmlgen.component.naviWithHighlightedItem
 import htmlgen.component.touchableAvatar
 import htmlgen.page.layout
 import htmlgen.page.home.subpage.HomeSubPage
-import htmlgen.resourcesServerPath
 import kotlinx.html.*
-import KoiroCatCafe.Companion.homeSubPageInfos
+import routing.PageContext
+import routing.PageKey
 
-fun HTML.homePage(
-    subPage: HomeSubPageInfo,
-    page: HomeSubPage = requireNotNull(subPage.page),
-    siteTitle: String = "Koiro's Cat Café",
-) {
-    layout(
-        siteTitle = siteTitle,
-        cssNames = arrayOf("home") + page.getCssNames(),
-        jsNames = page.getJsNames(),
-        headFont = "你好",
-    ) {
-        div {
-            // ========== Sidebar =========
-            classes += "about"
-            div {
-                classes += "up"
-                img {
-                    src = "/assets/resources/about_icon.png"
-                }
-                outSidePageButtons(
-                    arrayOf(
-                        OutSidePageItem("itch.io", "https://gloridifice.itch.io/", "一些游戏开发作品"),
-                        OutSidePageItem(
-                            "Source",
-                            "https://github.com/gloridifice/kotlin-notion-blog",
-                            "博客仓库"
-                        )
-                    )
-                )
-                div {
-                    classes += "introduction"
-                    div {
-                        classes += "icon"
-                        touchableAvatar(resourcesServerPath("doiro.png".asLoc()))
-//                        unsafeSVG(SVGIcons.ACCOUNT_CIRCLE);
+fun HTML.homePage(context: PageContext, page: HomeSubPage) {
+    layout(context, siteTitle = if (context.page is PageKey.Home)
+        context.text("site.homeTitle", "page" to context.page.number) else context.text("site.title"),
+        cssNames = arrayOf("home") + page.getCssNames(), jsNames = page.getJsNames()) {
+        div("about") {
+            div("up") {
+                img(src = "/assets/resources/about_icon.png", alt = "Koiro's Cat Café")
+                div("outside_pages") {
+                    for ((url, label) in listOf("https://gloridifice.itch.io/" to "site.games",
+                        "https://github.com/gloridifice/kotlin-notion-blog" to "site.source")) a(url, target = "_blank", classes = "outside_page_item button row") {
+                        rel = "noopener noreferrer"; with(SvgIcons.EXTERNAL_LINK) { showSvg() }
+                        div("desc") { message(context, label) }
                     }
-                    div {
-                        classes += "texts"
-                        h2 {
-                            +"这里是宏楼的猫咖！"
-                        }
-                        p {
-                            +"人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
-                        }
+                }
+                div("introduction") {
+                    div("icon") { touchableAvatar("/assets/resources/doiro.png") }
+                    div("texts") {
+                        h2 { message(context, "site.welcome") }
+                        p { message(context, "site.introduction") }
                     }
-
                 }
+                languageTools(context, social = true)
             }
-            div {
-                classes += "down"
-                div {
-                    classes += "navi"
-                    naviWithHighlightedItem(homeSubPageInfos, subPage)
-                }
-            }
+            div("down") { div("navi") {
+                val items = context.navigation()
+                val selected = items.single { context.page == it.key || context.page is PageKey.Home && it.key is PageKey.Home }
+                naviWithHighlightedItem(items, selected)
+            } }
         }
-        div {
-            classes += "contents_wrapper"
-            div {
-                classes += "contents"
-                page.apply { showSubPage() }
-            }
-        }
+        div("contents_wrapper") { div("contents") { page.apply { showSubPage() } } }
     }
 }
-
-data class OutSidePageItem(val name: String, val link: String, val desc: String)
-
-fun FlowContent.outSidePageButtons(items: Array<OutSidePageItem>) {
-    div {
-        classes += "outside_pages"
-        items.forEach {
-            a {
-                href = it.link
-                target = "_blank"
-                classes += arrayOf("outside_page_item", "button", "row")
-                SvgIcons.EXTERNAL_LINK.apply { showSvg() }
-                div {
-                    classes += "desc"
-                    +it.desc
-                }
-            }
-        }
-    }
-}
-
-

@@ -1,10 +1,11 @@
 """Filesystem contracts for the build entry point; no compiler subprocess mocks."""
 
 from pathlib import Path
+import json
 import tempfile
 import unittest
 
-from build_site import check_local_assets, check_tree, prepare_output
+from build_site import check_generated_files, check_local_assets, check_tree, prepare_output
 
 
 class BuildSiteTest(unittest.TestCase):
@@ -55,7 +56,10 @@ class BuildSiteTest(unittest.TestCase):
             root = Path(temporary)
             (root / "assets/css").mkdir(parents=True)
             (root / "assets/image space.png").write_bytes(b"image")
+            (root / "target.html").write_text("target")
             (root / "page.html").write_text(
+                '<a href="target.html#heading">target</a>'
+                '<meta http-equiv="refresh" content="0; url=target.html">'
                 '<img src="/assets/image%20space.png?version=1">'
                 '<script src="https://example.com/app.js"></script>'
                 '<link href="/assets/css/root.css" rel="stylesheet">'
@@ -70,6 +74,28 @@ class BuildSiteTest(unittest.TestCase):
             css.write_text('body{background:url("../missing.png")}')
             with self.assertRaisesRegex(ValueError, "missing.png"):
                 check_local_assets(root)
+            css.write_text('body{background:url("../image%20space.png")}')
+            (root / "target.html").unlink()
+            with self.assertRaisesRegex(ValueError, "target.html"):
+                check_local_assets(root)
+
+    def test_generated_manifest_preserves_exact_case_for_portable_legacy_image_aliases(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            names = ['images/content/blogs/art/post/image.png', 'images/blogs/Art/legacy/image.png']
+            for name in names:
+                file = root / name
+                file.parent.mkdir(parents=True, exist_ok=True)
+                file.write_bytes(b'image')
+            manifest = root / '.generated-site-files.json'
+            manifest.write_text(json.dumps(names))
+            check_generated_files(root)
+            manifest.write_text(json.dumps(['images/blogs/art/legacy/image.png']))
+            with self.assertRaisesRegex(ValueError, 'case mismatch'):
+                check_generated_files(root)
+            manifest.write_text(json.dumps(['../outside.html']))
+            with self.assertRaisesRegex(ValueError, 'Unsafe'):
+                check_generated_files(root)
 
     def test_git_attributes_cannot_be_published(self):
         with tempfile.TemporaryDirectory() as temporary:

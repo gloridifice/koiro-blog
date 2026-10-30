@@ -1,0 +1,7 @@
+id = "camera_oriented_rendering"
+icon = "camera"
+published = false
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2025-06-27"
+legacy_dates = ["2025-06-23T19:51:00"]

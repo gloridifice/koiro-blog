@@ -1,0 +1,815 @@
+version = 1
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Art/王国之泪 的平面设计.md"
+directory = "blogs/art/tears_of_the_kingdom_graphic_design"
+id = "tears_of_the_kingdom_graphic_design"
+old-url = "/pages/blogs/王国之泪 的平面设计.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Art/面向平面设计的色彩知识入门.md"
+directory = "blogs/art/color_theory_for_graphic_design"
+id = "color_theory_for_graphic_design"
+old-url = "/pages/blogs/面向平面设计的色彩知识入门.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Chore/Blog 页面、样式测试.md"
+directory = "blogs/chore/blog_style_demo"
+id = "blog_style_demo"
+old-url = "/pages/blogs/Blog 页面、样式测试.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/GameJam 中的时间管理.md"
+directory = "blogs/game_dev/game_jam_time_management"
+id = "game_jam_time_management"
+old-url = "/pages/blogs/GameJam 中的时间管理.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/GameJam 中的灵感发现.md"
+directory = "blogs/game_dev/finding_game_jam_inspiration"
+id = "finding_game_jam_inspiration"
+old-url = "/pages/blogs/GameJam 中的灵感发现.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版.md"
+directory = "blogs/game_dev/unity_ui_design_notes_2023_02_08"
+id = "unity_ui_design_notes_2023_02_08"
+old-url = "/pages/blogs/UI 设计与开发经验 [Unity] 2023.2.8 版.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/Unreal 5 C++ 多人游戏入门资料.md"
+directory = "blogs/game_dev/unreal_5_cpp_multiplayer_resources"
+id = "unreal_5_cpp_multiplayer_resources"
+old-url = "/pages/blogs/Unreal 5 C++ 多人游戏入门资料.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/Unreal 5 垃圾回收源码梳理.md"
+directory = "blogs/game_dev/unreal_5_garbage_collection"
+id = "unreal_5_garbage_collection"
+old-url = "/pages/blogs/Unreal 5 垃圾回收源码梳理.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/Unreal 5 多人网络同步源码梳理（基础）.md"
+directory = "blogs/game_dev/unreal_5_network_replication_basics"
+id = "unreal_5_network_replication_basics"
+old-url = "/pages/blogs/Unreal 5 多人网络同步源码梳理（基础）.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024.md"
+directory = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024"
+id = "monsters_expedition_editor_thinkycon_2024"
+old-url = "/pages/blogs/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/使用 Bevy 反射序列化组件.md"
+directory = "blogs/game_dev/bevy_reflection_component_serialization"
+id = "bevy_reflection_component_serialization"
+old-url = "/pages/blogs/使用 Bevy 反射序列化组件.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/GameDev/八向自动连接瓦片 Tile 理论与 Bevy 实践.md"
+directory = "blogs/game_dev/eight_way_autotiling_in_bevy"
+id = "eight_way_autotiling_in_bevy"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Graphics/Bevy 引擎渲染架构设计概览.md"
+directory = "blogs/graphics/bevy_rendering_architecture"
+id = "bevy_rendering_architecture"
+old-url = "/pages/blogs/Bevy 引擎渲染架构设计概览.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Graphics/在 wgpu 进行 HDRI 到 Cubemap 的转换与 IBL 预滤波环境贴图.md"
+directory = "blogs/graphics/wgpu_hdri_cubemap_and_ibl_prefiltering"
+id = "wgpu_hdri_cubemap_and_ibl_prefiltering"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Graphics/面向相机的渲染系统设计.md"
+directory = "blogs/graphics/camera_oriented_rendering"
+id = "camera_oriented_rendering"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Life/2023 的秋季做了些什么.md"
+directory = "blogs/life/autumn_2023"
+id = "autumn_2023"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP.md"
+directory = "blogs/life/favorite_manga_anime_and_music_2025"
+id = "favorite_manga_anime_and_music_2025"
+old-url = "/pages/blogs/我在 2025 年遇到的好的漫画、动画与音乐专辑EP.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/Helix 治好了我的 Vim 配置焦虑.md"
+directory = "blogs/programming/helix_and_vim_configuration"
+id = "helix_and_vim_configuration"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/Kotlin jvm 实现静态博客生成器随记.md"
+directory = "blogs/programming/kotlin_jvm_static_blog"
+id = "kotlin_jvm_static_blog"
+old-url = "/pages/blogs/Kotlin jvm 实现静态博客生成器随记.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/Notion API 小记.md"
+directory = "blogs/programming/notion_api_notes"
+id = "notion_api_notes"
+old-url = "/pages/blogs/Notion API 小记.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/优化键盘布局，改善生活福祉.md"
+directory = "blogs/programming/keyboard_layout_optimization"
+id = "keyboard_layout_optimization"
+old-url = "/pages/blogs/优化键盘布局，改善生活福祉.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/游戏开发中的编程理论基础.md"
+directory = "blogs/programming/programming_theory_for_game_development"
+id = "programming_theory_for_game_development"
+old-url = "/pages/blogs/游戏开发中的编程理论基础.html"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/Programming/编程语言交互设计.md"
+directory = "blogs/programming/programming_language_interaction_design"
+id = "programming_language_interaction_design"
+
+[[contents]]
+kind = "blog"
+old-source = "blogs/template.md"
+directory = "blogs/blog_template"
+id = "blog_template"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/UI Framework egui + wgpu + winit Environment Setup.md"
+directory = "devlogs/egui_wgpu_winit_setup"
+id = "egui_wgpu_winit_setup"
+old-url = "/pages/devlogs/UI Framework  egui + wgpu + winit Environment Setup.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/hecs、3D 渲染系统搭建和探索更好的项目结构.md"
+directory = "devlogs/hecs_rendering_and_project_structure"
+id = "hecs_rendering_and_project_structure"
+old-url = "/pages/devlogs/hecs、3D 渲染系统搭建和探索更好的项目结构.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/rust wgpu app 运行环境和 Phong 渲染管线搭建.md"
+directory = "devlogs/wgpu_app_and_phong_pipeline"
+id = "wgpu_app_and_phong_pipeline"
+old-url = "/pages/devlogs/rust wgpu app 运行环境和 Phong 渲染管线搭建.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/图像照明（IBL）与透明渲染.md"
+directory = "devlogs/ibl_and_transparency"
+id = "ibl_and_transparency"
+old-url = "/pages/devlogs/图像照明（IBL）与透明渲染.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/实现类 Bevy ECS 的 System.md"
+directory = "devlogs/bevy_style_ecs_systems"
+id = "bevy_style_ecs_systems"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/延迟渲染管线、微表面 BRDF、法线变换、物体继承树 UI.md"
+directory = "devlogs/deferred_rendering_brdf_and_scene_tree"
+id = "deferred_rendering_brdf_and_scene_tree"
+old-url = "/pages/devlogs/延迟渲染管线、微表面 BRDF、法线变换、物体继承树 UI.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/渲染管线、Depth、Camera、Light、Transform、bevy_ecs.md"
+directory = "devlogs/render_pipeline_camera_and_bevy_ecs"
+id = "render_pipeline_camera_and_bevy_ecs"
+old-url = "/pages/devlogs/渲染管线、Depth、Camera、Light、Transform、bevy_ecs.html"
+
+[[contents]]
+kind = "devlog"
+old-source = "devlogs/管线重构、Input、Egui Tiles、Shadow Mapping.md"
+directory = "devlogs/pipeline_input_egui_tiles_and_shadows"
+id = "pipeline_input_egui_tiles_and_shadows"
+old-url = "/pages/devlogs/管线重构、Input、Egui Tiles、Shadow Mapping.html"
+
+[[contents]]
+kind = "active"
+old-source = "actives/GMTK GJ 2025.md"
+directory = "actives/gmtk_game_jam_2025"
+id = "gmtk_game_jam_2025"
+
+[[contents]]
+kind = "active"
+old-source = "actives/migrate_from_notion_to_markdown.md"
+directory = "actives/migrate_from_notion_to_markdown"
+id = "migrate_from_notion_to_markdown"
+
+[[contents]]
+kind = "active"
+old-source = "actives/动态的功能.md"
+directory = "actives/activity_feature_design"
+id = "activity_feature_design"
+
+[[contents]]
+kind = "active"
+old-source = "actives/动态的功能完成啦.md"
+directory = "actives/activity_feature_complete"
+id = "activity_feature_complete"
+
+[[contents]]
+kind = "active"
+old-source = "actives/最近的事 2025-6-8.md"
+directory = "actives/recent_updates_2025_06_08"
+id = "recent_updates_2025_06_08"
+
+[[contents]]
+kind = "portfolio"
+old-source = "portfolio/Table/cat_with_blocks.md"
+directory = "portfolio/cat_with_blocks"
+id = "cat_with_blocks"
+
+[[contents]]
+kind = "portfolio"
+old-source = "portfolio/Table/koiros_cat_cafe.md"
+directory = "portfolio/koiros_cat_cafe"
+id = "koiros_cat_cafe"
+
+[[contents]]
+kind = "portfolio"
+old-source = "portfolio/Table/water_source.md"
+directory = "portfolio/water_source"
+id = "water_source"
+
+[[contents]]
+kind = "portfolio"
+old-source = "portfolio/Table/wgpu_pbr.md"
+directory = "portfolio/wgpu_pbr"
+id = "wgpu_pbr"
+
+[[assets]]
+old-url = "/images/actives/动态的功能/image.jpg"
+source = "actives/activity_feature_design/images/image.jpg"
+
+[[assets]]
+old-url = "/images/actives/动态的功能完成啦/image.jpg"
+source = "actives/activity_feature_complete/images/image.jpg"
+
+[[assets]]
+old-url = "/images/actives/最近的事 2025-6-8/IMG_6223.jpg"
+source = "actives/recent_updates_2025_06_08/images/IMG_6223.jpg"
+
+[[assets]]
+old-url = "/images/actives/最近的事 2025-6-8/IMG_6369.jpg"
+source = "actives/recent_updates_2025_06_08/images/IMG_6369.jpg"
+
+[[assets]]
+old-url = "/images/actives/最近的事 2025-6-8/IMG_6399.jpg"
+source = "actives/recent_updates_2025_06_08/images/IMG_6399.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/IMG_0982.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/IMG_0982.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 1.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 10.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 10.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 11.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 11.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 12.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 12.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 13.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 13.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 14.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 14.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 15.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 15.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 16.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 16.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 17.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 17.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 18.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 18.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 19.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 19.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 2.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 20.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 20.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 21.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 21.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 22.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 22.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 23.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 23.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 24.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 24.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 25.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 25.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 3.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 4.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 5.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 5.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 6.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 6.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 7.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 7.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 8.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 8.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled 9.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled 9.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled.jpeg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled.jpeg"
+
+[[assets]]
+old-url = "/images/blogs/Art/王国之泪 的平面设计/Untitled.jpg"
+source = "blogs/art/tears_of_the_kingdom_graphic_design/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/golden_sword.png"
+source = "blogs/art/color_theory_for_graphic_design/images/golden_sword.png"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 1.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 10.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 10.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 11.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 11.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 12.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 12.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 13.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 13.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 14.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 14.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 15.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 15.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 16.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 16.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 17.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 17.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 18.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 18.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 19.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 19.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 2.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 20.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 20.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 21.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 21.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 22.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 22.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 23.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 23.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 3.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 4.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 5.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 5.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 6.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 6.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 7.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 7.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 8.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 8.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image 9.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image 9.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Art/面向平面设计的色彩知识入门/image.jpg"
+source = "blogs/art/color_theory_for_graphic_design/images/image.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Chore/Blog 页面、样式测试/Untitled.jpg"
+source = "blogs/chore/blog_style_demo/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/GameJam 中的时间管理/Untitled 1.jpg"
+source = "blogs/game_dev/game_jam_time_management/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/GameJam 中的时间管理/Untitled.jpg"
+source = "blogs/game_dev/game_jam_time_management/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled 1.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled 2.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled 3.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled 4.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled 5.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled 5.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/Untitled.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/sample.gif"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/sample.gif"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/sample_1.gif"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/sample_1.gif"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/sample_2.gif"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/sample_2.gif"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/UI 设计与开发经验 [Unity] 2023 2 8 版/ui-preview.jpg"
+source = "blogs/game_dev/unity_ui_design_notes_2023_02_08/images/ui-preview.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/Unreal5Cpp多人游戏入门资料/actorlifecycle1.jpg"
+source = "blogs/game_dev/unreal_5_cpp_multiplayer_resources/images/actorlifecycle1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/Unreal5Cpp多人游戏入门资料/image 1.jpg"
+source = "blogs/game_dev/unreal_5_cpp_multiplayer_resources/images/image 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/Unreal5Cpp多人游戏入门资料/image 2.jpg"
+source = "blogs/game_dev/unreal_5_cpp_multiplayer_resources/images/image 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/Unreal5Cpp多人游戏入门资料/image 3.jpg"
+source = "blogs/game_dev/unreal_5_cpp_multiplayer_resources/images/image 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/Unreal5Cpp多人游戏入门资料/image.jpg"
+source = "blogs/game_dev/unreal_5_cpp_multiplayer_resources/images/image.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 1.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 2.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 3.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 4.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 5.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 5.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 6.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 6.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 7.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 7.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 8.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 8.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled 9.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled 9.jpg"
+
+[[assets]]
+old-url = "/images/blogs/GameDev/《怪兽远征》的编辑器工具｜随记 ThinkyCon 2024/Untitled.jpg"
+source = "blogs/game_dev/monsters_expedition_editor_thinkycon_2024/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 1.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 2.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 3.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 4.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 5.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 5.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 6.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 6.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image 7.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image 7.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Life/我在 2025 年遇到的好的漫画、动画与音乐专辑 EP/image.jpg"
+source = "blogs/life/favorite_manga_anime_and_music_2025/images/image.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/Kotlin jvm 实现静态博客生成器随记/Untitled 1.jpg"
+source = "blogs/programming/kotlin_jvm_static_blog/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/Kotlin jvm 实现静态博客生成器随记/Untitled 2.jpg"
+source = "blogs/programming/kotlin_jvm_static_blog/images/Untitled 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/Kotlin jvm 实现静态博客生成器随记/Untitled.jpg"
+source = "blogs/programming/kotlin_jvm_static_blog/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/Notion API 小记/Untitled 1.jpg"
+source = "blogs/programming/notion_api_notes/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/Notion API 小记/Untitled.jpg"
+source = "blogs/programming/notion_api_notes/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/优化键盘布局，改善生活福祉/Altaction_Layer.png"
+source = "blogs/programming/keyboard_layout_optimization/images/Altaction_Layer.png"
+
+[[assets]]
+old-url = "/images/blogs/Programming/优化键盘布局，改善生活福祉/Base_Layer.png"
+source = "blogs/programming/keyboard_layout_optimization/images/Base_Layer.png"
+
+[[assets]]
+old-url = "/images/blogs/Programming/优化键盘布局，改善生活福祉/Command_Layer.png"
+source = "blogs/programming/keyboard_layout_optimization/images/Command_Layer.png"
+
+[[assets]]
+old-url = "/images/blogs/Programming/优化键盘布局，改善生活福祉/Symbol_Layer.png"
+source = "blogs/programming/keyboard_layout_optimization/images/Symbol_Layer.png"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Dec-07-2023_22-49-46.gif"
+source = "blogs/programming/programming_theory_for_game_development/images/Dec-07-2023_22-49-46.gif"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 1.gif"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 1.gif"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 1.jpg"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 1.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 2.gif"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 2.gif"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 2.jpg"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 2.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 3.jpg"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 3.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 4.jpg"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 4.jpg"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled 5.png"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled 5.png"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled.gif"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled.gif"
+
+[[assets]]
+old-url = "/images/blogs/Programming/游戏开发中的编程理论基础/Untitled.jpg"
+source = "blogs/programming/programming_theory_for_game_development/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/Jan-29-2025_01-13-05.gif"
+source = "devlogs/deferred_rendering_brdf_and_scene_tree/images/Jan-29-2025_01-13-05_bb548ee9.gif"
+
+[[assets]]
+old-url = "/images/devlogs/Nov-13-2024_19-17-11.gif"
+source = "devlogs/render_pipeline_camera_and_bevy_ecs/images/Nov-13-2024_19-17-11_91c54a0b.gif"
+
+[[assets]]
+old-url = "/images/devlogs/UI Framework egui + wgpu + winit Environment Setup/Untitled.jpg"
+source = "devlogs/egui_wgpu_winit_setup/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/Untitled-002.jpg"
+source = "devlogs/egui_wgpu_winit_setup/images/Untitled-002.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/Untitled.jpg"
+source = "devlogs/wgpu_app_and_phong_pipeline/images/Untitled_20861b5a.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/rust wgpu app 运行环境和 Phong 渲染管线搭建/Untitled.jpg"
+source = "devlogs/wgpu_app_and_phong_pipeline/images/Untitled.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/shadow_mapping.jpg"
+source = "devlogs/pipeline_input_egui_tiles_and_shadows/images/shadow_mapping.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/with_ibl_all.jpg"
+source = "devlogs/ibl_and_transparency/images/with_ibl_all.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/图像照明（IBL）与透明渲染/colored_transparent.jpg"
+source = "devlogs/ibl_and_transparency/images/colored_transparent.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/图像照明（IBL）与透明渲染/deferred_dragons.jpg"
+source = "devlogs/ibl_and_transparency/images/deferred_dragons.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/图像照明（IBL）与透明渲染/ibl_all.jpg"
+source = "devlogs/ibl_and_transparency/images/ibl_all.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/图像照明（IBL）与透明渲染/transparent_metallic_reflectance.jpg"
+source = "devlogs/ibl_and_transparency/images/transparent_metallic_reflectance.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/延迟渲染管线、微表面 BRDF、法线变换、物体继承树 UI/25-1-22.png"
+source = "devlogs/deferred_rendering_brdf_and_scene_tree/images/25-1-22.png"
+
+[[assets]]
+old-url = "/images/devlogs/延迟渲染管线、微表面 BRDF、法线变换、物体继承树 UI/Jan-29-2025_01-13-05.gif"
+source = "devlogs/deferred_rendering_brdf_and_scene_tree/images/Jan-29-2025_01-13-05.gif"
+
+[[assets]]
+old-url = "/images/devlogs/延迟渲染管线、微表面 BRDF、法线变换、物体继承树 UI/image.jpg"
+source = "devlogs/deferred_rendering_brdf_and_scene_tree/images/image.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/渲染管线、Depth、Camera、Light、Transform、bevy_ecs/Nov-13-2024_19-17-11.gif"
+source = "devlogs/render_pipeline_camera_and_bevy_ecs/images/Nov-13-2024_19-17-11.gif"
+
+[[assets]]
+old-url = "/images/devlogs/管线重构、Input、Egui Tiles、Shadow Mapping/image 1.jpg"
+source = "devlogs/pipeline_input_egui_tiles_and_shadows/images/image 1.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/管线重构、Input、Egui Tiles、Shadow Mapping/image 2.jpg"
+source = "devlogs/pipeline_input_egui_tiles_and_shadows/images/image 2.jpg"
+
+[[assets]]
+old-url = "/images/devlogs/管线重构、Input、Egui Tiles、Shadow Mapping/image.jpg"
+source = "devlogs/pipeline_input_egui_tiles_and_shadows/images/image.jpg"
+
+[[assets]]
+old-url = "/images/portfolio/CoverRect_transparent.png"
+source = "portfolio/water_source/images/CoverRect_transparent.png"
+
+[[assets]]
+old-url = "/images/portfolio/cat_with_blocks.jpg"
+source = "portfolio/cat_with_blocks/images/cat_with_blocks.jpg"
+
+[[assets]]
+old-url = "/images/portfolio/koiro_blog.jpg"
+source = "portfolio/koiros_cat_cafe/images/koiro_blog.jpg"
+
+[[assets]]
+old-url = "/images/portfolio/wgpu_pbr.jpg"
+source = "portfolio/wgpu_pbr/images/wgpu_pbr.jpg"

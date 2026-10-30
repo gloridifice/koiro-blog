@@ -1,0 +1,21 @@
+{
+  "contents": 41,
+  "asset_aliases": 136,
+  "attachment_copies": 142,
+  "unreferenced": [],
+  "notes": [
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Art\\面向平面设计的色彩知识入门.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\GameDev\\Unreal 5 C++ 多人游戏入门资料.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\GameDev\\Unreal 5 垃圾回收源码梳理.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\GameDev\\Unreal 5 多人网络同步源码梳理（基础）.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\GameDev\\使用 Bevy 反射序列化组件.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Graphics\\Bevy 引擎渲染架构设计概览.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Graphics\\面向相机的渲染系统设计.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Life\\我在 2025 年遇到的好的漫画、动画与音乐专辑 EP.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Programming\\Notion API 小记.md: duplicate dates; retained final effective date",
+    "G:\\MyProjects\\Web\\koiro-blog\\data\\blogs\\Programming\\优化键盘布局，改善生活福祉.md: duplicate dates; retained final effective date",
+    "devlogs/实现类 Bevy ECS 的 System.md: omitted empty draft preview"
+  ],
+  "changed": true,
+  "backup": "C:\\Users\\linyifan05\\AppData\\Local\\Temp\\koiro-data-backup-xis_1xrc\\data"
+}

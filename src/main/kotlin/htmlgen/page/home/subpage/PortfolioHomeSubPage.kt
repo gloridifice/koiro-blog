@@ -1,73 +1,43 @@
 package htmlgen.page.home.subpage
 
+import content.*
+import htmlgen.ImageAssets
 import htmlgen.SvgIcons
+import htmlgen.preview
 import htmlgen.component.devlogPostPreview
+import htmlgen.component.message
+import htmlgen.component.translationLines
 import kotlinx.html.*
-import DevlogRecord
-import PortfolioRecord
-import kotlin.collections.forEach
+import routing.PageContext
 
-class PortfolioHomeSubPage(val pages: Iterable<PortfolioRecord>, val devlogs: List<DevlogRecord>) : HomeSubPage() {
+class PortfolioHomeSubPage(private val projects: List<ResolvedContent>, private val devlogs: List<ResolvedContent>,
+    private val context: PageContext, private val images: ImageAssets) : HomeSubPage() {
     override fun DIV.showSubPage() {
-        div {
-            classes += "top_gap_space"
-        }
-        div {
-            classes += "projects"
-            pages.forEach { project ->
-                val relatedDevLogs = devlogs.filter {
-                    it.header.workName == project.header.workName
-                }
-
-                div {
-                    classes += "project"
-
-                    div {
-                        classes += "info"
-                        div {
-                            classes += "headings"
-                            h3 {
-                                classes += "title"
-                                +project.header.title
-                            }
-
-                            a {
-                                classes += arrayOf("button", "row")
-
-                                href = project.header.url
-                                target = "_blank"
-                                SvgIcons.EXTERNAL_LINK.apply { showSvg() }
-                                div {
-                                    + "前往主页"
-                                }
+        div("top_gap_space")
+        div("projects") {
+            for (project in projects) {
+                val meta = project.bundle.metadata as PortfolioMetadata
+                div("project") {
+                    id = "project-${project.bundle.key.id}"
+                    div("info") {
+                        div("headings") {
+                            h3("title") { lang = project.variant.localeTag; +project.title }
+                            a(meta.url, target = "_blank", classes = "button row") {
+                                rel = "noopener noreferrer"; with(SvgIcons.EXTERNAL_LINK) { showSvg() }
+                                div { message(context, "site.visitProject") }
                             }
                         }
-                        p {
-                            +project.header.description
-                        }
+                        p { lang = project.variant.localeTag; +project.variant.header.description.orEmpty() }
+                        translationLines(project, context, "project")
                     }
-
-
-                    project.previewImagePath.let {
-                        img {
-                            src = it.serverPath
-                        }
-                    }
-
-
-                    div {
-                        classes += "previews"
-                        relatedDevLogs.forEach {
-                            devlogPostPreview(it)
-                        }
+                    project.preview(images)?.let { img(src = it.serverPath, alt = "") }
+                    div("previews") {
+                        devlogs.filter { (it.bundle.metadata as DevlogMetadata).work == meta.project }
+                            .forEach { devlogPostPreview(it, context, images) }
                     }
                 }
             }
         }
     }
-
-
-    override fun getCssNames(): Array<String> {
-        return arrayOf("post_preview", "subpage/portfolio", "scroll_animation")
-    }
+    override fun getCssNames() = arrayOf("post_preview", "subpage/portfolio", "scroll_animation")
 }

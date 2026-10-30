@@ -20,6 +20,15 @@ class ArticleContentTest {
     }
 
     @Test
+    fun `literal bracket expressions are not broken links and reference definitions provide real destinations`() {
+        val doc = render("[0, 1] and [优先] and [reference][target]\n\n[target]: https://example.com/resource")
+        val links = doc.getElementsByTagName("a")
+        assertEquals(1, links.length)
+        assertEquals("https://example.com/resource", (links.item(0) as Element).getAttribute("href"))
+        assertEquals("[0, 1] and [优先] and reference", doc.getElementsByTagName("p").item(0).textContent)
+    }
+
+    @Test
     fun `inline formatting removes only matched delimiters and preserves nesting`() {
         data class Case(val markdown: String, val text: String, val tags: List<String>)
         val cases = listOf(

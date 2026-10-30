@@ -39,7 +39,9 @@ jobs:
           rustup show
           cargo install wasm-pack --version 0.15.0 --locked
       - name: Test build tooling
-        run: python -m unittest discover -s scripts -p test_build_site.py
+        run: |
+          python -m unittest discover -s scripts -p test_build_site.py
+          python -m unittest discover -s scripts -p test_migrate_content.py
       - name: Build and validate
         run: python scripts/build_site.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

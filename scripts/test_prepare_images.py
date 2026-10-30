@@ -138,5 +138,20 @@ class PrepareImagesTest(unittest.TestCase):
         self.assertEqual(update_references(text, self.root / "two" / "post.md", converted), text)
 
 
+class ReferencePathsTest(unittest.TestCase):
+    def test_publication_metadata_updates_new_sources_without_rewriting_legacy_urls(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            image = root / "image.png"
+            converted = {image}
+            self.assertEqual(update_references('preview="image.png"\n', root / "meta.toml", converted),
+                             'preview="image.jpg"\n')
+            mapping = '[[assets]]\nold-url="/images/image.png"\nsource="image.png"\n'
+            self.assertEqual(update_references(mapping, root / "migration-map.toml", converted),
+                             '[[assets]]\nold-url="/images/image.png"\nsource="image.jpg"\n')
+            # The same name in another content package is not this converted source.
+            self.assertEqual(update_references(mapping, root / "other/migration-map.toml", converted), mapping)
+
+
 if __name__ == "__main__":
     unittest.main()

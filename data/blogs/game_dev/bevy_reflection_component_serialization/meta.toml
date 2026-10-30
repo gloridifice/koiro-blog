@@ -1,0 +1,8 @@
+id = "bevy_reflection_component_serialization"
+icon = "braces"
+published = true
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2025-03-26"
+tags = ["Bevy", "Game Dev", "Rust", "Serialization"]
+legacy_dates = ["2025-03-24T04:00:00"]

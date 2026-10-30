@@ -1,0 +1,63 @@
+[nav]
+home = "主页"
+blogs = "博客"
+portfolio = "项目"
+about = "关于"
+
+[site]
+title = "Koiro's Cat Café"
+homeTitle = "Koiro's Cat Café · 第 {page} 页"
+welcome = "这里是宏楼的猫咖！"
+introduction = "人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
+aboutIntroduction = "人类、学生、游戏开发者、平面设计笨蛋和技术美术笨蛋。"
+games = "一些游戏开发作品"
+source = "博客仓库"
+friends = "友情链接"
+latest = "最近更新"
+categories = "分类"
+visitProject = "前往主页"
+license = "本网站内容遵循协议 CC BY-SA 4.0"
+rssDescription = "这里是宏楼 Koiro 的个人博客。宏楼是人类、学生、平面设计爱好者、图形学爱好者和游戏开发者。"
+chooseLanguage = "选择语言"
+socialLinks = "社交链接与语言"
+
+[pagination]
+label = "主页分页"
+previous = "上一页"
+next = "下一页"
+page = "第 {page} 页"
+summary = "第 {first}–{last} 条，共 {total} 条"
+position = "第 {page} / {pages} 页"
+
+[translation]
+activeAi = "本动态由 AI 自动翻译为{contentLanguage}。"
+activeFallback = "本动态无{requestedLanguage}，自动回退到{contentLanguage}。"
+articleAi = "本文章由 AI 自动翻译为{contentLanguage}。"
+articleFallback = "本文章无{requestedLanguage}，自动回退到{contentLanguage}。"
+projectAi = "本项目简介由 AI 自动翻译为{contentLanguage}。"
+projectFallback = "本项目简介无{requestedLanguage}，自动回退到{contentLanguage}。"
+aiLabel = "AI 翻译"
+
+[languageNames]
+en-US = "英语"
+zh-CN = "中文"
+
+[categories]
+Dev = "开发"
+Art = "艺术"
+Life = "生活"
+
+[statuses]
+"In Progress" = "进行中"
+Finished = "已完成"
+
+[projectTypes]
+PersonalProject = "个人项目"
+IndieGame = "独立游戏"
+
+[friends]
+rasp = "海拉鲁驿站"
+dyron = "你知道吗？我的 ID 中「503」的出处是……"
+hana = "音乐是救世主"
+iz = "插画师和游戏开发者"
+duck = "当生活给我橙子"

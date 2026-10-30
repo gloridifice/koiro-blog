@@ -1,0 +1,7 @@
+id = "game_jam_time_management"
+icon = "timer"
+published = true
+authors = "宏楼 Koiro"
+class = "Life"
+date = "2023-11-09T13:29:00"
+tags = ["Game Dev", "Game Jam"]

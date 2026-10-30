@@ -1,47 +1,23 @@
 package htmlgen.component.home_element
 
-import kotlinx.html.*
-import DevlogRecord
+import content.ResolvedContent
 import htmlgen.ImageAssets
 import htmlgen.contentImage
-import kotlinx.datetime.LocalDateTime
+import htmlgen.component.translationMarker
+import htmlgen.preview
+import kotlinx.html.*
+import routing.PageContext
 
-class DevlogElement(
-    val devlogRecord: DevlogRecord,
-    private val images: ImageAssets,
-) : HomeElement {
-
+class DevlogElement(val record: ResolvedContent, private val images: ImageAssets,
+    private val context: PageContext) : HomeElement {
     override fun DIV.show(imageLoading: ImgLoading) {
-        a {
-            classes += arrayOf("post_preview", "devlog", "large")
-            href = devlogRecord.serverPath.serverPath
-//            onClick = "location.href='${devLogPost.htmlServerPath}';"
-
-            val emoji = ""//todo
-            devlogRecord.previewImagePath?.let {
-                div {
-                    classes += "preview"
-                    img {
-                        contentImage(it, images, imageLoading)
-                    }
-                }
-            }
-
-            div {
-                classes += "description"
-                h2 {
-                    classes += "title"
-                    +devlogRecord.header.title
-                }
-//                p {
-//                    classes += "info"
-//                    +"info text" //todo
-//                }
-            }
+        a(context.routes.content(context.locale, record.bundle.key).serverPath, classes = "post_preview devlog large" +
+            if (record.fallback || record.variant.header.aiTranslation) " has-translation-marker" else "") {
+            lang = record.variant.localeTag
+            record.preview(images)?.let { path -> div("preview") { img { contentImage(path, images, imageLoading) } } }
+            div("description") { h2("title") { +record.title } }
+            translationMarker(record, context)
         }
     }
-
-    override fun getDate(): LocalDateTime {
-        return devlogRecord.date
-    }
+    override fun getDate() = record.date
 }

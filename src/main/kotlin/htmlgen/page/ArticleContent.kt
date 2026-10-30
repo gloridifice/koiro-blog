@@ -1,6 +1,7 @@
 package htmlgen.page
 
 import ServerPath
+import decodeURL
 import htmlgen.component.Catalogue
 import htmlgen.ImageAssets
 import htmlgen.contentImage
@@ -57,6 +58,7 @@ class ArticleContent(
     val filePath: Path,
     private val images: ImageAssets,
     private val imageLoading: ImgLoading? = null,
+    private val linkResolver: (String) -> String = { it },
 ) {
     // The Markdown parser expects LF, including for blank lines that terminate HTML blocks.
     // Keep AST offsets and all text extraction on the same normalized source.
@@ -67,12 +69,23 @@ class ArticleContent(
     var collectedData = CollectedData(arrayListOf())
     var imageStack = arrayListOf<Pair<ServerPath, String>>()
     var lastIsImage: Boolean = false
+    private val references = mutableMapOf<String, String>()
+    private fun referenceKey(value: String) = value.trim('[', ']').trim().replace(Regex("\\s+"), " ").lowercase(java.util.Locale.ROOT)
+    private fun collectReferences(node: ASTNode) {
+        if (node.type == MarkdownElementTypes.LINK_DEFINITION) {
+            val label = node.findChildOfType(MarkdownElementTypes.LINK_LABEL)?.getTextInNode(markdownText)?.toString()
+            val destination = node.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.getTextInNode(markdownText)?.toString()
+            if (label != null && destination != null) references.putIfAbsent(referenceKey(label), destination.removeSurrounding("<", ">"))
+        }
+        node.children.forEach(::collectReferences)
+    }
 
     class CollectedData(val headingInfos: ArrayList<Catalogue.HeadingInfo>)
 
     fun FlowContent.showPostContent(): CollectedData {
         val parser = MarkdownParser(SFMFlavourDescriptor())
         val root = parser.buildMarkdownTreeFromString(markdownText)
+        collectReferences(root)
         markdownBlock(root)
         if (!imageStack.isEmpty()) {
             renderImageStack()
@@ -191,7 +204,7 @@ class ArticleContent(
             MarkdownElementTypes.LINK_DEFINITION -> {}
 
             MarkdownElementTypes.HTML_BLOCK -> {
-                div { unsafe { raw(node.getTextInNode(markdownText).toString()) } }
+                div { unsafe { raw(rewriteHtml(node.getTextInNode(markdownText).toString())) } }
             }
 
             GFMElementTypes.TABLE -> renderTable(node)
@@ -311,7 +324,7 @@ class ArticleContent(
 
             MarkdownElementTypes.AUTOLINK -> {
                 val url = node.getTextInNode(markdownText).toString().removeSurrounding("<", ">")
-                a(href = url) {
+                a(href = resolveHref(url)) {
                     classes += "link"
                     +url
                 }
@@ -405,10 +418,18 @@ class ArticleContent(
     }
 
     private fun FlowContent.pushImage(node: ASTNode) {
-        val inlineLink = node.children.find { it.type == MarkdownElementTypes.INLINE_LINK }
-        val alt = inlineLink!!.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
-        val src = inlineLink.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) } ?: ""
-
+        val link = node.children.firstOrNull { it.type == MarkdownElementTypes.INLINE_LINK ||
+            it.type == MarkdownElementTypes.FULL_REFERENCE_LINK || it.type == MarkdownElementTypes.SHORT_REFERENCE_LINK }
+        if (link == null) { +node.getTextInNode(markdownText).toString(); return }
+        val alt = link.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
+        val src = link.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) }
+            ?: references[referenceKey(link.findChildOfType(MarkdownElementTypes.LINK_LABEL)?.getTextInNode(markdownText)?.toString() ?: alt)]
+        if (src.isNullOrEmpty()) { +node.getTextInNode(markdownText).toString(); return }
+        if (src.startsWith('/') || Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(src)) {
+            renderImageStack()
+            img(src = src, alt = alt) { if (imageLoading != null) loading = imageLoading }
+            return
+        }
         val imageServerPath = images.copy(filePath, src)
         imageStack.push(Pair(imageServerPath, alt))
     }
@@ -419,7 +440,7 @@ class ArticleContent(
         val linkTextNode = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
         val linkTitleNode = node.children.find { it.type == MarkdownElementTypes.LINK_TITLE }
         a {
-            this.href = href
+            this.href = resolveHref(href)
             classes += "link"
             linkTitleNode?.getTextInNode(markdownText)?.toString()?.trim('"')?.let { title = it }
             if (linkTextNode != null) renderInlineContent(linkTextNode)
@@ -430,12 +451,39 @@ class ArticleContent(
     private fun FlowContent.renderReferenceLink(node: ASTNode) {
         val linkTextNode = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
         val linkLabelNode = node.children.find { it.type == MarkdownElementTypes.LINK_LABEL }
-        val href = linkLabelNode?.getTextInNode(markdownText)?.toString()?.trim('[', ']') ?: ""
-        a(href = href) {
+        val label = linkLabelNode?.getTextInNode(markdownText)?.toString()
+            ?.takeIf { it.trim('[', ']').isNotBlank() } ?: linkTextNode?.let { extractText(it) }.orEmpty()
+        val href = references[referenceKey(label)]
+        if (href == null) { +node.getTextInNode(markdownText).toString(); return }
+        a(href = resolveHref(href)) {
             classes += "link"
             if (linkTextNode != null) renderInlineContent(linkTextNode)
             else +href
         }
+    }
+
+    private fun resolveHref(href: String): String {
+        val localized = linkResolver(href)
+        if (localized != href || href.isBlank() || href.startsWith('#') || href.startsWith('/') ||
+            Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(href)) return localized
+        val end = href.indexOfFirst { it == '?' || it == '#' }.let { if (it < 0) href.length else it }
+        val local = filePath.toAbsolutePath().parent.resolve(href.take(end).decodeURL()).normalize()
+        return if (java.nio.file.Files.isRegularFile(local)) images.copy(filePath, href).serverPath + href.substring(end) else localized
+    }
+
+    /** Raw Markdown HTML is trusted repository content; parsing here only rewrites local URLs. */
+    private fun rewriteHtml(source: String): String {
+        val document = org.jsoup.Jsoup.parseBodyFragment(source)
+        document.outputSettings().prettyPrint(false)
+        for (element in document.select("[href]")) element.attr("href", resolveHref(element.attr("href")))
+        for (element in document.select("img[src], source[src], video[src], audio[src], video[poster]")) {
+            for (attribute in listOf("src", "poster")) if (element.hasAttr(attribute)) {
+                val value = element.attr(attribute)
+                if (value.isNotBlank() && !value.startsWith('/') && !Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(value))
+                    element.attr(attribute, images.copy(filePath, value).serverPath)
+            }
+        }
+        return document.body().html()
     }
 
     private fun FlowContent.renderTable(node: ASTNode) {

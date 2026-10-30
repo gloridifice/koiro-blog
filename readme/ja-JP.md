@@ -33,7 +33,8 @@ python -m http.server 8000 --directory dist
 - `src/main/rs-wasm-script/`：ブラウザー操作。
 - `src/main/stylesheet/`：スタイルのソース。
 - `assets/`：Git で管理する静的入力。`dist/` にコピーします。内側の `assets/` は既存の `/assets/...` URL を維持します。
-- `data/`：Markdown と添付ファイル。`blogs/`、`devlogs/`、`portfolio/`、`actives/` に分類します。各 Markdown の先頭には TOML コードブロックを置きます。フィールドは `Models.kt` を参照してください。
+- `data/`：`blogs/`、`devlogs/`、`portfolio/`、`actives/` に分類したコンテンツ。英語の `snake_case` フォルダーに `meta.toml`、`zh-CN.md`、任意の翻訳と共有添付ファイルを置きます。[形式の仕様](../doco/specs/content-localization.md)を参照してください。
+- `i18n/`：言語設定と TOML の画面辞書。基準は中国語、既定のアクセス先は英語です。英訳がない場合は中国語にフォールバックします。
 - `dist/`：生成済みサイト全体。Git の管理対象外で、フルビルドごとに作り直します。
 
 ## Git LFS

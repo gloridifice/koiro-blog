@@ -35,13 +35,7 @@ class HomePaginationTest {
         for (case in cases) {
             withSite(case.count) { data, output ->
                 // A newer unpublished item must not consume a slot or produce another page.
-                data.resolve("actives/draft.md").writeText("""
-                    ```toml
-                    date = "2030-01-01"
-                    published = false
-                    ```
-                    unpublished-entry
-                """.trimIndent())
+                writeBundle(data, "actives/draft", "id = \"draft\"\ndate = \"2030-01-01\"\npublished = false", "unpublished-entry", "")
                 KoiroCatCafe(data, output.toString(), case.pageSize).generateAll()
                 val allIds = mutableListOf<String>()
                 for ((index, count) in case.pageCounts.withIndex()) {
@@ -53,11 +47,11 @@ class HomePaginationTest {
                         (element.selectFirst("h2") ?: element.selectFirst(".page_content p")!!).text()
                     }
                     allIds += ids
-                    assertEquals(1, document.select(".navi_link.highlighted[href='/home.html']").size)
+                    assertEquals(1, document.select(".navi_link.highlighted[href='/zh-CN/home.html']").size)
                     assertFalse(document.text().contains("unpublished-entry"))
                     for ((position, element) in elements.withIndex()) {
                         for (image in element.select("img")) {
-                            assertEquals("/images/${ids[position]}.gif", image.attr("src"))
+                            assertEquals("/images/content/${ids[position]}.gif", image.attr("src"))
                             assertEquals(if (position < 2) "eager" else "lazy", image.attr("loading"))
                             assertEquals("async", image.attr("decoding"))
                             assertEquals("1", image.attr("width"))
@@ -102,17 +96,17 @@ class HomePaginationTest {
         withSite(21) { data, output ->
             val site = KoiroCatCafe(data, output.toString())
             site.generateAll()
-            assertTrue(Files.exists(output.resolve("home-3.html")))
-            output.resolve("home-notes.html").writeText("keep this file")
-            for (index in 0 until 18) Files.delete(sourcePath(data, index))
+            assertTrue(Files.exists(output.resolve("zh-CN/home-3.html")))
+            output.resolve("zh-CN/home-notes.html").writeText("keep this file")
+            for (index in 0 until 18) sourcePath(data, index).parent.toFile().deleteRecursively()
 
             site.generateAll()
 
             assertEquals(3, page(output, 1).select(".elements > .element").size)
             assertTrue(page(output, 1).select(".home-pagination").isEmpty())
-            assertFalse(Files.exists(output.resolve("home-2.html")))
-            assertFalse(Files.exists(output.resolve("home-3.html")))
-            assertEquals("keep this file", output.resolve("home-notes.html").readText())
+            assertFalse(Files.exists(output.resolve("zh-CN/home-2.html")))
+            assertFalse(Files.exists(output.resolve("zh-CN/home-3.html")))
+            assertEquals("keep this file", output.resolve("zh-CN/home-notes.html").readText())
         }
     }
 
@@ -120,27 +114,25 @@ class HomePaginationTest {
     fun `home image placeholders use compressed dimensions and preserve gallery content`() {
         withSite(4) { data, output ->
             ImageIO.write(BufferedImage(4096, 2048, BufferedImage.TYPE_INT_RGB), "png", data.resolve("wide.png").toFile())
-            val devlog = sourcePath(data, 1)
-            devlog.writeText(devlog.readText().replace("preview = \"../entry-001.gif\"", "preview = \"../wide.png\""))
+            val devlog = sourcePath(data, 1).resolveSibling("meta.toml")
+            devlog.writeText(devlog.readText().replace("preview = \"../../entry_001.gif\"", "preview = \"../../wide.png\""))
             sourcePath(data, 0).writeText("""
                 ```toml
-                date = "2025-01-01"
-                published = true
                 ```
-                entry-000
+                entry_000
 
-                ![wide image](../wide.png)
+                ![wide image](../../wide.png)
 
-                ![small image](../entry-000.gif)
+                ![small image](../../entry_000.gif)
             """.trimIndent())
 
             KoiroCatCafe(data, output.toString()).generateAll()
 
             val document = page(output, 1)
-            val published = ImageIO.read(output.resolve("images/wide.png").toFile())
+            val published = ImageIO.read(output.resolve("images/content/wide.png").toFile())
             assertEquals(2048, published.width)
             assertEquals(1024, published.height)
-            val wideImages = document.select(".elements img[src='/images/wide.png']")
+            val wideImages = document.select(".elements img[src='/images/content/wide.png']")
             assertEquals(2, wideImages.size, "Devlog preview and active gallery both use the published image")
             for (image in wideImages) {
                 assertEquals(published.width.toString(), image.attr("width"))
@@ -148,12 +140,12 @@ class HomePaginationTest {
                 assertEquals("lazy", image.attr("loading"))
             }
             val stack = document.selectFirst(".stack-container")!!
-            val smallImage = stack.selectFirst("img[src='/images/entry-000.gif']")!!
+            val smallImage = stack.selectFirst("img[src='/images/content/entry_000.gif']")!!
             assertEquals("1", smallImage.attr("width"))
             assertEquals("1", smallImage.attr("height"))
             assertEquals(listOf("wide image", "small image"), stack.select("img").map { it.attr("alt") })
             assertTrue(stack.select("img").all { it.attr("loading") == "lazy" })
-            val detail = Jsoup.parse(output.resolve("pages/devlogs/entry-001.html").readText())
+            val detail = Jsoup.parse(output.resolve("zh-CN/pages/devlogs/entry_001.html").readText())
             assertEquals(1, detail.select(".page_content img").size)
             assertTrue(detail.select(".page_content img[loading]").isEmpty(), "Article loading is outside this change")
         }
@@ -162,7 +154,13 @@ class HomePaginationTest {
     @Test
     fun `large archives show bounded page links with gaps and a reachable last page`() {
         for ((number, expected) in listOf(1 to listOf(1, 2, 9), 5 to listOf(1, 4, 5, 6, 9), 9 to listOf(1, 8, 9))) {
-            val html = createHTML().div { homePagination(HomePagination(number, 81, 10)) }
+            val config = i18n.SiteConfig.load(java.nio.file.Path.of("i18n"))
+            val routes = routing.LocalizedRoutes(config, emptyList(), List(81) { index ->
+                content.ContentBundle(content.ContentKey(content.ContentKind.ACTIVE, "item_$index"), java.nio.file.Path.of("data"),
+                    content.ActiveMetadata("item_$index", true, "2025-01-01"), emptyMap())
+            }, 10, java.nio.file.Path.of("data"), routing.MigrationMap())
+            val context = routing.PageContext(config.locale("zh-CN"), routing.PageKey.Home(number), i18n.Messages(config, java.nio.file.Path.of("i18n")), routes, config)
+            val html = createHTML().div { homePagination(HomePagination(number, 81, 10), context) }
             val document = Jsoup.parse(html)
             val controls = document.select(".home-pagination__pages .home-pagination__control")
             assertEquals(expected, controls.map { it.text().toInt() })
@@ -174,12 +172,12 @@ class HomePaginationTest {
         }
     }
 
-    private fun entryId(index: Int) = "entry-${index.toString().padStart(3, '0')}"
+    private fun entryId(index: Int) = "entry_${index.toString().padStart(3, '0')}"
 
     private fun sourcePath(data: Path, index: Int): Path =
-        data.resolve("${listOf("actives", "devlogs", "blogs")[index % 3]}/${entryId(index)}.md")
+        data.resolve("${listOf("actives", "devlogs", "blogs")[index % 3]}/${entryId(index)}/zh-CN.md")
 
-    private fun url(number: Int) = if (number == 1) "/home.html" else "/home-$number.html"
+    private fun url(number: Int) = if (number == 1) "/zh-CN/home.html" else "/zh-CN/home-$number.html"
 
     private fun page(output: Path, number: Int): Document =
         Jsoup.parse(output.resolve(url(number).removePrefix("/")).readText())
@@ -194,14 +192,15 @@ class HomePaginationTest {
                 val id = entryId(index)
                 data.resolve("$id.gif").writeBytes(gif)
                 val extra = when (index % 3) {
-                    1 -> "title = \"$id\"\nwork = \"Example\"\nindex = $index\npreview = \"../$id.gif\""
-                    2 -> "title = \"$id\"\nclass = \"Programming\""
+                    1 -> "work = \"Example\"\nindex = $index\npreview = \"../../$id.gif\""
+                    2 -> "class = \"Dev\""
                     else -> ""
                 }
                 val date = LocalDate.of(2025, 1, 1).plusDays(index.toLong())
-                sourcePath(data, index).writeText(
-                    "```toml\ndate = \"$date\"\npublished = true\n$extra\n```\n$id\n\n![image $id](../$id.gif)\n"
-                )
+                val source = sourcePath(data, index)
+                source.parent.createDirectories()
+                source.resolveSibling("meta.toml").writeText("id = \"$id\"\ndate = \"$date\"\npublished = true\n$extra\n")
+                source.writeText("```toml\ntitle = \"$id\"\n```\n$id\n\n![image $id](../../$id.gif)\n")
             }
             block(data, root.resolve("output"))
         } finally {

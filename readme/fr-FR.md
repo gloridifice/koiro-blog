@@ -33,7 +33,8 @@ Ouvrez <http://localhost:8000>. Remplacez `python` par `python3` si votre systè
 - `src/main/rs-wasm-script/` : interactions dans le navigateur.
 - `src/main/stylesheet/` : sources des styles.
 - `assets/` : fichiers statiques suivis par Git, copiés dans `dist/`. Le sous-dossier `assets/` conserve les URL `/assets/...` existantes.
-- `data/` : Markdown et pièces jointes, répartis entre `blogs/`, `devlogs/`, `portfolio/` et `actives/`. Chaque fichier Markdown commence par un bloc de code TOML ; les champs sont définis dans `Models.kt`.
+- `data/` : contenus répartis entre `blogs/`, `devlogs/`, `portfolio/` et `actives/`. Chaque dossier anglais en `snake_case` contient `meta.toml`, `zh-CN.md`, les traductions éventuelles et les pièces jointes communes. Voir le [format des contenus](../doco/specs/content-localization.md).
+- `i18n/` : langues disponibles et dictionnaires TOML de l’interface. Le chinois sert de base ; l’entrée par défaut est anglaise, avec repli vers le chinois tant que la traduction manque.
 - `dist/` : site généré complet, ignoré par Git et recréé à chaque build complet.
 
 ## Git LFS

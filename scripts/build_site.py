@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from html.parser import HTMLParser
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tomllib
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
@@ -67,12 +69,15 @@ class AssetReferences(HTMLParser):
         attributes = dict(attrs)
         if tag in {"img", "script", "source", "audio", "video", "iframe"}:
             url = attributes.get("src")
-        elif tag == "link":
+        elif tag in {"link", "a"}:
             url = attributes.get("href")
         else:
             url = None
         if url:
             self.urls.append(url)
+        if tag == "meta" and attributes.get("http-equiv", "").lower() == "refresh":
+            match = re.search(r"url\s*=\s*(.+)$", attributes.get("content", ""), re.I)
+            if match: self.urls.append(match[1])
         if tag == "video" and attributes.get("poster"):
             self.urls.append(attributes["poster"])
 
@@ -104,11 +109,29 @@ def check_local_assets(root: Path) -> None:
                          + (f"\n({len(failures)} failures total)" if len(failures) > 20 else ""))
 
 
+def check_generated_files(root: Path) -> None:
+    """Windows must produce the exact spelling later served on case-sensitive hosts."""
+    manifest = root / ".generated-site-files.json"
+    entries = json.loads(manifest.read_text(encoding="utf-8"))
+    if not isinstance(entries, list) or not all(isinstance(entry, str) for entry in entries):
+        raise ValueError("Invalid generated-file manifest")
+    for relative in entries:
+        parts = Path(relative).parts
+        if not parts or Path(relative).is_absolute() or ".." in parts or chr(92) in relative:
+            raise ValueError(f"Unsafe generated path: {relative}")
+        current = root
+        for part in parts:
+            if not current.is_dir() or part not in {child.name for child in current.iterdir()}:
+                raise ValueError(f"Generated output missing or case mismatch: {relative}")
+            current = current / part
+        if not current.is_file(): raise ValueError(f"Generated output is not a file: {relative}")
+
+
 def validate_site(output: Path) -> None:
     check_tree(output)
     required = (
         "index.html", "home.html", "blogs.html", "portfolio.html", "about.html", "rss.xml",
-        "CNAME", ".nojekyll", "assets/css/root.css", "pkg/rs_wasm_script.js",
+        "CNAME", ".nojekyll", ".generated-site-files.json", "assets/css/root.css", "pkg/rs_wasm_script.js",
         "pkg/rs_wasm_script_bg.wasm", "assets/licenses/lucide.txt",
     )
     for relative in required:
@@ -116,9 +139,23 @@ def validate_site(output: Path) -> None:
         if not path.is_file() or (relative != ".nojekyll" and path.stat().st_size == 0):
             raise ValueError(f"Missing or empty build output: {path}")
     ET.parse(output / "rss.xml")
+    configuration = tomllib.loads((ROOT / "i18n/locales.toml").read_text(encoding="utf-8"))
+    for locale in configuration["locales"]:
+        for name in ("home.html", "blogs.html", "portfolio.html", "about.html", "rss.xml"):
+            path = output / locale / name
+            if not path.is_file() or path.stat().st_size == 0:
+                raise ValueError(f"Missing or empty localized output: {path}")
+        feed = ET.parse(output / locale / "rss.xml")
+        if feed.findtext("./channel/language") != locale:
+            raise ValueError(f"Incorrect RSS language: {locale}")
+        for link in feed.findall("./channel/item/link"):
+            parsed = urlsplit(link.text or "")
+            if not parsed.path.startswith(f"/{locale}/") or not (output / unquote(parsed.path).lstrip("/")).is_file():
+                raise ValueError(f"Missing or wrong-language RSS link: {link.text}")
     with (output / "pkg/rs_wasm_script_bg.wasm").open("rb") as stream:
         if stream.read(8) != b"\x00asm\x01\x00\x00\x00":
             raise ValueError("Invalid WebAssembly output")
+    check_generated_files(output)
     check_local_assets(output)
     print(f"Validated site: {output}")
 

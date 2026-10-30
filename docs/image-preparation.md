@@ -1,6 +1,6 @@
 # Prepare content images
 
-`scripts/prepare_images.py` scans JPEG, PNG and GIF files under `data/`. It removes descriptive metadata (GPS, camera details, capture dates, EXIF comments, XMP/IPTC and PNG text), retaining orientation and ICC color profiles. Existing JPEG image data is not recompressed. GIFs, transparent PNGs and animated PNGs retain their formats; only fully opaque, still PNGs become quality-80 JPGs. Markdown image/link destinations, reference links and TOML `preview` paths are updated together.
+`scripts/prepare_images.py` scans JPEG, PNG and GIF files under `data/`. It removes descriptive metadata (GPS, camera details, capture dates, EXIF comments, XMP/IPTC and PNG text), retaining orientation and ICC color profiles. Existing JPEG image data is not recompressed. GIFs, transparent PNGs and animated PNGs retain their formats; only fully opaque, still PNGs become quality-80 JPGs. Markdown image/link destinations, reference links and TOML `preview` paths are updated together. For multilingual packages, this includes shared `meta.toml` covers and each language's Markdown. New source paths in `data/migration-map.toml` are updated too, while historical `old-url` values stay unchanged; the generator retains valid image bytes at those legacy addresses.
 
 Install ExifTool and the Python dependencies, then preview or apply the changes (commands below are for macOS):
 

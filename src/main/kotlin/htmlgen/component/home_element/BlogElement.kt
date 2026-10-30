@@ -1,36 +1,24 @@
 package htmlgen.component.home_element
 
-import kotlinx.html.*
-import BlogRecord
+import content.BlogMetadata
+import content.ResolvedContent
 import htmlgen.component.blogIcon
-import kotlinx.datetime.LocalDateTime
+import htmlgen.component.translationMarker
+import kotlinx.html.*
+import routing.PageContext
 
-class BlogElement(
-    val blogRecord: BlogRecord
-) : HomeElement {
+class BlogElement(val record: ResolvedContent, private val context: PageContext) : HomeElement {
     override fun DIV.show(imageLoading: ImgLoading) {
-        a {
-            classes += arrayOf("post_preview", "blog", "large")
-            href = blogRecord.serverPath.serverPath
-
-            div {
-                classes += "description"
-                blogIcon(blogRecord.header)
-                div {
-                    classes += "title"
-                    h2 {
-                        +blogRecord.header.title
-                    }
-                }
-                p {
-                    classes += "slug"
-                    +blogRecord.header.slug
-                }
+        a(context.routes.content(context.locale, record.bundle.key).serverPath, classes = "post_preview blog large" +
+            if (record.fallback || record.variant.header.aiTranslation) " has-translation-marker" else "") {
+            lang = record.variant.localeTag
+            div("description") {
+                blogIcon(record.bundle.metadata as BlogMetadata)
+                div("title") { h2 { +record.title } }
+                p("slug") { +record.variant.header.summary }
             }
+            translationMarker(record, context)
         }
     }
-
-    override fun getDate(): LocalDateTime {
-        return blogRecord.date
-    }
+    override fun getDate() = record.date
 }

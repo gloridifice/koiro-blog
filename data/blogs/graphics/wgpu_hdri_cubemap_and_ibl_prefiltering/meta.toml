@@ -1,0 +1,7 @@
+id = "wgpu_hdri_cubemap_and_ibl_prefiltering"
+icon = "box"
+published = false
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2025-02-12T18:40:00"
+tags = ["Graphics", "Rust", "Wgpu"]

@@ -1,0 +1,9 @@
+id = "koiros_cat_cafe"
+date = "2024-now"
+lite = false
+preview = "images/koiro_blog.jpg"
+project = "My Blog"
+published = true
+status = "In Progress"
+type = "PersonalProject"
+url = "https://github.com/gloridifice/kotlin-notion-blog"

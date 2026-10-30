@@ -1,0 +1,9 @@
+id = "cat_with_blocks"
+date = "2024"
+lite = false
+preview = "images/cat_with_blocks.jpg"
+project = "Cat With Blocks"
+published = true
+status = "In Progress"
+type = "IndieGame"
+url = "https://gloridifice.itch.io/cat-with-blocks"

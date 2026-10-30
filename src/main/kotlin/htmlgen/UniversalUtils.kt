@@ -24,13 +24,13 @@ fun copyDir(src: Path, dest: Path) {
     }
 }
 
-fun HEAD.universalHeadSetting() {
+fun HEAD.universalHeadSetting(context: routing.PageContext) {
     // For RSS
     link {
         rel = "alternate"
         type = "application/rss+xml"
         title = "Koiro's Cat Café"
-        href = "/rss.xml"
+        href = context.routes.feed(context.locale).serverPath
     }
 
     meta {
@@ -43,20 +43,23 @@ fun HEAD.universalHeadSetting() {
     }
     script {
         type = "module"
-        +"""
-             import init, { init_all } from '/pkg/rs_wasm_script.js';                                                                                                                           
-             await init();                                                                                                                                                                      
-             init_all();     
-            """.trimIndent()
+        // Fixed application code, never interpolated with content metadata.
+        unsafe { +"""
+             import init, { init_all } from '/pkg/rs_wasm_script.js';
+             await init();
+             init_all();
+            """.trimIndent() }
     }
     script {
         src = "/assets/katex/katex.js"
     }
-    unsafe {
-        +"<script defer src=\"/assets/katex/auto-render.min.js\" onload=\"renderMathInElement(document.body);\"></script>"
+    script {
+        src = "/assets/katex/auto-render.min.js"
+        defer = true
+        attributes["onload"] = "renderMathInElement(document.body);"
     }
     script {
-        +"""
+        unsafe { +"""
                 document.addEventListener("DOMContentLoaded", function() {
                     renderMathInElement(document.body, {
                       delimiters: [
@@ -65,7 +68,7 @@ fun HEAD.universalHeadSetting() {
                       throwOnError : false
                     });
                 });
-        """.trimIndent()
+        """.trimIndent() }
     }
     link {
         rel = "stylesheet"

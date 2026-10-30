@@ -36,7 +36,8 @@ TEXT_TAGS = {
 # Match destinations, not alt text. Existing URL encoding, titles and query
 # strings are retained. The generator uses document-relative image paths.
 INLINE_PNG = re.compile(r'(?<=\]\()\s*<?(?P<url>[^\n)]*?\.png)(?=[?#)>\s])', re.I)
-PREVIEW_PNG = re.compile(r'''(?m)^\s*preview\s*=\s*["'](?P<url>[^"'\n]+\.png)(?=["'])''', re.I)
+PREVIEW_PNG = re.compile(r'''(?m)^\s*(?:preview|"preview")\s*=\s*["'](?P<url>[^"'\n]+\.png)(?=[?#"'])''', re.I)
+SOURCE_PNG = re.compile(r'''(?m)^\s*(?:source|"source")\s*=\s*["'](?P<url>[^"'\n]+\.png)(?=["'])''', re.I)
 REFERENCE_PNG = re.compile(r'(?m)^\s*\[[^\]\n]+\]:\s*<?(?P<url>[^\n]*?\.png)(?=[?#>\s]|$)', re.I)
 
 
@@ -46,8 +47,11 @@ def images(root):
 
 def exiftool(*args):
     # Unrecognized MakerNotes are discarded with EXIF, not copied back.
+    executable = shutil.which("exiftool")
+    if executable is None:
+        raise RuntimeError("ExifTool is not installed")
     result = subprocess.run([
-        "exiftool", "-q", "-api", r"NoWarning=^(No writable tags|\[minor\] Unrecognized MakerNote(?:s|Unknown))",
+        executable, "-q", "-api", r"NoWarning=^(No writable tags|\[minor\] Unrecognized MakerNote(?:s|Unknown))",
         *map(str, args),
     ], capture_output=True, text=True)
     if result.returncode or result.stderr.strip():
@@ -152,16 +156,21 @@ def update_references(text, document, converted):
     def replace(match):
         url = match.group("url")
         parsed = urlsplit(url)
-        if parsed.scheme or parsed.netloc or parsed.path.startswith("/"):
-            return match.group(0)
-        target = (document.parent / unquote(parsed.path)).resolve()
+        if document.name == "migration-map.toml":
+            target = (document.parent / url).resolve() # Filesystem source, not a URL.
+        else:
+            if parsed.scheme or parsed.netloc or parsed.path.startswith("/"):
+                return match.group(0)
+            target = (document.parent / unquote(parsed.path)).resolve()
         if target not in converted:
             return match.group(0)
         start = match.start("url") - match.start()
         end = match.end("url") - match.start()
         return match.group(0)[:start] + url[:-4] + ".jpg" + match.group(0)[end:]
 
-    for pattern in (INLINE_PNG, PREVIEW_PNG, REFERENCE_PNG):
+    patterns = (SOURCE_PNG,) if document.name == "migration-map.toml" else (
+        (PREVIEW_PNG,) if document.suffix == ".toml" else (INLINE_PNG, PREVIEW_PNG, REFERENCE_PNG))
+    for pattern in patterns:
         text = pattern.sub(replace, text)
     return text
 
@@ -207,12 +216,16 @@ def prepare(root, apply=False):
             convert_png(source, source.with_suffix(".jpg"))
 
         markdown_changed = 0
-        for document in sorted(work.rglob("*.md")):
+        toml_changed = 0
+        documents = sorted(p for p in work.rglob("*") if p.is_file() and
+                           (p.suffix == ".md" or p.name in {"meta.toml", "migration-map.toml"}))
+        for document in documents:
             original = document.read_bytes().decode("utf-8")
             updated = update_references(original, document, converted)
             if updated != original:
                 document.write_bytes(updated.encode("utf-8"))
-                markdown_changed += 1
+                if document.suffix == ".md": markdown_changed += 1
+                else: toml_changed += 1
         for source in converted:
             source.unlink()
 
@@ -242,13 +255,14 @@ def prepare(root, apply=False):
             "retained_png": sum(p.suffix.lower() == ".png" for p in after),
             "retained_gif": sum(p.suffix.lower() == ".gif" for p in after),
             "updated_markdown": markdown_changed,
+            "updated_toml": toml_changed,
             "image_bytes_before": sum(p.stat().st_size for p in original_images),
             "image_bytes_after": sum(p.stat().st_size for p in after),
         }
         if apply:
             # Publish images first, references second, delete old PNGs last.
             # Do not leave unsanitized *_original backups in the content tree.
-            for path in sorted(work.rglob("*"), key=lambda p: p.suffix.lower() == ".md"):
+            for path in sorted(work.rglob("*"), key=lambda p: p.suffix.lower() in {".md", ".toml"}):
                 if path.is_file():
                     target = root / path.relative_to(work)
                     if not target.exists() or digest(path) != digest(target):

@@ -13,6 +13,7 @@ import htmlgen.fmtThisYear
 class MainHomeSubPage(
     private val elements: List<HomeElement>,
     private val pagination: HomePagination,
+    private val context: routing.PageContext,
 ) : HomeSubPage() {
     override fun DIV.showSubPage() {
         div {
@@ -38,7 +39,7 @@ class MainHomeSubPage(
                 }
             }
         }
-        homePagination(pagination)
+        homePagination(pagination, context)
     }
 
     override fun getCssNames(): Array<String> {

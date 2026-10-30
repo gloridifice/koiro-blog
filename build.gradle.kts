@@ -18,7 +18,7 @@ val markdownVersion = "0.7.3"
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("org.jsoup:jsoup:1.21.2")
+    implementation("org.jsoup:jsoup:1.21.2")
 
     // include for JVM target
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")
@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlinCoroutinesVersion}")
     implementation("net.coobird:thumbnailator:0.4.20")
     implementation("org.jetbrains:markdown:$markdownVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("com.akuleshov7:ktoml-core:0.7.1")
     implementation("com.akuleshov7:ktoml-file:0.7.1")
 }

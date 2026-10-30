@@ -33,7 +33,8 @@ Open <http://localhost:8000>. On systems where Python is named `python3`, use th
 - `src/main/rs-wasm-script/` — browser interactions.
 - `src/main/stylesheet/` — stylesheet sources.
 - `assets/` — tracked static inputs copied into `dist/`. The nested `assets/` preserves `/assets/...` URLs.
-- `data/` — Markdown and attachments, grouped into `blogs/`, `devlogs/`, `portfolio/` and `actives/`. Each Markdown file starts with fenced TOML metadata; fields are defined in `Models.kt`.
+- `data/` — content packages grouped into `blogs/`, `devlogs/`, `portfolio/` and `actives/`. Each English `snake_case` folder contains `meta.toml`, `zh-CN.md` and optional translations with shared attachments. See the [content contract](doco/specs/content-localization.md).
+- `i18n/` — locale registration and TOML UI dictionaries. Chinese is the base dictionary; English is the default entry language and currently falls back to Chinese.
 - `dist/` — complete generated site, ignored by Git and recreated on every full build.
 
 ## Git LFS

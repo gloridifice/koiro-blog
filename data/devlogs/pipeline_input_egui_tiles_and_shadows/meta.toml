@@ -1,0 +1,6 @@
+id = "pipeline_input_egui_tiles_and_shadows"
+work = "Wgpu PBR"
+index = 1
+published = true
+preview = "images/shadow_mapping.jpg"
+date = "2024-12-25"

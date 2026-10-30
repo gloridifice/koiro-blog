@@ -3,11 +3,12 @@
 ## Directory contract
 
 - `assets/` contains files copied unchanged into the site root. Its nested `assets/` directory preserves existing `/assets/...` URLs.
-- `data/` contains Markdown and source attachments. The generator copies referenced images to `dist/images/`.
-- Kotlin generates HTML and RSS, Sass generates `dist/assets/css/`, and wasm-pack generates `dist/pkg/`.
+- `data/` contains content packages (`meta.toml`, `zh-CN.md`, optional language variants and attachments). Package folders and stable IDs use English `snake_case`; language filenames use hyphens.
+- `i18n/` contains locale registration and UI dictionaries. Chinese is the base dictionary, English is the default entry language; untranslated UI and content fall back without requiring English source files.
+- Kotlin generates root `index.html`, per-locale HTML/RSS and compatibility files; Sass generates `dist/assets/css/`, and wasm-pack generates `dist/pkg/`. Shared attachments are copied to `dist/images/content/`. Historical image aliases keep their original `/images/...` paths; the separate namespace avoids Windows case-folding collisions with names such as `Art` and `art`.
 - `dist/` is disposable and ignored by Git. Do not put source files or a separate Git checkout inside it.
 
-`assets/index.html`, `assets/CNAME`, `assets/.nojekyll`, `assets/favicon.ico`, the album and third-party libraries are static inputs. Handwritten `reset.css` is also an input. Generated CSS, source maps, HTML, RSS and Wasm do not belong in `assets/`.
+`assets/CNAME`, `assets/.nojekyll`, `assets/favicon.ico`, the album and third-party libraries are static inputs. The root index is generated, not a static input. Handwritten `reset.css` is also an input. Generated CSS, source maps, HTML, RSS and Wasm do not belong in `assets/`.
 
 ## Local build
 
@@ -33,9 +34,13 @@ python scripts/build_site.py watch-styles
 
 ## Home pagination and images
 
-The home timeline is split into static files: `/home.html`, `/home-2.html`, and so on. Each file contains only its own entries, ordered newest first. Blog, project and article pages, RSS, and the root redirect keep their existing URLs.
+The home timeline is split into static files under each language: `/zh-CN/home.html`, `/zh-CN/home-2.html`, `/en-US/home.html`, and so on. All languages share the published set, ordering and page numbers; each file contains only its own entries. Articles use `/LANG/pages/blogs/ID.html` or `/LANG/pages/devlogs/ID.html`.
 
-Set `HOME_PAGE_SIZE` in `src/main/kotlin/htmlgen/Configs.kt` to change the default of 10 entries per page. Callers can also pass `homePageSize` to `KoiroCatCafe`; the value must be positive. An empty timeline still generates `home.html`. Pagination is hidden for a single page; large archives show the first, last and neighboring pages with ellipses. Direct Gradle generation removes obsolete numbered home pages when the timeline shrinks, while a full build recreates all of `dist/`.
+The root entry chooses an enabled language from the saved `koiro.site.locale` preference, browser languages, then English. Direct language URLs are not redirected. Missing content variants fall back to English, then Chinese, while retaining the requested page language and URL. Chinese is required for published content. English translations are not yet supplied.
+
+Old root pages and pre-migration title URLs retain Chinese redirect pages. `/rss.xml` remains actual Chinese XML; each language also has its own RSS. `data/migration-map.toml` retains article and image aliases. Do not delete it or replace root RSS with an HTML redirect. See the [output contract](../doco/specs/localized-output.md).
+
+Set `HOME_PAGE_SIZE` in `src/main/kotlin/htmlgen/Configs.kt` to change the default of 10 entries per page. Callers can also pass `homePageSize` to `KoiroCatCafe`; the value must be positive. An empty timeline still generates each language's `home.html`. Pagination is hidden for a single page; large archives show the first, last and neighboring pages with ellipses. Direct Gradle generation removes obsolete files listed in `.generated-site-files.json`, preserving unrelated files; a full build recreates all of `dist/`.
 
 On each home page, images in the first two entries load normally; later entries use native `loading="lazy"`. Published image dimensions reserve space, including for image stacks. The browser decides when nearby images load, and overlapping gallery images may load together. Article detail pages retain their existing image-loading behavior.
 
@@ -43,15 +48,13 @@ The pagination styles are in `src/main/stylesheet/home_pagination.scss`. Rebuild
 
 ## Blog icons
 
-Set `icon` in a blog's fenced TOML header to a Lucide kebab-case name:
+Set `icon` in a blog's `meta.toml` to a Lucide kebab-case name:
 
-````markdown
 ```toml
 icon = "book-open"
 ```
-````
 
-Browse names at <https://lucide.dev/icons/>. Both large and regular blog cards use this field. An explicit `icon` takes precedence over the legacy `emoji` field; without `icon`, a nonblank `emoji` is preserved. If neither is supplied, the card uses `file-text`. Unknown or malformed names fail generation with the source filename, including for unpublished drafts. Paths and raw SVG are not accepted.
+The icon belongs in shared `meta.toml`, not in the translated Markdown header. Browse names at <https://lucide.dev/icons/>. Both large and regular blog cards use this field. An explicit `icon` takes precedence over the legacy `emoji` field; without `icon`, a nonblank `emoji` is preserved. If neither is supplied, the card uses `file-text`. Unknown or malformed names fail generation with the source filename, including for unpublished drafts. Paths and raw SVG are not accepted.
 
 Kotlin reads SVGs from `node_modules/lucide-static/icons/` at build time and inlines only the icons used in cards. No Lucide JavaScript, icon font or CDN request is needed in the browser. The full build copies the package's ISC/MIT notices to `dist/assets/licenses/lucide.txt`. Run `npm ci` from the project root before invoking Gradle directly, including Kotlin tests.
 
@@ -87,6 +90,18 @@ The old `static/` path has been removed from every retained local branch's histo
 `git-filter-repo` removes `origin` as a safety measure and converts remote-tracking branches into local branches. Do not merge or pull the old remote history back into this checkout. Remote history and other clones remain unchanged until a separately authorized, coordinated history replacement. Keep the backup until that process is complete.
 
 The migrated `assets/` still needs Git LFS storage for its images and fonts. Removing `static/` from Git history is not a reason to delete all `.git/lfs` objects. Do not prune while migrated files remain uncommitted.
+
+## Content migration
+
+Existing content has been migrated to language packages. The one-time migration tool defaults to dry-run:
+
+```sh
+python scripts/migrate_content.py data
+```
+
+On an already migrated tree it makes no changes. `--apply` is for an explicitly reviewed, unmigrated input tree; it validates a temporary result, verifies media hashes and keeps a complete backup outside the repository before replacement. It does not translate text, prepare images, stage files or commit. Historical repeated `date` keys retain the formerly effective final date; earlier values remain as `legacy_dates`.
+
+Use the [migration contract](../doco/specs/data-migration.md) and the explicit `scripts/content_migration_plan.json`; do not infer new folder names by translating content during a build. New posts can be created directly as packages without rerunning the migration.
 
 ## Checks
 

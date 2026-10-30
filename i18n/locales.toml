@@ -1,0 +1,14 @@
+default = "en-US"
+base = "zh-CN"
+content-fallbacks = ["en-US", "zh-CN"]
+
+[locales.en-US]
+name = "English"
+language = "en"
+match-default = true
+
+[locales.zh-CN]
+name = "简体中文"
+language = "zh"
+script = "Hans"
+match-default = true

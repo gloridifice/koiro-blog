@@ -20,7 +20,7 @@ fun FlowContent.naviWithHighlightedItem(
                 href = subpage.serverPath.serverPath
 
                 subpage.svgIcon.apply { showSvg() }
-                +subpage.name
+                span { lang = subpage.language; +subpage.name }
             }
         }
     }

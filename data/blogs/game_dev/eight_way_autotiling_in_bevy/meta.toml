@@ -1,0 +1,7 @@
+id = "eight_way_autotiling_in_bevy"
+icon = "grid-3x3"
+published = false
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2024-03-30T21:56:00"
+tags = ["Game Dev", "Tilemap"]

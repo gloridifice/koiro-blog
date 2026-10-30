@@ -1,6 +1,6 @@
 package htmlgen.page.home.subpage
 
-import htmlgen.INTRODUCE
+import htmlgen.component.message
 import htmlgen.SvgIcons
 import htmlgen.asLoc
 import htmlgen.component.touchableAvatar
@@ -8,7 +8,7 @@ import htmlgen.friendLinkItems
 import htmlgen.resourcesServerPath
 import kotlinx.html.*
 
-class AboutHomeSubPage : HomeSubPage() {
+class AboutHomeSubPage(private val context: routing.PageContext) : HomeSubPage() {
     override fun DIV.showSubPage() {
         div {
             classes += "top_gap_space"
@@ -26,7 +26,7 @@ class AboutHomeSubPage : HomeSubPage() {
                     div {
                         classes += "description_wrapper"
                         p {
-                            +INTRODUCE
+                            message(context, "site.aboutIntroduction")
                         }
                     }
                 }
@@ -38,7 +38,7 @@ class AboutHomeSubPage : HomeSubPage() {
                         classes += "title"
                         SvgIcons.PARTNER_EXCHANGE.apply { showSvg() }
                         div {
-                            +"友情链接"
+                            message(context, "site.friends")
                         }
                     }
                     div {
@@ -59,7 +59,7 @@ class AboutHomeSubPage : HomeSubPage() {
                                 }
                                 div {
                                     classes += "desc"
-                                    +it.description
+                                    message(context, "friends.${it.id}")
                                 }
                             }
                         }

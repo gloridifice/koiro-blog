@@ -1,0 +1,8 @@
+id = "bevy_rendering_architecture"
+icon = "workflow"
+published = true
+authors = "宏楼 Koiro"
+class = "Dev"
+date = "2025-02-20"
+tags = ["Bevy", "Game Dev", "Rust"]
+legacy_dates = ["2025-02-19T22:27:00"]

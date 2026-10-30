@@ -33,7 +33,8 @@ python -m http.server 8000 --directory dist
 - `src/main/rs-wasm-script/`：浏览器交互。
 - `src/main/stylesheet/`：样式源码。
 - `assets/`：受追踪的静态输入，复制到 `dist/`；内层 `assets/` 保留现有 `/assets/...` URL。
-- `data/`：Markdown 和附件，分为 `blogs/`、`devlogs/`、`portfolio/`、`actives/`。每篇 Markdown 以 TOML 代码块开头，字段定义见 `Models.kt`。
+- `data/`：分为 `blogs/`、`devlogs/`、`portfolio/`、`actives/` 的内容包。每个英文 `snake_case` 文件夹包含 `meta.toml`、`zh-CN.md`、可选译本和共享附件，详见[内容契约](../doco/specs/content-localization.md)。
+- `i18n/`：语言注册和 TOML 页面字典。中文为基础字典，默认访问英文；英文尚未翻译时回退中文。
 - `dist/`：完整生成站点，Git 忽略，每次完整构建都会重建。
 
 ## Git LFS

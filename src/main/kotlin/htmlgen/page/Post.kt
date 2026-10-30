@@ -1,23 +1,14 @@
 package htmlgen.page
 
+import htmlgen.page.home.navigation
 import kotlinx.html.*
-import KoiroCatCafe
+import routing.PageContext
 
-fun FlowContent.navi() {
-    div {
-        classes += "navi"
-        for (item in KoiroCatCafe.homeSubPageInfos) {
-            a {
-                classes += arrayOf("navi_link", "button")
-                href = item.serverPath.serverPath
-                item.svgIcon.apply { showSvg() }
-            }
+fun FlowContent.navi(context: PageContext) {
+    div("navi") {
+        for (item in context.navigation()) a(item.serverPath.serverPath, classes = "navi_link button") {
+            attributes["aria-label"] = item.name
+            item.svgIcon.apply { showSvg() }
         }
     }
 }
-
-
-
-
-
-

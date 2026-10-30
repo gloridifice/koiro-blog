@@ -1,0 +1,9 @@
+id = "water_source"
+date = "2021-2026"
+lite = true
+preview = "images/CoverRect_transparent.png"
+project = "WaterSource"
+published = true
+status = "Finished"
+type = "PersonalProject"
+url = "https://github.com/gloridifice/WaterSource"

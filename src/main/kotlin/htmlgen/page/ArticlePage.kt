@@ -1,83 +1,49 @@
 package htmlgen.page
 
+import content.ResolvedContent
+import htmlgen.ImageAssets
 import htmlgen.component.Catalogue
-import kotlinx.html.FlowContent
-import kotlinx.html.HTML
-import kotlinx.html.a
-import kotlinx.html.classes
-import kotlinx.html.div
-import kotlinx.html.h1
-import kotlinx.html.hr
-import kotlinx.html.p
-import kotlinx.html.script
-import KoiroCatCafe
-import KoiroCatCafe.Companion.formatter
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
-import kotlin.collections.plus
+import htmlgen.component.languageTools
+import htmlgen.component.translationLines
+import htmlgen.page.home.navigation
+import kotlinx.html.*
+import routing.PageContext
+import java.time.format.DateTimeFormatter
 
-open class ArticlePage(
-    val title: String,
-    val date: LocalDateTime,
-    val content: FlowContent.() -> ArticleContent.CollectedData?
-) {
-
-    fun HTML.showPage() {
-        var collectedData: ArticleContent.CollectedData? = null
-        layout(
-            siteTitle = "hello",
-            jsNames = arrayOf("highlightjs/highlight"),
-            cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")
-        ) {
-            script { +"hljs.highlightAll();" }
-            div {
-                classes += "post"
-                div {
-                    classes += "sidebar_wrapper_left"
-                    classes += "sidebar_wrapper"
-                    navi() //侧边导航栏
-                }
-                div {
-                    classes += "contents"
-                    div { classes += "top_gap_space" }
-                    div {
-                        classes += "header"
-                        // 顶部导航栏
-                        for (item in KoiroCatCafe.homeSubPageInfos) {
-                            a {
-                                classes += arrayOf("navi_link", "button")
-                                href = item.serverPath.serverPath
-                                item.svgIcon.apply { showSvg() }
-                            }
-                        }
-                    }
-                    div {
-                        classes += "page_description"
-                        h1 {
-                            classes += "title"
-                            +title
-                        }
-                        hr { }
-                        div {
-                            classes += "sub_info"
-                            p {
-                                classes += "date"
-                                +date.format(formatter)
-                            }
-                        }
-                    }
-                    div {
-                        classes += "page_content"
-
-                        collectedData = content()
+fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: ImageAssets) {
+    var collected: ArticleContent.CollectedData? = null
+    layout(context, article = record, siteTitle = record.title,
+        jsNames = arrayOf("highlightjs/highlight"),
+        cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")) {
+        script { unsafe { +"hljs.highlightAll();" } }
+        div("post") {
+            div("sidebar_wrapper_left sidebar_wrapper") { navi(context) }
+            div("contents") {
+                div("top_gap_space")
+                div("header") {
+                    for (item in context.navigation()) a(item.serverPath.serverPath, classes = "navi_link button") {
+                        attributes["aria-label"] = item.name; item.svgIcon.apply { showSvg() }
                     }
                 }
-                div {
-                    classes += "sidebar_wrapper_right"
-                    classes += "sidebar_wrapper"
-                    if (collectedData != null)
-                        Catalogue(collectedData!!.headingInfos).apply { show() }
+                div("article-language-tools") { languageTools(context) }
+                div("page_description") {
+                    h1("title") { lang = record.variant.localeTag; +record.title }
+                    hr()
+                    div("sub_info") { p("date") { +record.date.date.toString() } }
                 }
+                if (record.fallback || record.variant.header.aiTranslation) div("article-translation-notices") {
+                    translationLines(record, context)
+                }
+                div("page_content") {
+                    lang = record.variant.localeTag
+                    with(ArticleContent(record.variant.markdown, record.variant.sourcePath, images,
+                        linkResolver = { context.routes.resolveLink(record.variant.sourcePath, it, context.locale) })) {
+                        collected = showPostContent()
+                    }
+                }
+            }
+            div("sidebar_wrapper_right sidebar_wrapper") {
+                collected?.let { Catalogue(it.headingInfos).apply { show() } }
             }
         }
     }
