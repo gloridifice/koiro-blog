@@ -2,13 +2,16 @@ package htmlgen.component.home_element
 
 import kotlinx.html.*
 import DevlogRecord
+import htmlgen.ImageAssets
+import htmlgen.contentImage
 import kotlinx.datetime.LocalDateTime
 
 class DevlogElement(
     val devlogRecord: DevlogRecord,
+    private val images: ImageAssets,
 ) : HomeElement {
 
-    override fun DIV.show() {
+    override fun DIV.show(imageLoading: ImgLoading) {
         a {
             classes += arrayOf("post_preview", "devlog", "large")
             href = devlogRecord.serverPath.serverPath
@@ -19,7 +22,7 @@ class DevlogElement(
                 div {
                     classes += "preview"
                     img {
-                        src = it.serverPath
+                        contentImage(it, images, imageLoading)
                     }
                 }
             }

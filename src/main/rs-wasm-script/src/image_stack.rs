@@ -315,10 +315,6 @@ fn apply_card_widths_by_height(cards: &[HtmlElement]) {
     };
 
     if !do_apply() {
-        let mut pending = pairs
-            .iter()
-            .filter(|(_, img)| !(img.complete() && img.natural_width() > 0))
-            .count();
         for (_, img) in &pairs {
             if img.complete() && img.natural_width() > 0 {
                 continue;
@@ -326,10 +322,9 @@ fn apply_card_widths_by_height(cards: &[HtmlElement]) {
             let img_c = img.clone();
             let do_apply_c = do_apply.clone();
             let cb = Closure::wrap(Box::new(move || {
-                pending -= 1;
-                if pending == 0 {
-                    do_apply_c();
-                }
+                // The final loaded image passes do_apply's all-ready check. A copied
+                // per-callback counter never reached zero when multiple images were lazy.
+                do_apply_c();
             }) as Box<dyn FnMut()>);
             img_c
                 .add_event_listener_with_callback("load", cb.as_ref().unchecked_ref())

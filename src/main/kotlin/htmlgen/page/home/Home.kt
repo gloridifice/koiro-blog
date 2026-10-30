@@ -5,15 +5,20 @@ import htmlgen.asLoc
 import htmlgen.component.naviWithHighlightedItem
 import htmlgen.component.touchableAvatar
 import htmlgen.page.layout
+import htmlgen.page.home.subpage.HomeSubPage
 import htmlgen.resourcesServerPath
 import kotlinx.html.*
 import KoiroCatCafe.Companion.homeSubPageInfos
 
-fun HTML.homePage(subPage: HomeSubPageInfo) {
+fun HTML.homePage(
+    subPage: HomeSubPageInfo,
+    page: HomeSubPage = requireNotNull(subPage.page),
+    siteTitle: String = "Koiro's Cat Café",
+) {
     layout(
-        siteTitle = "Koiro's Cat Café",
-        cssNames = arrayOf("home") + subPage.page!!.getCssNames(),
-        jsNames = subPage.page!!.getJsNames(),
+        siteTitle = siteTitle,
+        cssNames = arrayOf("home") + page.getCssNames(),
+        jsNames = page.getJsNames(),
         headFont = "你好",
     ) {
         div {
@@ -65,8 +70,7 @@ fun HTML.homePage(subPage: HomeSubPageInfo) {
             classes += "contents_wrapper"
             div {
                 classes += "contents"
-                subPage.page!!.apply { showSubPage() }
-                footer()
+                page.apply { showSubPage() }
             }
         }
     }

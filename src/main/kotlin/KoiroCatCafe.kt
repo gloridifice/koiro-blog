@@ -14,6 +14,8 @@ import kotlinx.html.stream.appendHTML
 import kotlinx.serialization.decodeFromString
 import htmlgen.component.home_element.HomeElement
 import htmlgen.ImageAssets
+import htmlgen.HOME_PAGE_SIZE
+import htmlgen.component.HomePagination
 import htmlgen.page.BlogArticlePage
 import htmlgen.page.DevlogArticlePage
 import htmlgen.page.home.HomeSubPageInfo
@@ -39,6 +41,9 @@ import java.util.Date
 import kotlin.io.path.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.extension
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
 import kotlin.io.path.walk
@@ -47,14 +52,19 @@ import kotlin.time.ExperimentalTime
 
 class KoiroCatCafe(
     private val databasePath: Path,
-    outputPath: String
+    outputPath: String,
+    private val homePageSize: Int = HOME_PAGE_SIZE,
 ) {
+    init {
+        require(homePageSize > 0) { "Home page size must be positive" }
+    }
+
     private val outputRoot = Path(outputPath)
     private val images = ImageAssets(databasePath, outputRoot)
 
     companion object {
 
-        private val mainSubPageInfo = HomeSubPageInfo(ServerPath("home.html"), "主页", SvgIcons.HOME, null)
+        private val mainSubPageInfo = HomeSubPageInfo(HomePagination.path(1), "主页", SvgIcons.HOME, null)
         private val blogSubPageInfo = HomeSubPageInfo(ServerPath("blogs.html"), "博客", SvgIcons.BLOGS, null)
         private val portfolioSubPageInfo =
             HomeSubPageInfo(ServerPath("portfolio.html"), "项目", SvgIcons.PROJECTS, null)
@@ -247,17 +257,35 @@ class KoiroCatCafe(
         // 生成 Home Pages
         val elements = arrayListOf<HomeElement>()
         elements += blogRecords.map { BlogElement(it) }
-        elements += devlogRecords.map { DevlogElement(it) }
+        elements += devlogRecords.map { DevlogElement(it, images) }
         elements += activeRecords.map { ActiveElement(it, images) }
 
         elements.sortByDescending { it.getDate() }
 
-        mainSubPageInfo.page = MainHomeSubPage(elements);
+        val pageCount = HomePagination(1, elements.size, homePageSize).pageCount
+        for (pageNumber in 1..pageCount) {
+            val pagination = HomePagination(pageNumber, elements.size, homePageSize)
+            val pageElements = elements.subList(pagination.offset, pagination.lastItem)
+            writeHTML(outputRoot.resolve(pagination.serverPath.relativePath)) {
+                homePage(
+                    mainSubPageInfo,
+                    MainHomeSubPage(pageElements, pagination),
+                    siteTitle = "Koiro's Cat Café · 第 $pageNumber 页",
+                )
+            }
+        }
+        // Gradle can be run without the Python clean build. Remove only obsolete generated home pages.
+        for (path in outputRoot.listDirectoryEntries("home-*.html")) {
+            val number = Regex("home-(\\d+)\\.html").matchEntire(path.name)
+                ?.groupValues?.get(1)?.toIntOrNull() ?: continue
+            if (number > pageCount && path.isRegularFile()) path.deleteIfExists()
+        }
+
         blogSubPageInfo.page = BlogsHomeSubPage(blogRecords);
         portfolioSubPageInfo.page = PortfolioHomeSubPage(portfolioRecords, devlogRecords);
         aboutSubPageInfo.page = AboutHomeSubPage();
 
-        for (info in homeSubPageInfos) {
+        for (info in homeSubPageInfos.filter { it != mainSubPageInfo }) {
             writeHTML(outputRoot.resolve(info.serverPath.relativePath)) {
                 homePage(info)
             }

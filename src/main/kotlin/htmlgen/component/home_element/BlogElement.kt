@@ -8,7 +8,7 @@ import kotlinx.datetime.LocalDateTime
 class BlogElement(
     val blogRecord: BlogRecord
 ) : HomeElement {
-    override fun DIV.show() {
+    override fun DIV.show(imageLoading: ImgLoading) {
         a {
             classes += arrayOf("post_preview", "blog", "large")
             href = blogRecord.serverPath.serverPath

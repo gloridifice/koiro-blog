@@ -1,5 +1,7 @@
 package htmlgen
 
+const val HOME_PAGE_SIZE = 10
+
 val INTRODUCE = "人类、学生、游戏开发者、平面设计笨蛋和技术美术笨蛋。"
 data class FriendLinkItem(val name: String, val link: String, val description: String = "")
 // Friend links

@@ -18,6 +18,7 @@ val markdownVersion = "0.7.3"
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.jsoup:jsoup:1.21.2")
 
     // include for JVM target
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinxHtmlVersion}")

@@ -3,6 +3,7 @@ package htmlgen.component.home_element
 import htmlgen.page.ArticleContent
 import htmlgen.ImageAssets
 import kotlinx.html.DIV
+import kotlinx.html.ImgLoading
 import kotlinx.html.classes
 import kotlinx.html.div
 import ActiveRecord
@@ -12,12 +13,12 @@ class ActiveElement(
     val record: ActiveRecord,
     private val images: ImageAssets
 ) : HomeElement {
-    override fun DIV.show() {
+    override fun DIV.show(imageLoading: ImgLoading) {
         classes += "active_element"
         div {
             classes += "page_content"
 
-            ArticleContent(record.markdownContent, record.sourcePath, images).apply { showPostContent() }
+            ArticleContent(record.markdownContent, record.sourcePath, images, imageLoading).apply { showPostContent() }
         }
     }
 

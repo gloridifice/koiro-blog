@@ -3,6 +3,8 @@ package htmlgen.page
 import ServerPath
 import htmlgen.component.Catalogue
 import htmlgen.ImageAssets
+import htmlgen.contentImage
+import kotlinx.html.ImgLoading
 import kotlinx.html.FlowContent
 import kotlinx.html.InputType
 import kotlinx.html.LI
@@ -50,7 +52,12 @@ import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
 import kotlin.collections.plus
 
-class ArticleContent(markdownText: String, val filePath: Path, private val images: ImageAssets) {
+class ArticleContent(
+    markdownText: String,
+    val filePath: Path,
+    private val images: ImageAssets,
+    private val imageLoading: ImgLoading? = null,
+) {
     // The Markdown parser expects LF, including for blank lines that terminate HTML blocks.
     // Keep AST offsets and all text extraction on the same normalized source.
     val markdownText = markdownText.replace("\r\n", "\n").replace('\r', '\n')
@@ -235,7 +242,7 @@ class ArticleContent(markdownText: String, val filePath: Path, private val image
                 div {
                     classes += "image_wrapper"
                     img {
-                        this.src = imageStack.first().first.serverPath
+                        contentImage(imageStack.first().first, images, imageLoading)
                         this.alt = imageStack.first().second
                     }
                 }
@@ -244,12 +251,16 @@ class ArticleContent(markdownText: String, val filePath: Path, private val image
             else -> {
                 div {
                     classes += "stack-container"
+                    if (imageLoading != null) {
+                        val size = images.dimensions(imageStack.first().first)
+                        attributes["style"] = "--image-stack-ratio: ${size.width} / ${size.height}"
+                    }
                     imageStack.forEachIndexed { i, (path, alt) ->
                         div {
                             classes += "stack-card"
                             attributes["data-index"] = i.toString()
                             img {
-                                this.src = path.serverPath
+                                contentImage(path, images, imageLoading)
                                 this.alt = alt
                             }
                         }

@@ -1,4 +1,10 @@
 .elements {
+  .stack-container[style*="--image-stack-ratio"] {
+    height: auto;
+    aspect-ratio: var(--image-stack-ratio);
+    max-height: 75vh;
+  }
+
   .element {
     border-top: var(--outline-color) var(--outline-thickness) solid;
     border-radius: 0;

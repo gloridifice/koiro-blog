@@ -31,6 +31,16 @@ Use `python scripts/build_site.py --help` for incremental styles/Wasm commands a
 python scripts/build_site.py watch-styles
 ```
 
+## Home pagination and images
+
+The home timeline is split into static files: `/home.html`, `/home-2.html`, and so on. Each file contains only its own entries, ordered newest first. Blog, project and article pages, RSS, and the root redirect keep their existing URLs.
+
+Set `HOME_PAGE_SIZE` in `src/main/kotlin/htmlgen/Configs.kt` to change the default of 10 entries per page. Callers can also pass `homePageSize` to `KoiroCatCafe`; the value must be positive. An empty timeline still generates `home.html`. Pagination is hidden for a single page; large archives show the first, last and neighboring pages with ellipses. Direct Gradle generation removes obsolete numbered home pages when the timeline shrinks, while a full build recreates all of `dist/`.
+
+On each home page, images in the first two entries load normally; later entries use native `loading="lazy"`. Published image dimensions reserve space, including for image stacks. The browser decides when nearby images load, and overlapping gallery images may load together. Article detail pages retain their existing image-loading behavior.
+
+The pagination styles are in `src/main/stylesheet/home_pagination.scss`. Rebuilding replaces the temporary preview; no preview CSS or `noindex` marker is part of the generated pages.
+
 ## Blog icons
 
 Set `icon` in a blog's fenced TOML header to a Lucide kebab-case name:
