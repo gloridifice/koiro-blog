@@ -148,7 +148,9 @@ class HomePaginationTest {
                 assertEquals("lazy", image.attr("loading"))
             }
             val stack = document.selectFirst(".stack-container")!!
-            assertEquals("--image-stack-ratio: 2048 / 1024", stack.attr("style"))
+            val smallImage = stack.selectFirst("img[src='/images/entry-000.gif']")!!
+            assertEquals("1", smallImage.attr("width"))
+            assertEquals("1", smallImage.attr("height"))
             assertEquals(listOf("wide image", "small image"), stack.select("img").map { it.attr("alt") })
             assertTrue(stack.select("img").all { it.attr("loading") == "lazy" })
             val detail = Jsoup.parse(output.resolve("pages/devlogs/entry-001.html").readText())

@@ -251,16 +251,16 @@ class ArticleContent(
             else -> {
                 div {
                     classes += "stack-container"
-                    if (imageLoading != null) {
-                        val size = images.dimensions(imageStack.first().first)
-                        attributes["style"] = "--image-stack-ratio: ${size.width} / ${size.height}"
-                    }
-                    imageStack.forEachIndexed { i, (path, alt) ->
+                    imageStack.forEach { (path, alt) ->
+                        val size = images.dimensions(path)
                         div {
                             classes += "stack-card"
-                            attributes["data-index"] = i.toString()
+                            // Size every photo before it loads, without stretching smaller originals.
+                            attributes["style"] = "--image-width: ${size.width}px; --image-ratio: ${size.width} / ${size.height}"
                             img {
                                 contentImage(path, images, imageLoading)
+                                width = size.width.toString()
+                                height = size.height.toString()
                                 this.alt = alt
                             }
                         }

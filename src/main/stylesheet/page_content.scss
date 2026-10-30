@@ -390,52 +390,98 @@ a.link {
 }
 
 .stack-container {
+  --stack-spread: 1;
   position: relative;
-  max-height: 80vh;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
   width: 100%;
-  height: fit-content;
-  perspective: 1000px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  touch-action: none;
-  /* Prevent default touch actions for better swipe handling */
-  margin: 12px 0;
+  // Reserve room for the scattered edges and shadows, including during a swipe.
+  padding: clamp(32px, 6vw, 64px) 14%;
+  margin: 24px 0;
+  overflow: clip;
+  touch-action: pan-y pinch-zoom;
 }
 
 .stack-card {
-  position: absolute;
-  border-radius: 4px;
+  --photo-x: 0%;
+  --photo-y: 0%;
+  --photo-angle: 0deg;
+  --photo-scale: 1;
+  // All photos contribute to the same grid track: changing the active photo
+  // never changes the gallery height. Each card hugs its own intrinsic ratio.
+  grid-area: 1 / 1;
+  width: min(100%, var(--image-width), calc(60vh * var(--image-ratio)), calc(680px * var(--image-ratio)));
+  width: min(100%, var(--image-width), calc(60svh * var(--image-ratio)), calc(680px * var(--image-ratio)));
+  aspect-ratio: var(--image-ratio);
+  min-width: 0;
+  border-radius: 3px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), z-index 0s;
-  transform-origin: center center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2), 0 20px 38px rgba(0, 0, 0, 0.16);
+  transform: translate(
+      calc(var(--photo-x) * var(--stack-spread)),
+      calc(var(--photo-y) * var(--stack-spread))
+    )
+    rotate(calc(var(--photo-angle) * var(--stack-spread)))
+    scale(var(--photo-scale));
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
   cursor: pointer;
-  will-change: transform;
-  background-color: #333;
-  /* Fallback color */
+
+  &[data-position="1"] {
+    --photo-x: -12%;
+    --photo-y: -4%;
+    --photo-angle: -9deg;
+    --photo-scale: 0.96;
+  }
+
+  &[data-position="2"] {
+    --photo-x: 13%;
+    --photo-y: 3%;
+    --photo-angle: 8deg;
+    --photo-scale: 0.94;
+  }
+
+  &[data-position="3"] {
+    --photo-x: -7%;
+    --photo-y: 6%;
+    --photo-angle: -5deg;
+    --photo-scale: 0.92;
+  }
+
+  &[data-position="4"] {
+    --photo-x: 8%;
+    --photo-y: -6%;
+    --photo-angle: 11deg;
+    --photo-scale: 0.9;
+  }
 }
 
-/* Card images */
 .stack-card img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
   display: block;
+  width: 100%;
+  height: auto;
   pointer-events: none;
-  /* Prevent image dragging issues */
+  user-select: none;
 }
 
-/* The card currently at the top of the stack */
-.stack-card.active {
-  z-index: 10;
-}
-
-/* Cards underneath the active one */
-.stack-card.underneath {}
-
-/* Card being swiped away (animating out) */
 .stack-card.animating-out {
-  z-index: 11;
+  opacity: 0;
+  transform: translate(calc(var(--exit-direction) * 22%), -8%)
+    rotate(calc(var(--exit-direction) * 12deg)) scale(0.96);
   pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .stack-container {
+    --stack-spread: 0.65;
+    padding-inline: 10%;
+    margin-block: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack-card {
+    transition: none;
+  }
 }
