@@ -1,0 +1,4 @@
+interface:
+  display_name: "kotlinx.html"
+  short_description: "Build HTML, components, Ktor responses, and browser DOM"
+  default_prompt: "Use $kotlinx-html to implement or fix HTML for this project's platform and dependency versions, then validate the generated output."
