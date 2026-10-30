@@ -48,10 +48,17 @@ body {
   }
 
   .outside_pages {
+    width: 100%;
     margin: 16px 0;
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+
+    .outside_page_item {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
   }
 
   img {
@@ -64,7 +71,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 24px 0 4px;
+    margin: 24px 0 10px;
 
     .texts {
       display: flex;
@@ -94,14 +101,6 @@ body {
   }
 
   @media only screen and (max-width: 380px) {
-    .outside_pages {
-      flex-direction: column;
-
-      .outside_page_item {
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
     .introduction {
       flex-direction: column;
 
@@ -145,6 +144,7 @@ body {
 
 @media only screen and (max-width: 600px) {
   .about {
+    padding: 24px 8px;
     align-items: center;
     width: 100vw;
     position: static;
@@ -155,7 +155,9 @@ body {
     position: static;
   }
   .contents {
-    margin: 0 auto
+    max-width: none;
+    border: none;
+    margin: 0 auto;
   }
 }
 

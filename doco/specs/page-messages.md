@@ -4,7 +4,7 @@
 
 i18n/locales.toml 注册语言：default 为 en-US，base 为 zh-CN，content-fallbacks 为 `["en-US", "zh-CN"]`。每个语言配置 name、language、可选 script 和 match-default。同 language/script 组合最多一个默认匹配项。标识必须规范化且唯一。
 
-每语言文案在同名 TOML 文件中，按语义分组。中文是全部合法键及命名参数的基准，不意味着默认访问中文。当前 en-US.toml 仅含注释，没有英文翻译。
+每语言文案在同名 TOML 文件中，按语义分组。中文是全部合法键及命名参数的基准，不意味着默认访问中文。当前 en-US.toml 已提供全部基础键的英文翻译，并保持与中文一致的命名参数集合。
 
 ## 查找与模板
 

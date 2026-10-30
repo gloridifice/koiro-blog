@@ -8,24 +8,24 @@
 
 ## ソースからビルド
 
-Python 3.11+、JDK 21、Node.js 24、Git LFS、rustup 経由でインストールした Rust が必要です。`JAVA_HOME` は JDK 21 に設定してください。`rust-toolchain.toml` が Rust のバージョンと Wasm ターゲットを指定し、ビルド時に npm のロックファイルに従って Sass をインストールします。
+JDK 21、Node.js 24、Git LFS、rustup 経由でインストールした Rust が必要です。`JAVA_HOME` は JDK 21 に設定してください。`rust-toolchain.toml` が Rust のバージョンと Wasm ターゲットを指定し、`npm ci` がロック済みのビルド依存関係をインストールします。
 
 ```sh
 git lfs install --local
 git lfs pull
 cargo install wasm-pack --version 0.15.0 --locked
-python scripts/build_site.py
-python -m http.server 8000 --directory dist
+npm ci
+npm run dev
 ```
 
-<http://localhost:8000> を開いてください。環境によっては `python` の代わりに `python3` を使います。ビルドコマンドは `python scripts/build_site.py --help` で確認できます。
+ターミナルに表示された URL を開いてください。既定のポートは 8000 で、使用中なら次の空きポートを選びます。`npm run dev` は成果物がなければビルドし、`dist/` の配信と SCSS の監視を開始します。変更後はブラウザーを再読み込みしてください。本番用のクリーンビルドは `npm run build` で行います。
 
 ## 技術構成
 
 - Kotlin/JVM 21、kotlinx-html、JetBrains Markdown、ktoml
 - ブラウザー操作用の Rust/WebAssembly
 - Dart Sass でコンパイルする SCSS
-- クロスプラットフォームのビルドと成果物検証を行う Python
+- クロスプラットフォームのビルド、成果物検証、ローカル開発を行う Node.js/npm
 
 ## ディレクトリ構成
 
@@ -34,7 +34,7 @@ python -m http.server 8000 --directory dist
 - `src/main/stylesheet/`：スタイルのソース。
 - `assets/`：Git で管理する静的入力。`dist/` にコピーします。内側の `assets/` は既存の `/assets/...` URL を維持します。
 - `data/`：`blogs/`、`devlogs/`、`portfolio/`、`actives/` に分類したコンテンツ。英語の `snake_case` フォルダーに `meta.toml`、`zh-CN.md`、任意の翻訳と共有添付ファイルを置きます。[形式の仕様](../doco/specs/content-localization.md)を参照してください。
-- `i18n/`：言語設定と TOML の画面辞書。基準は中国語、既定のアクセス先は英語です。英訳がない場合は中国語にフォールバックします。
+- `i18n/`：言語設定と TOML の画面辞書。基準は中国語、既定のアクセス先は英語です。英語の画面と AI 翻訳のコンテンツを提供しています。英訳がない場合は引き続き中国語にフォールバックします。
 - `dist/`：生成済みサイト全体。Git の管理対象外で、フルビルドごとに作り直します。
 
 ## Git LFS

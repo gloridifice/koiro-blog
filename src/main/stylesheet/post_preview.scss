@@ -131,6 +131,10 @@ a.post_preview:any-link {
   .description {
     min-width: 0;
   }
+
+  .info .date {
+    font-family: var(--monospace-font);
+  }
 }
 
 // Large card

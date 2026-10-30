@@ -8,24 +8,24 @@
 
 ## 从源码构建
 
-需要 Python 3.11+、JDK 21、Node.js 24、Git LFS，以及通过 rustup 安装的 Rust。将 `JAVA_HOME` 指向 JDK 21。`rust-toolchain.toml` 指定 Rust 版本及 Wasm 目标；构建时按 npm 锁文件安装 Sass。
+需要 JDK 21、Node.js 24、Git LFS，以及通过 rustup 安装的 Rust。将 `JAVA_HOME` 指向 JDK 21。`rust-toolchain.toml` 指定 Rust 版本及 Wasm 目标；`npm ci` 安装锁定的构建依赖。
 
 ```sh
 git lfs install --local
 git lfs pull
 cargo install wasm-pack --version 0.15.0 --locked
-python scripts/build_site.py
-python -m http.server 8000 --directory dist
+npm ci
+npm run dev
 ```
 
-打开 <http://localhost:8000>。如果系统中的 Python 命令是 `python3`，请用它代替 `python`。构建命令见 `python scripts/build_site.py --help`。
+打开终端打印的地址，默认端口为 8000，被占用时自动选择后续空闲端口。`npm run dev` 在缺少产物时先构建，再提供 `dist/` 本地服务并监听 SCSS；修改后刷新浏览器即可。`npm run build` 用于完整的生产构建。
 
 ## 技术栈
 
 - Kotlin/JVM 21、kotlinx-html、JetBrains Markdown 和 ktoml
 - Rust/WebAssembly 实现浏览器交互
 - Dart Sass 编译 SCSS
-- Python 负责跨平台构建和产物校验
+- Node.js/npm 负责跨平台构建、产物校验和本地开发
 
 ## 目录结构
 
@@ -34,7 +34,7 @@ python -m http.server 8000 --directory dist
 - `src/main/stylesheet/`：样式源码。
 - `assets/`：受追踪的静态输入，复制到 `dist/`；内层 `assets/` 保留现有 `/assets/...` URL。
 - `data/`：分为 `blogs/`、`devlogs/`、`portfolio/`、`actives/` 的内容包。每个英文 `snake_case` 文件夹包含 `meta.toml`、`zh-CN.md`、可选译本和共享附件，详见[内容契约](../doco/specs/content-localization.md)。
-- `i18n/`：语言注册和 TOML 页面字典。中文为基础字典，默认访问英文；英文尚未翻译时回退中文。
+- `i18n/`：语言注册和 TOML 页面字典。中文为基础字典，默认访问英文。已提供英文界面和 AI 翻译内容；缺译时仍回退中文。
 - `dist/`：完整生成站点，Git 忽略，每次完整构建都会重建。
 
 ## Git LFS

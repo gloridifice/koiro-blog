@@ -1,7 +1,7 @@
 
 .post_previews_wrapper > div > p {
   color: var(--text-color-2);
-  font-family: serif;
+  font-family: var(--universal-font);
   font-size: 18px;
 }
 
@@ -9,6 +9,10 @@
   width: 100%;
   border-top: solid var(--outline-color) var(--outline-thickness);
   padding: 0 0 24px;
+
+  @media only screen and (max-width: 600px) {
+    padding-inline: 16px;
+  }
 }
 
 .post_preview {
@@ -18,30 +22,25 @@
 .post_type_buttons {
   display: flex;
   flex-direction: row;
-  font-family: serif;
-  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--universal-font);
   justify-content: center;
-  align-items: end;
-
-  h3 {
-    margin: 0;
-  }
+  align-items: center;
 
   .post_type_button {
-    color: var(--text-color-2);
-    transition: color 0.3s;
-  }
+    appearance: none;
+    font-family: inherit;
+    font-weight: 200;
+    white-space: nowrap;
 
-  .post_type_button:not(.is_selected) {
-    cursor: pointer;
-    text-decoration: underline 1px;
-  }
-
-  .post_type_button:not(.is_selected):hover {
-    color: var(--text-color-0);
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
   }
 
   .is_selected {
-    color: var(--theme-color-1);
+    --button-border-color: var(--bg-color-3);
+    --button-hover-border-color: var(--bg-color-3);
+    color: var(--text-color-0);
   }
 }

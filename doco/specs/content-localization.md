@@ -43,6 +43,8 @@ meta.toml 的 id、published 必填。按类型另外要求：
 | 项目 | 简介末尾普通行，主语为“本项目简介” |
 | RSS | 在摘要中以文字说明状态 |
 
+英文动态与文章的 AI 声明统一为 `Auto translated into {contentLanguage} by AI.`，语言名取实际显示的译本语言。
+
 AI 行的文字与图标使用 `--text-color-2`，缺译行的文字与图标均为 `#c5a35b`。图标 16px，文字 12px，gap 7px，窄屏可换行。详情提示相对框外左边缘内缩 20px。卡片图标距右侧 14px、底部 12px，不能遮挡摘要、分类或日期。
 
 缺译和 AI 翻译可同时发生：卡片显示一个黄色图标，说明包含两种状态；行提示先黄色回退、后灰色 AI。ai-translation 不表示 AI 创作；false 也不证明是人工翻译。

@@ -1,1 +1,63 @@
-# English UI translations will be added later. Missing messages use the Chinese base dictionary.
+[nav]
+home = "Home"
+blogs = "Blog"
+portfolio = "Projects"
+about = "About"
+
+[site]
+title = "Koiro's Cat Café"
+homeTitle = "Koiro's Cat Café · Page {page}"
+welcome = "Welcome to Koiro's Cat Café!"
+introduction = "Human, student, graphic design enthusiast, computer graphics enthusiast, and game developer."
+aboutIntroduction = "Human, student, game developer, clumsy graphic designer, and clumsy technical artist."
+games = "Some games I've worked on"
+source = "Blog repository"
+friends = "Friends"
+latest = "Latest updates"
+categories = "Categories"
+visitProject = "Visit project"
+license = "Content on this site is licensed under CC BY-SA 4.0"
+rssDescription = "Koiro's personal blog. Koiro is a human, student, graphic design enthusiast, computer graphics enthusiast, and game developer."
+chooseLanguage = "Choose a language"
+socialLinks = "Social links and language"
+
+[pagination]
+label = "Home page navigation"
+previous = "Previous page"
+next = "Next page"
+page = "Page {page}"
+summary = "Entries {first}–{last} of {total}"
+position = "Page {page} of {pages}"
+
+[translation]
+activeAi = "Auto translated into {contentLanguage} by AI."
+activeFallback = "This update isn't available in {requestedLanguage}; showing {contentLanguage} instead."
+articleAi = "Auto translated into {contentLanguage} by AI."
+articleFallback = "This article isn't available in {requestedLanguage}; showing {contentLanguage} instead."
+projectAi = "This project description was automatically translated into {contentLanguage} by AI."
+projectFallback = "This project description isn't available in {requestedLanguage}; showing {contentLanguage} instead."
+aiLabel = "AI translation"
+
+[languageNames]
+en-US = "English"
+zh-CN = "Chinese"
+
+[categories]
+Dev = "Development"
+Art = "Art"
+Life = "Life"
+
+[statuses]
+"In Progress" = "In progress"
+Finished = "Finished"
+
+[projectTypes]
+PersonalProject = "Personal project"
+IndieGame = "Indie game"
+
+[friends]
+rasp = "Hyrule Stable"
+dyron = "Did you know? The \"503\" in my ID comes from…"
+hana = "Music is the savior"
+iz = "Illustrator and game developer"
+duck = "When life gives me oranges"

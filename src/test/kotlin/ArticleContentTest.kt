@@ -2,21 +2,69 @@ import htmlgen.ImageAssets
 import htmlgen.page.ArticleContent
 import kotlinx.html.div
 import kotlinx.html.stream.createHTML
+import org.jsoup.Jsoup
 import org.w3c.dom.Element
+import java.awt.image.BufferedImage
+import java.nio.file.Files
 import java.nio.file.Path
+import javax.imageio.ImageIO
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ArticleContentTest {
-    private fun render(markdown: String): Element {
-        val root = Path.of(".").toAbsolutePath()
+    private fun renderHtml(markdown: String, root: Path = Path.of(".").toAbsolutePath()): String {
         val article = ArticleContent(markdown, root.resolve("post.md"), ImageAssets(root, root.resolve("output")))
-        val html = createHTML(prettyPrint = false).div {
+        return createHTML(prettyPrint = false).div {
             with(article) { showPostContent() }
         }
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(html.byteInputStream()).documentElement
+    }
+
+    private fun render(markdown: String): Element =
+        DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(renderHtml(markdown).byteInputStream()).documentElement
+
+    @Test
+    fun `only consecutive image paragraphs in the same block form a gallery`() {
+        data class Case(val markdown: String, val galleries: List<List<String>>, val locations: List<String>)
+        val a = "![a](a.png)"
+        val b = "![b](b.png)"
+        val cases = listOf(
+            Case("$a\n\n$b", listOf(listOf("a", "b")), listOf(".stack-container img")),
+            Case("$a $b", listOf(listOf("a", "b")), listOf(".stack-container img")),
+            Case("$a\n\n正文\n\n$b", emptyList(), listOf("div > .image_wrapper img")),
+            Case("$a\n\n# 标题\n\n$b", emptyList(), listOf("div > .image_wrapper img")),
+            Case("- 问题\n\n    $a\n\n    [说明](https://example.com)\n\n- 其他问题\n\n正文\n\n$b",
+                emptyList(), listOf("ul img[alt=a]", "div > .image_wrapper img[alt=b]")),
+            Case("- $a\n\n- $b", emptyList(), listOf("li:first-child img[alt=a]", "li:last-child img[alt=b]")),
+            Case("> $a\n>\n> $b\n\n$a", listOf(listOf("a", "b")),
+                listOf("blockquote .stack-container img", "div > .image_wrapper img[alt=a]")),
+            Case("前文 $a 后文\n\n$b", emptyList(), listOf("p img[alt=a]", "div > .image_wrapper img[alt=b]"))
+        )
+        val root = Files.createTempDirectory("article-images")
+        try {
+            for (name in listOf("a", "b")) {
+                ImageIO.write(BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB), "png", root.resolve("$name.png").toFile())
+            }
+            for (case in cases) {
+                val doc = Jsoup.parseBodyFragment(renderHtml(case.markdown, root))
+                assertEquals(case.markdown.count { it == '!' }, doc.select("img").size, case.markdown)
+                assertEquals(case.galleries, doc.select(".stack-container").map { gallery ->
+                    gallery.select("img").map { it.attr("alt") }
+                }, case.markdown)
+                for (selector in case.locations) {
+                    assertTrue(doc.select(selector).isNotEmpty(), "${case.markdown}: $selector")
+                }
+                if (case.markdown.startsWith("前文")) {
+                    assertEquals("前文 <img> 后文", doc.selectFirst("p")!!.childNodes().joinToString("") {
+                        if (it.nodeName() == "img") "<img>" else it.toString()
+                    })
+                }
+            }
+        } finally {
+            root.toFile().deleteRecursively()
+        }
     }
 
     @Test

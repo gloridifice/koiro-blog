@@ -12,31 +12,40 @@
 
 ## Local build
 
-Install Python 3.11+, JDK 21, Node.js 24, Git LFS and Rust through rustup. Set `JAVA_HOME` to JDK 21. The checked-in Rust toolchain file selects Rust 1.96.0 and the Wasm target.
+Install JDK 21, Node.js 24, Git LFS and Rust through rustup. Set `JAVA_HOME` to JDK 21. The checked-in Rust toolchain file selects Rust 1.96.0 and the Wasm target.
 
 ```sh
 git lfs install --local
 git lfs pull
 cargo install wasm-pack --version 0.15.0 --locked
-python scripts/build_site.py
-python -m http.server 8000 --directory dist
+npm ci
+npm run dev
 ```
 
-The Python script works on Windows, macOS and Linux, and resolves paths relative to its own location rather than the caller's working directory. It selects `gradlew.bat` on Windows and `gradlew` elsewhere. Java, Node/npm and wasm-pack must be on PATH. The build installs locked Sass and `lucide-static` dependencies with `npm ci`; no global npm packages or frontend bundler are needed.
+The Node scripts work on Windows, macOS and Linux and resolve project paths relative to the scripts rather than the caller's working directory. They select `gradlew.bat` on Windows and `gradlew` elsewhere. Java, Node/npm and wasm-pack must be on PATH. Run `npm ci` after checkout or lockfile changes; builds use the installed dependencies without reinstalling them. No global npm packages, Python runtime or frontend bundler are needed for building and serving the site.
 
-A full build validates input files, recreates `dist/`, copies static inputs including hidden files, runs Kotlin tests and generation, compiles styles and Wasm, then validates the resulting site. It rejects LFS pointers, repository metadata, missing local image/script/stylesheet references, invalid RSS and invalid Wasm output. External URLs are not fetched. The build does not run the image-preparation script or modify content.
+`npm run build` validates input files, recreates `dist/`, copies static inputs including hidden files, runs Kotlin tests and generation, compiles styles and Wasm, then validates the resulting site. It rejects LFS pointers, repository metadata, missing local image/script/stylesheet references, invalid RSS and invalid Wasm output. External URLs are not fetched. The build does not run the image-preparation script or modify content.
 
-Use `python scripts/build_site.py --help` for incremental styles/Wasm commands and standalone validation. For stylesheet development after the first build:
+`npm run dev` serves `dist/` on the loopback interface and watches SCSS. If the generated index, manifest or Wasm is missing, it first runs a full build. Existing output is reused; styles are compiled before serving. The default port is 8000; occupied ports are skipped until a free one is found. Always use the URL printed in the terminal. Override the starting port with `npm run dev -- --port 9000` (or `PORT`), and optionally bind another interface with `--host 0.0.0.0`. Only expose this development server on a trusted network.
+
+Refresh the browser after style changes; this is not browser live reload. Stop both the server and Sass watcher with Ctrl+C. Content, Kotlin, static assets and Rust are not watched: run `npm run build` to regenerate them.
+
+Other commands:
 
 ```sh
-python scripts/build_site.py watch-styles
+npm run check         # validate existing dist without compilers
+npm run styles        # compile production CSS only
+npm run watch:styles  # standalone SCSS watcher, without HTTP
+npm run wasm          # rebuild Wasm only
 ```
+
+The independent content migration and image-preparation tools remain Python scripts and retain their own prerequisites.
 
 ## Home pagination and images
 
 The home timeline is split into static files under each language: `/zh-CN/home.html`, `/zh-CN/home-2.html`, `/en-US/home.html`, and so on. All languages share the published set, ordering and page numbers; each file contains only its own entries. Articles use `/LANG/pages/blogs/ID.html` or `/LANG/pages/devlogs/ID.html`.
 
-The root entry chooses an enabled language from the saved `koiro.site.locale` preference, browser languages, then English. Direct language URLs are not redirected. Missing content variants fall back to English, then Chinese, while retaining the requested page language and URL. Chinese is required for published content. English translations are not yet supplied.
+The root entry chooses an enabled language from the saved `koiro.site.locale` preference, browser languages, then English. Direct language URLs are not redirected. Missing content variants fall back to English, then Chinese, while retaining the requested page language and URL. Chinese is required for published content. English UI messages and content variants are supplied; AI-translated content declares `ai-translation = true` in its language header. Translations do not change the shared publication status, so translated drafts remain unpublished.
 
 Old root pages and pre-migration title URLs retain Chinese redirect pages. `/rss.xml` remains actual Chinese XML; each language also has its own RSS. `data/migration-map.toml` retains article and image aliases. Do not delete it or replace root RSS with an HTML redirect. See the [output contract](../doco/specs/localized-output.md).
 
@@ -60,7 +69,7 @@ Kotlin reads SVGs from `node_modules/lucide-static/icons/` at build time and inl
 
 ## GitHub Actions
 
-`.github/workflows/site.yml` builds on pushes to `master`, pull requests and manual dispatches. It uploads the site as an artifact, including `.nojekyll`. PRs never publish. The separate publish job validates the downloaded artifact before using a deployment token.
+`.github/workflows/site.yml` builds on pushes to `master`, pull requests and manual dispatches. The build job runs `npm ci`, `npm test` and `npm run build`, then uploads the site as an artifact, including `.nojekyll`. The separate Python content-tools job retains the migration tests; Python is not used by the build or publish jobs. PRs never publish. The publish job waits for both jobs and runs `npm run check` on the downloaded artifact before using a deployment token.
 
 Publishing is **disabled by default**. Before enabling it:
 
@@ -106,9 +115,9 @@ Use the [migration contract](../doco/specs/data-migration.md) and the explicit `
 ## Checks
 
 ```sh
-python -m unittest discover -s scripts -p test_build_site.py
-python scripts/build_site.py
-python scripts/build_site.py check
+npm test
+npm run build
+npm run check
 git diff --check
 ```
 

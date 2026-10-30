@@ -19,9 +19,10 @@ class BlogsHomeSubPage(private val blogs: List<ResolvedContent>, private val con
             div {
                 p { message(context, "site.categories") }
                 div("post_type_buttons") {
-                    for ((i, category) in groups.keys.withIndex()) div("post_type_button" + if (i == 0) " is_selected" else "") {
+                    for ((i, category) in groups.keys.withIndex()) button(type = ButtonType.button,
+                        classes = "post_type_button button" + if (i == 0) " is_selected" else "") {
                         id = "${category.lowercase()}_type_button"
-                        h3("type_name") { message(context, "categories.$category") }
+                        message(context, "categories.$category")
                     }
                 }
                 for ((i, entry) in groups.entries.withIndex()) div("post_type_previews" + if (i != 0) " hidden" else "") {

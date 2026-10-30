@@ -27,7 +27,6 @@ fun FlowContent.blogPostPreview(record: ResolvedContent, context: PageContext) {
         }
         div("info") {
             p("date") { +record.date.formatToString() }
-            p("type") { message(context, "categories.${metadata.blogClass}") }
         }
         translationMarker(record, context)
     }

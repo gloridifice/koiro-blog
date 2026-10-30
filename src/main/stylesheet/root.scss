@@ -62,7 +62,8 @@ div {
   justify-content: center;
 }
 
-.button:any-link {
+.button:any-link,
+button.button {
   width: fit-content;
   border-radius: 5px;
   margin: 3px;

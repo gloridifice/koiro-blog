@@ -38,9 +38,12 @@
   blockquote {
     margin: 8px 0;
     border-left: solid 3px var(--text-color-2);
-    border-radius: 0 2px 2px 0;
     padding: 2px 12px;
-    color: var(--text-color-1);
+
+    p {
+      color: var(--text-color-2);
+      padding: 0;
+    }
   }
 
   .caption_block {
@@ -337,7 +340,7 @@ t.code {
   //color: var(--inline-code-color-text);
   font-weight: normal;
   border-radius: 0.3em;
-  padding: 2px 0.4em;
+  padding: 0 0.4em 0.4em 2px;
   margin: 0 -0.1em;
   font-family: var(--monospace-font), monospace;
   font-size: 0.9em;
@@ -419,12 +422,8 @@ a.link {
   border-radius: 3px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2), 0 20px 38px rgba(0, 0, 0, 0.16);
-  transform: translate(
-      calc(var(--photo-x) * var(--stack-spread)),
-      calc(var(--photo-y) * var(--stack-spread))
-    )
-    rotate(calc(var(--photo-angle) * var(--stack-spread)))
-    scale(var(--photo-scale));
+  transform: translate(calc(var(--photo-x) * var(--stack-spread)),
+      calc(var(--photo-y) * var(--stack-spread))) rotate(calc(var(--photo-angle) * var(--stack-spread))) scale(var(--photo-scale));
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
   cursor: pointer;
 
@@ -467,8 +466,7 @@ a.link {
 
 .stack-card.animating-out {
   opacity: 0;
-  transform: translate(calc(var(--exit-direction) * 22%), -8%)
-    rotate(calc(var(--exit-direction) * 12deg)) scale(0.96);
+  transform: translate(calc(var(--exit-direction) * 22%), -8%) rotate(calc(var(--exit-direction) * 12deg)) scale(0.96);
   pointer-events: none;
 }
 

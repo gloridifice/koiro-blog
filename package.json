@@ -1,8 +1,23 @@
 {
   "name": "koiro-blog",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/site.mjs build",
+    "check": "node scripts/site.mjs check",
+    "styles": "node scripts/site.mjs styles",
+    "watch:styles": "node scripts/site.mjs watch-styles",
+    "wasm": "node scripts/site.mjs wasm",
+    "test": "node --test scripts/site.test.mjs scripts/dev.test.mjs"
+  },
   "devDependencies": {
     "lucide-static": "1.63.0",
-    "sass": "1.101.0"
+    "parse5": "8.0.1",
+    "sass": "1.101.0",
+    "saxes": "6.0.0",
+    "smol-toml": "1.9.1"
   }
 }

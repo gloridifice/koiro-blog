@@ -8,24 +8,24 @@ Un générateur de blog statique à partir de fichiers Markdown locaux et de mé
 
 ## Compiler depuis les sources
 
-Prérequis : Python 3.11+, JDK 21, Node.js 24, Git LFS et Rust installé avec rustup. Configurez `JAVA_HOME` pour utiliser le JDK 21. `rust-toolchain.toml` définit la version de Rust et la cible Wasm ; le build installe Sass selon le fichier de verrouillage npm.
+Prérequis : JDK 21, Node.js 24, Git LFS et Rust installé avec rustup. Configurez `JAVA_HOME` pour utiliser le JDK 21. `rust-toolchain.toml` définit la version de Rust et la cible Wasm ; `npm ci` installe les dépendances verrouillées.
 
 ```sh
 git lfs install --local
 git lfs pull
 cargo install wasm-pack --version 0.15.0 --locked
-python scripts/build_site.py
-python -m http.server 8000 --directory dist
+npm ci
+npm run dev
 ```
 
-Ouvrez <http://localhost:8000>. Remplacez `python` par `python3` si votre système utilise ce nom. Consultez `python scripts/build_site.py --help` pour les commandes de build.
+Ouvrez l’URL affichée dans le terminal : le port 8000, ou le prochain port libre. `npm run dev` génère les fichiers manquants, sert `dist/` et surveille les SCSS ; rechargez le navigateur après modification. Utilisez `npm run build` pour un build de production propre.
 
 ## Technologies
 
 - Kotlin/JVM 21, kotlinx-html, JetBrains Markdown et ktoml
 - Rust/WebAssembly pour les interactions dans le navigateur
 - SCSS compilé avec Dart Sass
-- Python pour le build multiplateforme et la validation des fichiers générés
+- Node.js/npm pour le build multiplateforme, la validation et le développement local
 
 ## Structure
 
@@ -34,7 +34,7 @@ Ouvrez <http://localhost:8000>. Remplacez `python` par `python3` si votre systè
 - `src/main/stylesheet/` : sources des styles.
 - `assets/` : fichiers statiques suivis par Git, copiés dans `dist/`. Le sous-dossier `assets/` conserve les URL `/assets/...` existantes.
 - `data/` : contenus répartis entre `blogs/`, `devlogs/`, `portfolio/` et `actives/`. Chaque dossier anglais en `snake_case` contient `meta.toml`, `zh-CN.md`, les traductions éventuelles et les pièces jointes communes. Voir le [format des contenus](../doco/specs/content-localization.md).
-- `i18n/` : langues disponibles et dictionnaires TOML de l’interface. Le chinois sert de base ; l’entrée par défaut est anglaise, avec repli vers le chinois tant que la traduction manque.
+- `i18n/` : langues disponibles et dictionnaires TOML de l’interface. Le chinois sert de base ; l’entrée par défaut est anglaise. L’interface anglaise et les contenus traduits par IA sont fournis ; les traductions manquantes restent remplacées par le chinois.
 - `dist/` : site généré complet, ignoré par Git et recréé à chaque build complet.
 
 ## Git LFS

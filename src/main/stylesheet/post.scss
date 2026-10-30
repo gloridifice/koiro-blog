@@ -249,6 +249,12 @@ body {
   }
 }
 
+@media (min-width: 761px) {
+  .post .page_content p {
+    line-height: 1.65;
+  }
+}
+
 @media only screen and (max-width: 760px) {
   html {
     box-sizing: content-box;

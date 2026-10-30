@@ -67,8 +67,6 @@ class ArticleContent(
     var h2Index = 0
     var h3Index = 0
     var collectedData = CollectedData(arrayListOf())
-    var imageStack = arrayListOf<Pair<ServerPath, String>>()
-    var lastIsImage: Boolean = false
     private val references = mutableMapOf<String, String>()
     private fun referenceKey(value: String) = value.trim('[', ']').trim().replace(Regex("\\s+"), " ").lowercase(java.util.Locale.ROOT)
     private fun collectReferences(node: ASTNode) {
@@ -87,30 +85,38 @@ class ArticleContent(
         val root = parser.buildMarkdownTreeFromString(markdownText)
         collectReferences(root)
         markdownBlock(root)
-        if (!imageStack.isEmpty()) {
-            renderImageStack()
-        }
         return collectedData
     }
 
-    private fun FlowContent.markdownBlock(node: ASTNode) {
-        val text = node.getTextInNode(markdownText)
-        // Image region
-        val isImage =
-            node.type == MarkdownElementTypes.PARAGRAPH && node.children.getOrNull(0)?.type == MarkdownElementTypes.IMAGE
-        val isEmpty = node.type == MarkdownTokenTypes.EOL || node.getTextInNode(markdownText).isEmpty()
-        if (lastIsImage && !isImage && !isEmpty) {
-            renderImageStack()
-        }
-        // 忽略空元素
-        if (!isEmpty) {
-            lastIsImage = isImage
-        }
-
-        when (node.type) {
-            MarkdownElementTypes.MARKDOWN_FILE -> {
-                for (child in node.children) markdownBlock(child)
+    private fun FlowContent.markdownBlocks(nodes: List<ASTNode>) {
+        // A gallery belongs to one run of image-only sibling paragraphs, never
+        // to the whole article. Flush before other content and before leaving a block.
+        val imageStack = arrayListOf<Pair<ServerPath, String>>()
+        for (node in nodes) {
+            if (node.type == MarkdownTokenTypes.WHITE_SPACE || node.type == MarkdownTokenTypes.EOL ||
+                node.getTextInNode(markdownText).isBlank()) continue
+            val isImageParagraph = node.type == MarkdownElementTypes.PARAGRAPH &&
+                node.children.any { it.type == MarkdownElementTypes.IMAGE } &&
+                node.children.all {
+                    it.type == MarkdownElementTypes.IMAGE || it.type == MarkdownTokenTypes.WHITE_SPACE ||
+                        it.type == MarkdownTokenTypes.EOL || it.getTextInNode(markdownText).isBlank()
+                }
+            if (isImageParagraph) {
+                for (child in node.children) {
+                    if (child.type == MarkdownElementTypes.IMAGE) renderImage(child, imageStack)
+                }
+            } else {
+                renderImageStack(imageStack)
+                imageStack.clear()
+                markdownBlock(node)
             }
+        }
+        renderImageStack(imageStack)
+    }
+
+    private fun FlowContent.markdownBlock(node: ASTNode) {
+        when (node.type) {
+            MarkdownElementTypes.MARKDOWN_FILE -> markdownBlocks(node.children)
 
             MarkdownElementTypes.ATX_1 -> {
                 h1 {
@@ -165,11 +171,9 @@ class ArticleContent(
 
             MarkdownElementTypes.BLOCK_QUOTE -> {
                 blockQuote {
-                    for (child in node.children) {
-                        if (child.type != MarkdownTokenTypes.BLOCK_QUOTE && child.type != MarkdownTokenTypes.EOL) {
-                            markdownBlock(child)
-                        }
-                    }
+                    markdownBlocks(node.children.filter {
+                        it.type != MarkdownTokenTypes.BLOCK_QUOTE && it.type != MarkdownTokenTypes.EOL
+                    })
                 }
             }
 
@@ -199,7 +203,7 @@ class ArticleContent(
 
             MarkdownElementTypes.CODE_FENCE -> renderCodeFence(node)
             MarkdownElementTypes.CODE_BLOCK -> renderCodeBlock(node)
-            MarkdownElementTypes.IMAGE -> pushImage(node)
+            MarkdownElementTypes.IMAGE -> renderImage(node)
 
             MarkdownElementTypes.LINK_DEFINITION -> {}
 
@@ -220,9 +224,7 @@ class ArticleContent(
                 hr { classes += "divider_block" }
             }
 
-            else -> {
-                for (child in node.children) markdownBlock(child)
-            }
+            else -> markdownBlocks(node.children)
         }
     }
 
@@ -245,7 +247,7 @@ class ArticleContent(
         for (child in inlineContentChildren(node)) renderInlineNode(child)
     }
 
-    private fun FlowContent.renderImageStack() {
+    private fun FlowContent.renderImageStack(imageStack: List<Pair<ServerPath, String>>) {
         when (imageStack.size) {
             0 -> {
                 return
@@ -281,7 +283,6 @@ class ArticleContent(
                 }
             }
         }
-        imageStack.clear()
     }
 
     private fun FlowContent.renderInlineNode(node: ASTNode) {
@@ -316,7 +317,7 @@ class ArticleContent(
                 code { +content }
             }
 
-            MarkdownElementTypes.IMAGE -> pushImage(node)
+            MarkdownElementTypes.IMAGE -> renderImage(node)
 
             MarkdownElementTypes.INLINE_LINK -> renderInlineLink(node)
             MarkdownElementTypes.FULL_REFERENCE_LINK -> renderReferenceLink(node)
@@ -367,14 +368,10 @@ class ArticleContent(
                 }
             }
         }
-        for (child in node.children) {
-            when (child.type) {
-                MarkdownTokenTypes.LIST_BULLET, MarkdownTokenTypes.LIST_NUMBER, GFMTokenTypes.CHECK_BOX, MarkdownTokenTypes.EOL -> {
-                }
-
-                else -> markdownBlock(child)
-            }
-        }
+        markdownBlocks(node.children.filter {
+            it.type != MarkdownTokenTypes.LIST_BULLET && it.type != MarkdownTokenTypes.LIST_NUMBER &&
+                it.type != GFMTokenTypes.CHECK_BOX && it.type != MarkdownTokenTypes.EOL
+        })
     }
 
     private fun FlowContent.renderCodeFence(node: ASTNode) {
@@ -417,7 +414,7 @@ class ArticleContent(
         }
     }
 
-    private fun FlowContent.pushImage(node: ASTNode) {
+    private fun FlowContent.renderImage(node: ASTNode, imageStack: MutableList<Pair<ServerPath, String>>? = null) {
         val link = node.children.firstOrNull { it.type == MarkdownElementTypes.INLINE_LINK ||
             it.type == MarkdownElementTypes.FULL_REFERENCE_LINK || it.type == MarkdownElementTypes.SHORT_REFERENCE_LINK }
         if (link == null) { +node.getTextInNode(markdownText).toString(); return }
@@ -426,12 +423,23 @@ class ArticleContent(
             ?: references[referenceKey(link.findChildOfType(MarkdownElementTypes.LINK_LABEL)?.getTextInNode(markdownText)?.toString() ?: alt)]
         if (src.isNullOrEmpty()) { +node.getTextInNode(markdownText).toString(); return }
         if (src.startsWith('/') || Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(src)) {
-            renderImageStack()
+            if (imageStack != null) {
+                renderImageStack(imageStack)
+                imageStack.clear()
+            }
             img(src = src, alt = alt) { if (imageLoading != null) loading = imageLoading }
             return
         }
         val imageServerPath = images.copy(filePath, src)
-        imageStack.push(Pair(imageServerPath, alt))
+        if (imageStack != null) {
+            imageStack.add(Pair(imageServerPath, alt))
+        } else {
+            // Images embedded in text stay at their inline position.
+            img {
+                contentImage(imageServerPath, images, imageLoading)
+                this.alt = alt
+            }
+        }
     }
 
     private fun FlowContent.renderInlineLink(node: ASTNode) {
