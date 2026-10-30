@@ -66,6 +66,9 @@ class AboutHomeSubPage : HomeSubPage() {
                     }
                 }
             }
+            div {
+                classes += "about_bottom_space"
+            }
         }
     }
 

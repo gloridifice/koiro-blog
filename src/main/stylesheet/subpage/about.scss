@@ -2,6 +2,26 @@
   color: var(--text-color)
 }
 
+.contents_wrapper {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.about_bottom_space {
+  height: 96px;
+}
+
+@media only screen and (max-width: 600px) {
+  .contents_wrapper {
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .about_bottom_space {
+    height: 48px;
+  }
+}
+
 .friends {
   margin: 0 auto;
   margin-top: 48px;
