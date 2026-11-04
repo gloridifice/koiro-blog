@@ -1,0 +1,6 @@
+id = "fft_ocean"
+icon = "waves"
+published = false
+class = "Dev"
+date = "2026-11-02"
+tags = ["Graphics", "Wgpu"]

@@ -1,0 +1,6 @@
+id = "water_shading"
+icon = "waves"
+published = false
+class = "Dev"
+date = "2026-11-02"
+tags = ["Graphics", "Wgpu"]

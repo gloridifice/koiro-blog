@@ -44,4 +44,4 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - 浏览器偏好只存于 localStorage 的 `koiro.site.locale`；构建不读取浏览器偏好，也不回写 data。
 - `.generated-site-files.json` 属于可丢弃输出，不是内容源或迁移历史。
 
-详细契约见 [内容](specs/content-localization.md)、[文案](specs/page-messages.md)、[输出](specs/localized-output.md)、[迁移兼容](specs/data-migration.md)。当前已提供完整英文字典，现有内容包均含标记 `ai-translation = true` 的英文译本；草稿保持原有公共发布状态。未来缺失的文案或译本仍按上述规则回退，构建不自动翻译。
+详细契约见 [内容](specs/content-localization.md)、[文案](specs/page-messages.md)、[输出](specs/localized-output.md)、[迁移兼容](specs/data-migration.md)。当前已提供完整英文字典，历史迁移内容包均含标记 `ai-translation = true` 的英文译本；新增内容包可仅含中文，草稿由公共 `published = false` 控制。缺失的文案或译本仍按上述规则回退，构建不自动翻译。
