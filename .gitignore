@@ -50,3 +50,6 @@ __pycache__/
 /rust/target/
 /notionData/
 crates/
+
+### Obsidian vault state ###
+data/.obsidian/
