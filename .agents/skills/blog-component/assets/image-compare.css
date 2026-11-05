@@ -1,0 +1,48 @@
+/* Independent of component.css: no panel, frame, padding, or image decoration. */
+html { height: auto; color-scheme: dark; }
+body { margin: 0; display: flow-root; background: transparent; }
+
+.kc-compare {
+  --compare-position: 50%;
+  --compare-ratio: 8 / 5;
+  --compare-caption-color: #b7b3b0;
+  margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent;
+  font: 14px/1.65 -apple-system, sans-serif;
+}
+.kc-compare, .kc-compare * { box-sizing: border-box; }
+.kc-compare [hidden] { display: none !important; }
+.kc-compare-stage {
+  position: relative; width: 100%; aspect-ratio: var(--compare-ratio); overflow: hidden;
+  border: 0; border-radius: 0; box-shadow: none; background: transparent;
+  touch-action: pan-y pinch-zoom; user-select: none;
+}
+.kc-compare[data-state="ready"] .kc-compare-stage { cursor: ew-resize; }
+.kc-compare-stage img {
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: center; margin: 0; padding: 0;
+  border: 0; border-radius: 0; box-shadow: none; pointer-events: none;
+}
+/* Both images stay full size; transparent pixels must not reveal the other image. */
+.kc-compare-image-a { clip-path: inset(0 calc(100% - var(--compare-position)) 0 0); }
+.kc-compare-image-b { clip-path: inset(0 0 0 var(--compare-position)); }
+.kc-compare-range {
+  position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.kc-compare-divider {
+  position: absolute; top: 0; bottom: 0; left: var(--compare-position);
+  width: 2px; transform: translateX(-50%); background: #fff;
+  box-shadow: 0 0 2px #0009; pointer-events: none;
+}
+.kc-compare-handle {
+  position: absolute; top: 50%; left: clamp(22px, var(--compare-position), calc(100% - 22px));
+  transform: translate(-50%, -50%); display: grid; place-items: center;
+  width: 40px; height: 44px; border-radius: 3px; background: #0006;
+  color: #fff; pointer-events: none;
+}
+.kc-compare-handle svg { display: block; width: 28px; height: 28px; }
+.kc-compare-range:focus-visible ~ .kc-compare-handle { outline: 2px solid #93c5fd; outline-offset: 2px; }
+.kc-compare:not([data-state="ready"]) :is(.kc-compare-divider, .kc-compare-handle) { display: none; }
+.kc-compare[data-state="error"] .kc-compare-stage { display: none; }
+.kc-compare figcaption { margin: 8px 0 0; padding: 0; color: var(--compare-caption-color); text-align: center; overflow-wrap: anywhere; }
+.kc-compare-error { margin: 8px 0 0; color: #f19b91; font-size: 13px; }

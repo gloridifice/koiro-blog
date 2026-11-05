@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>折射实验</title>
+<!-- Replace this development-only link with inline CSS when delivering a component. -->
+<link rel="stylesheet" href="../assets/component.css">
+<style>
+  .refraction svg text { fill: var(--kc-muted); font: 12px var(--kc-mono); }
+  .refraction svg .point-label { fill: var(--kc-ink); font-size: 14px; }
+  .refraction .water { fill: var(--kc-surface); }
+  .refraction .grid { stroke: var(--kc-control-line); stroke-width: .7; opacity: .6; }
+  @media (max-width: 560px) {
+    .refraction svg text { font-size: 19px; }
+    .refraction svg .point-label { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<main class="kc-root refraction">
+  <section class="kc-panel" aria-label="折射实验">
+    <div class="kc-panel-head">
+      <div class="kc-tabs" role="tablist" aria-label="实验视图">
+        <button type="button" role="tab" id="diagram-tab" aria-selected="true" aria-controls="diagram-panel" tabindex="0">示意图</button>
+        <button type="button" role="tab" id="records-tab" aria-selected="false" aria-controls="records-panel" tabindex="-1">采样记录 <span id="record-count">0</span></button>
+      </div>
+      <span class="kc-badge">AIR → <span id="medium-badge">WATER</span></span>
+    </div>
+    <div role="tabpanel" id="diagram-panel" aria-labelledby="diagram-tab">
+      <div class="kc-figure">
+        <svg viewBox="0 0 600 258" role="img" aria-labelledby="figure-title figure-desc">
+          <title id="figure-title">光从空气进入水的折射路径</title>
+          <desc id="figure-desc">均匀介质，界面与底面水平，忽略反射光强。</desc>
+          <rect class="water" x="22" y="97" width="556" height="132"/>
+          <g id="grid" class="grid"><path d="M22 130H578 M22 163H578 M22 196H578 M90 97V229 M158 97V229 M226 97V229 M294 97V229 M362 97V229 M430 97V229 M498 97V229" fill="none"/></g>
+          <path d="M22 97H578" stroke="var(--kc-muted)"/>
+          <path d="M22 229H578" stroke="var(--kc-muted)" stroke-dasharray="4 5" opacity=".6"/>
+          <g id="normal"><path d="M228 14V229" stroke="var(--kc-muted)" stroke-dasharray="4 5"/><text x="240" y="23">normal</text></g>
+          <path d="M59 97H69 M64 97V229 M59 229H69" fill="none" stroke="var(--kc-muted)"/>
+          <text x="43" y="169">h</text>
+          <text x="564" y="78" text-anchor="end">air</text>
+          <text x="564" y="118" text-anchor="end" id="medium-label">water</text>
+          <line id="incident-ray" stroke="var(--kc-muted)" stroke-width="2.5"/>
+          <polygon id="incident-head" fill="var(--kc-muted)"/>
+          <line id="refracted-ray" stroke="var(--kc-accent)" stroke-width="2.5"/>
+          <polygon id="refracted-head" fill="var(--kc-accent)"/>
+          <path id="incident-arc" fill="none" stroke="var(--kc-muted)"/>
+          <path id="refracted-arc" fill="none" stroke="var(--kc-accent)"/>
+          <text id="incident-label">θᵢ</text><text id="refracted-label">θᵣ</text>
+          <circle cx="228" cy="97" r="3.5" fill="var(--kc-ink)"/>
+          <text x="239" y="85" class="point-label">P</text>
+          <circle id="landing" r="3.5" fill="var(--kc-accent)"/>
+          <text id="landing-label" class="point-label">Q</text>
+        </svg>
+        <div class="kc-caption"><span>折射率</span><span>n₁ = 1.000 · n₂ = <span id="n-value">1.333</span></span></div>
+      </div>
+      <div class="kc-controls kc-controls--weighted">
+        <div class="kc-field">
+          <label for="angle">入射角 θᵢ <output for="angle" id="angle-value" aria-live="off">40.0°</output></label>
+          <input class="kc-range" id="angle" type="range" min="0" max="85" step="0.5" value="40">
+        </div>
+        <div class="kc-field">
+          <label for="medium">折射介质</label>
+          <select class="kc-select" id="medium">
+            <option value="1.333" data-name="water">水 · 1.333</option>
+            <option value="1.473" data-name="glycerin">甘油 · 1.473</option>
+            <option value="1.500" data-name="glass">玻璃 · 1.500</option>
+          </select>
+        </div>
+        <div class="kc-field">
+          <label for="depth">深度 h / m</label>
+          <input class="kc-input" type="number" id="depth" min="1" max="100" step="1" value="10" aria-describedby="depth-error">
+        </div>
+      </div>
+      <p id="depth-error" class="kc-error" role="alert" hidden>深度请输入 1–100 之间的整数；暂保留上一次有效结果。</p>
+      <div class="kc-toolbar">
+        <label class="kc-switch"><input id="guides" type="checkbox" role="switch" checked>辅助线</label>
+        <div class="kc-actions">
+          <button class="kc-button" id="reset" type="button">↺ 重置</button>
+          <button class="kc-button kc-button--primary" id="record" type="button">＋ 记录参数</button>
+        </div>
+      </div>
+      <dl class="kc-metrics" aria-label="计算结果">
+        <div class="kc-metric"><dt>折射角 θᵣ</dt><dd><output id="ref-value" for="angle medium" aria-live="off">28.8</output><small>°</small></dd></div>
+        <div class="kc-metric"><dt>传播距离 t</dt><dd><output id="distance-value" for="angle medium depth" aria-live="off">11.41</output><small>m</small></dd></div>
+        <div class="kc-metric"><dt>水平位移 x</dt><dd><output id="offset-value" for="angle medium depth" aria-live="off">5.50</output><small>m</small></dd></div>
+      </dl>
+    </div>
+    <div role="tabpanel" id="records-panel" aria-labelledby="records-tab" hidden>
+      <div class="kc-table-region" tabindex="0" role="region" aria-label="采样数据">
+        <div class="kc-actions"><span class="kc-badge">本次会话 · 最多 8 条</span><button class="kc-button" id="clear" type="button" disabled>清空记录</button></div>
+        <div class="kc-empty" id="empty"><strong>还没有采样记录</strong>在示意图中调整参数，点击「记录参数」。</div>
+        <table class="kc-table" id="records-table" hidden>
+          <caption>记录保留采样时的参数；刷新后清空。</caption>
+          <thead><tr><th scope="col">介质 / 深度</th><th scope="col">θᵢ</th><th scope="col">θᵣ</th><th scope="col">x / m</th></tr></thead>
+          <tbody id="records-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="kc-status" id="status" role="status">✓ 参数有效，计算已更新。</div>
+    <noscript><p class="kc-error">需要启用 JavaScript 才能计算和显示光路。</p></noscript>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const P = { x: 228, y: 97 }, bottom = 229, rad = Math.PI / 180;
+  const records = [];
+  let current, validDepth = 10;
+
+  function attributes(id, values) {
+    for (const [key, value] of Object.entries(values)) $(id).setAttribute(key, String(value));
+  }
+  function arrow(id, tip, angle) {
+    const dx = Math.sin(angle), dy = Math.cos(angle);
+    const bx = tip.x - dx * 9, by = tip.y - dy * 9;
+    attributes(id, { points: `${tip.x},${tip.y} ${bx + dy * 4.5},${by - dx * 4.5} ${bx - dy * 4.5},${by + dx * 4.5}` });
+  }
+  function status(message, error = false) {
+    if ($('status').textContent !== message) $('status').textContent = message;
+    $('status').dataset.state = error ? 'error' : 'valid';
+  }
+  function update() {
+    const degrees = Number($('angle').value), angle = degrees * rad;
+    const n = Number($('medium').value);
+    const depthOK = $('depth').value !== '' && $('depth').validity.valid;
+    if (depthOK) validDepth = Number($('depth').value);
+    $('depth').setAttribute('aria-invalid', String(!depthOK));
+    $('depth-error').hidden = depthOK;
+    $('record').disabled = !depthOK || records.length >= 8;
+
+    const ref = Math.asin(Math.sin(angle) / n), dx = Math.sin(ref), dy = Math.cos(ref);
+    const Q = { x: P.x + (bottom - P.y) * Math.tan(ref), y: bottom };
+    attributes('incident-ray', { x1: P.x - Math.sin(angle) * 80, y1: P.y - Math.cos(angle) * 80, x2: P.x, y2: P.y });
+    arrow('incident-head', { x: P.x - Math.sin(angle) * 30, y: P.y - Math.cos(angle) * 30 }, angle);
+    attributes('refracted-ray', { x1: P.x, y1: P.y, x2: Q.x, y2: Q.y });
+    arrow('refracted-head', { x: P.x + (Q.x - P.x) * .58, y: P.y + (bottom - P.y) * .58 }, ref);
+    attributes('incident-arc', { d: degrees === 0 ? '' : `M ${P.x} ${P.y - 28} A 28 28 0 0 0 ${P.x - Math.sin(angle) * 28} ${P.y - Math.cos(angle) * 28}` });
+    attributes('refracted-arc', { d: degrees === 0 ? '' : `M ${P.x} ${P.y + 33} A 33 33 0 0 0 ${P.x + dx * 33} ${P.y + dy * 33}` });
+    attributes('incident-label', { x: P.x - Math.sin(angle / 2) * 55 - 19, y: P.y - Math.cos(angle / 2) * 52 });
+    attributes('refracted-label', { x: P.x + dx * 50 + 13, y: P.y + dy * 50 });
+    attributes('landing', { cx: Q.x, cy: Q.y });
+    attributes('landing-label', { x: Q.x + 9, y: Q.y + 17 });
+
+    $('angle-value').textContent = degrees.toFixed(1) + '°';
+    $('angle').style.setProperty('--value', (degrees / 85 * 100) + '%');
+    $('angle').setAttribute('aria-valuetext', degrees.toFixed(1) + ' 度');
+    $('ref-value').textContent = (ref / rad).toFixed(1);
+    $('distance-value').textContent = (validDepth / dy).toFixed(2);
+    $('offset-value').textContent = (validDepth * Math.tan(ref)).toFixed(2);
+    const option = $('medium').selectedOptions[0];
+    const medium = option.textContent.split(' · ')[0];
+    $('medium-label').textContent = option.dataset.name;
+    $('medium-badge').textContent = option.dataset.name.toUpperCase();
+    $('n-value').textContent = n.toFixed(3);
+    $('figure-title').textContent = `光从空气进入${medium}的折射路径`;
+    $('figure-desc').textContent = `均匀介质，界面与底面水平，忽略反射光强。入射角 ${degrees.toFixed(1)} 度，折射角 ${(ref / rad).toFixed(1)} 度，深度 ${validDepth} 米，水平位移 ${(validDepth * Math.tan(ref)).toFixed(2)} 米。`;
+    current = { degrees, ref: ref / rad, depth: validDepth, offset: validDepth * Math.tan(ref), medium };
+    status(!depthOK ? '！深度无效；请先修正输入。' : records.length >= 8 ? '✓ 已记录 8 条；清空记录后可继续采样。' : '✓ 参数有效，计算已更新。', !depthOK);
+  }
+  function showTab(name, focus = false) {
+    for (const key of ['diagram', 'records']) {
+      const selected = key === name;
+      $(key + '-tab').setAttribute('aria-selected', String(selected));
+      $(key + '-tab').tabIndex = selected ? 0 : -1;
+      $(key + '-panel').hidden = !selected;
+    }
+    if (focus) $(name + '-tab').focus();
+  }
+  for (const name of ['diagram', 'records']) {
+    $(name + '-tab').addEventListener('click', () => showTab(name));
+    $(name + '-tab').addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      showTab(event.key === 'Home' ? 'diagram' : event.key === 'End' ? 'records' : name === 'diagram' ? 'records' : 'diagram', true);
+    });
+  }
+  function renderRecords() {
+    $('records-body').replaceChildren();
+    for (const record of records) {
+      const row = document.createElement('tr');
+      for (const value of [record.medium + ' / ' + record.depth + 'm', record.degrees.toFixed(1) + '°', record.ref.toFixed(1) + '°', record.offset.toFixed(2)]) {
+        const cell = document.createElement('td'); cell.textContent = value; row.append(cell);
+      }
+      $('records-body').append(row);
+    }
+    $('record-count').textContent = String(records.length);
+    $('empty').hidden = records.length > 0;
+    $('records-table').hidden = records.length === 0;
+    $('clear').disabled = records.length === 0;
+    update();
+  }
+  function showGuides() {
+    for (const id of ['normal', 'grid']) $(id).style.display = $('guides').checked ? '' : 'none';
+  }
+  for (const id of ['angle', 'medium', 'depth']) $(id).addEventListener('input', update);
+  $('guides').addEventListener('change', showGuides);
+  $('reset').addEventListener('click', () => {
+    $('angle').value = '40'; $('medium').value = '1.333'; $('depth').value = '10'; $('guides').checked = true;
+    showGuides(); update(); status('✓ 已恢复默认参数，采样记录保留。');
+  });
+  $('record').addEventListener('click', () => {
+    if ($('record').disabled) return;
+    records.push({ ...current }); renderRecords();
+    status(`✓ 已记录第 ${records.length} 组参数，可在「采样记录」中查看。`);
+  });
+  $('clear').addEventListener('click', () => { records.length = 0; renderRecords(); status('✓ 采样记录已清空。'); });
+  update();
+})();
+</script>
+</body>
+</html>
