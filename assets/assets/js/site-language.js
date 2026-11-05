@@ -50,40 +50,51 @@
     if (target) location.replace(target.url);
     return;
   }
-  const menu = document.getElementById('site-language-menu');
-  const trigger = document.querySelector('.language-trigger');
-  // Leave the ordinary links visible when popover is unsupported.
-  if (!menu || !trigger || typeof menu.showPopover !== 'function') return;
-  menu.setAttribute('popover', 'auto');
-  trigger.setAttribute('popovertarget', menu.id);
-  document.documentElement.classList.add('language-enhanced');
-  const choices = [...menu.querySelectorAll('a')];
-  const position = () => {
-    const rect = trigger.getBoundingClientRect();
-    const left = Math.max(12, Math.min(rect.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 12));
-    const top = rect.top >= menu.offsetHeight + 20 ? rect.top - menu.offsetHeight - 10 :
-      Math.min(rect.bottom + 10, innerHeight - menu.offsetHeight - 12);
-    menu.style.left = `${left}px`; menu.style.top = `${Math.max(12, top)}px`;
-  };
-  menu.addEventListener('toggle', () => {
-    const open = menu.matches(':popover-open');
-    trigger.setAttribute('aria-expanded', String(open));
-    if (open) position();
+  // One set of controls per placement (desktop nav, mobile header, home sidebar);
+  // only the set inside the currently visible container is ever shown.
+  document.querySelectorAll('.sidebar-tools').forEach(tools => {
+    const menu = tools.querySelector('.language-menu');
+    const trigger = tools.querySelector('.language-trigger');
+    // Leave the ordinary links visible when popover is unsupported.
+    if (!menu || !trigger || typeof menu.showPopover !== 'function') return;
+    menu.setAttribute('popover', 'auto');
+    trigger.setAttribute('popovertarget', menu.id);
+    document.documentElement.classList.add('language-enhanced');
+    const choices = [...menu.querySelectorAll('a')];
+    const position = () => {
+      const rect = trigger.getBoundingClientRect();
+      if (tools.dataset.placement === 'right') {
+        const left = Math.max(12, Math.min(rect.right + 10, innerWidth - menu.offsetWidth - 12));
+        const top = Math.max(12, Math.min(rect.top + (rect.height - menu.offsetHeight) / 2,
+          innerHeight - menu.offsetHeight - 12));
+        menu.style.left = `${left}px`; menu.style.top = `${top}px`;
+        return;
+      }
+      const left = Math.max(12, Math.min(rect.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 12));
+      const top = rect.top >= menu.offsetHeight + 20 ? rect.top - menu.offsetHeight - 10 :
+        Math.min(rect.bottom + 10, innerHeight - menu.offsetHeight - 12);
+      menu.style.left = `${left}px`; menu.style.top = `${Math.max(12, top)}px`;
+    };
+    menu.addEventListener('toggle', () => {
+      const open = menu.matches(':popover-open');
+      trigger.setAttribute('aria-expanded', String(open));
+      if (open) position();
+    });
+    trigger.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowDown') return;
+      event.preventDefault(); menu.showPopover(); position();
+      (choices.find(choice => choice.hasAttribute('aria-current')) || choices[0])?.focus();
+    });
+    menu.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { trigger.focus(); return; }
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const index = choices.indexOf(document.activeElement);
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? choices.length - 1 :
+        (index + (event.key === 'ArrowDown' ? 1 : -1) + choices.length) % choices.length;
+      choices[next]?.focus();
+    });
+    window.addEventListener('resize', () => { if (menu.matches(':popover-open')) position(); });
+    window.addEventListener('scroll', () => { if (menu.matches(':popover-open')) position(); }, true);
   });
-  trigger.addEventListener('keydown', event => {
-    if (event.key !== 'ArrowDown') return;
-    event.preventDefault(); menu.showPopover(); position();
-    (choices.find(choice => choice.hasAttribute('aria-current')) || choices[0])?.focus();
-  });
-  menu.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { trigger.focus(); return; }
-    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
-    event.preventDefault();
-    const index = choices.indexOf(document.activeElement);
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? choices.length - 1 :
-      (index + (event.key === 'ArrowDown' ? 1 : -1) + choices.length) % choices.length;
-    choices[next]?.focus();
-  });
-  window.addEventListener('resize', () => { if (menu.matches(':popover-open')) position(); });
-  window.addEventListener('scroll', () => { if (menu.matches(':popover-open')) position(); }, true);
 })();

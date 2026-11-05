@@ -100,7 +100,14 @@
   color: var(--text-color-2);
   &.translation-fallback { color: var(--translation-warning); }
 }
-.article-language-tools > .sidebar-tools { justify-content: flex-end; margin: 0; }
+// Article page: one trigger sits in the desktop left nav as the fifth icon, another in
+// the mobile header pushed to the far right; each is visible only with its own container.
+.post .header .sidebar-tools { margin: 0 0 0 auto; }
+.post .navi .sidebar-tools {
+  align-self: center; // Center the narrower icon against the wider nav buttons.
+  margin: 16px 0 0; // Extra gap above the vertical language trigger.
+}
+// Keep the plain borderless icon look of .sidebar-tool, distinct from the nav buttons.
 .article-translation-notices { margin: -14px 20px 24px; }
 .article-translation-notices > .translation-line { margin: 4px 0 0; }
 @media (prefers-reduced-motion: reduce) { .sidebar-tools .sidebar-tool { transition: none; } }

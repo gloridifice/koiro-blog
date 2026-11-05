@@ -119,7 +119,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 6px 0;
+  margin: 4px 0;
   color: var(--temp-color);
   text-decoration: none;
   font-size: 12px;
@@ -207,11 +207,15 @@ svg * {
 
 .touchable-avatar {
   transform-origin: center 83%;
-  cursor: url("/assets/resources/hand.png") 16 16, auto; /* 16 16 是热点位置 */
-  user-select: none;       /* 禁止选中内容 */
+  cursor: url("/assets/resources/hand.png") 16 16, auto;
+  /* 16 16 是热点位置 */
+  user-select: none;
+  /* 禁止选中内容 */
   -webkit-user-select: none;
   -ms-user-select: none;
+
   img {
-    -webkit-user-drag: none; /* 禁止拖拽图片 */
+    -webkit-user-drag: none;
+    /* 禁止拖拽图片 */
   }
 }

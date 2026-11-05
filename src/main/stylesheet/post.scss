@@ -46,7 +46,9 @@ body {
       position: absolute;
       right: 24px;
       top: 40vh;
-      transform: translateY(-50%);
+      // Center the four nav buttons, not the whole column: offset half of the
+      // trailing language trigger (34px) and its top gap (16px).
+      transform: translateY(calc(-50% + 25px));
       width: fit-content;
       align-items: end;
 

@@ -15,10 +15,11 @@ fun FlowContent.message(context: PageContext, key: String, vararg args: Pair<Str
     span { lang = message.actualLocale.tag; +message.text }
 }
 
-fun FlowContent.languageTools(context: PageContext, social: Boolean = false) {
+fun FlowContent.languageTools(context: PageContext, social: Boolean = false, menuId: String = "site-language-menu", placement: String? = null) {
     div("sidebar-tools") {
         attributes["role"] = "group"
         attributes["aria-label"] = context.text("site.socialLinks")
+        placement?.let { attributes["data-placement"] = it }
         if (social) for ((name, url, icon) in listOf(
             Triple("GitHub", "https://github.com/gloridifice", GITHUB_ICON),
             Triple("itch.io", "https://gloridifice.itch.io/", ITCH_ICON))) {
@@ -27,14 +28,14 @@ fun FlowContent.languageTools(context: PageContext, social: Boolean = false) {
             }
         }
         button(type = ButtonType.button, classes = "sidebar-tool language-trigger") {
-            attributes["aria-controls"] = "site-language-menu"
+            attributes["aria-controls"] = menuId
             attributes["aria-expanded"] = "false"
             attributes["aria-label"] = context.text("site.chooseLanguage")
             title = context.text("site.chooseLanguage")
             unsafeSVG(LANGUAGE_ICON)
         }
         div("language-menu") {
-            id = "site-language-menu"
+            id = menuId
             attributes["aria-label"] = context.text("site.chooseLanguage")
             p("language-caption") { message(context, "site.chooseLanguage") }
             for (locale in context.config.locales) a(context.routes.page(locale, context.page).serverPath, classes = "language-choice") {

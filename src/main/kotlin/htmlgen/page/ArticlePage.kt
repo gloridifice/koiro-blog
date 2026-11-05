@@ -17,15 +17,17 @@ fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: Imag
         cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")) {
         script { unsafe { +"hljs.highlightAll();" } }
         div("post") {
-            div("sidebar_wrapper_left sidebar_wrapper") { navi(context) }
+            div("sidebar_wrapper_left sidebar_wrapper") {
+                navi(context) { languageTools(context, menuId = "site-language-menu-navi", placement = "right") }
+            }
             div("contents") {
                 div("top_gap_space")
                 div("header") {
                     for (item in context.navigation()) a(item.serverPath.serverPath, classes = "navi_link button") {
                         attributes["aria-label"] = item.name; item.svgIcon.apply { showSvg() }
                     }
+                    languageTools(context, menuId = "site-language-menu-header")
                 }
-                div("article-language-tools") { languageTools(context) }
                 div("page_description") {
                     h1("title") { lang = record.variant.localeTag; +record.title }
                     hr()
