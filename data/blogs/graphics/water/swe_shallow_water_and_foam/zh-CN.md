@@ -221,6 +221,8 @@ $$\phi_{new}=\operatorname{fract}(\phi+\frac{\Delta t}{T})$$
   }
 </style>
 <svg class="foam-blend" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 368" role="img" aria-labelledby="blend-title blend-desc">
+  <title id="blend-title">泡沫流动的双层混合权重</title>
+  <desc id="blend-desc">A、B 两层权重之和为一；A 在周期起点重置，B 在半周期重置，重置时对应层的权重为零。</desc>
   <path d="M60 50H708 M60 158H708 M222 50V266 M384 50V266 M546 50V266 M708 50V266" fill="none" stroke="#b7b3b0" stroke-opacity=".18"/>
   <path d="M60 50V266H708" fill="none" stroke="#b7b3b0" stroke-opacity=".6"/>
   <g text-anchor="end">
