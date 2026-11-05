@@ -20,8 +20,6 @@ features = [
   "Element",
   "HtmlElement",
   "HtmlImageElement",
-  "HtmlLinkElement",
-  "HtmlHeadElement",
   "HtmlCollection",
   "NodeList",
   "Node",
