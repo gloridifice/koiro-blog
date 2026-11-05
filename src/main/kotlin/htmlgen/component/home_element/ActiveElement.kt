@@ -15,7 +15,8 @@ class ActiveElement(val record: ResolvedContent, private val images: ImageAssets
         div("page_content") {
             lang = record.variant.localeTag
             with(ArticleContent(record.variant.markdown, record.variant.sourcePath, images, imageLoading,
-                linkResolver = { context.routes.resolveLink(record.variant.sourcePath, it, context.locale) })) { showPostContent() }
+                linkResolver = { context.routes.resolveLink(record.variant.sourcePath, it, context.locale) },
+                componentTitle = context.text("article.componentTitle"))) { showPostContent() }
         }
         translationLines(record, context, "active")
     }

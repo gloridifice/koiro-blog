@@ -138,6 +138,22 @@ class KoiroCatCafeTest {
     }
 
     @Test
+    fun `plugin sources are not content but stray Markdown elsewhere still fails`() = withSiteFixture { data, output, locales ->
+        writeBundle(data, "blogs/post", "id = \"post\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\"", "article")
+        val plugin = data.resolve("component/plugins/koiro_blog").createDirectories()
+        plugin.resolve("README.md").writeText("Plugin documentation, not a content package")
+        plugin.resolve("node_modules/library").createDirectories().resolve("README.md").writeText("Dependency docs")
+        val site = KoiroCatCafe(data, output.toString(), i18nPath = locales)
+        site.generateAll()
+        assertTrue(output.resolve("en-US/pages/blogs/post.html").isRegularFile())
+        assertFalse(output.resolve("component").exists())
+        val stray = data.resolve("component/README.md")
+        stray.writeText("Still invalid outside the excluded plugins subtree")
+        val failure = assertFailsWith<IllegalArgumentException> { site.generateAll() }
+        assertTrue(failure.message.orEmpty().contains(stray.toString()))
+    }
+
+    @Test
     fun `duplicate IDs across categories cannot silently overwrite a page`() = withSiteFixture { data, output, locales ->
         val meta = "id = \"same\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\""
         writeBundle(data, "blogs/one", meta, "one")

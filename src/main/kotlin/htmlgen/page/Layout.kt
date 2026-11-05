@@ -72,6 +72,7 @@ fun HTML.layout(
     }
     body {
         block()
+        script { src = "/assets/js/article-components.js"; defer = true }
         languageConfiguration(context)
     }
 }

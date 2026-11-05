@@ -1,8 +1,6 @@
-/* Inline the needed rules in delivered html component blocks. */
-html { height: auto; color-scheme: dark; }
-body { margin: 0; display: flow-root; background: transparent; }
-
+/* Registered component presets; never style unmarked author content. */
 .kc-root {
+  color-scheme: dark;
   --kc-canvas: #0d0d0d;
   --kc-surface: #171717;
   --kc-input-bg: #212121;

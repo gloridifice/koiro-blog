@@ -56,19 +56,10 @@ fun HEAD.universalHeadSetting(context: routing.PageContext) {
     script {
         src = "/assets/katex/auto-render.min.js"
         defer = true
-        attributes["onload"] = "renderMathInElement(document.body);"
     }
     script {
-        unsafe { +"""
-                document.addEventListener("DOMContentLoaded", function() {
-                    renderMathInElement(document.body, {
-                      delimiters: [
-                          {left: '${'$'}${'$'}', right: '${'$'}${'$'}', display: false},
-                      ],
-                      throwOnError : false
-                    });
-                });
-        """.trimIndent() }
+        src = "/assets/js/article-math.js"
+        defer = true
     }
     link {
         rel = "stylesheet"

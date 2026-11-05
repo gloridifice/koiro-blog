@@ -13,8 +13,11 @@ import kotlinx.datetime.atTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.*
 
 enum class ContentKind(val directory: String) { BLOG("blogs"), DEVLOG("devlogs"), ACTIVE("actives"), PORTFOLIO("portfolio") }
@@ -86,7 +89,17 @@ private fun validateHeader(text: String, source: Path, known: Set<String>) {
 
 fun loadContent(root: Path): List<ContentBundle> {
     val normalized = root.toAbsolutePath().normalize()
-    Files.walk(normalized).use { paths -> paths.forEach { require(!it.isSymbolicLink()) { "Symlink in content: $it" } } }
+    val markdownFiles = mutableListOf<Path>()
+    Files.walkFileTree(normalized, object : SimpleFileVisitor<Path>() {
+        override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult =
+            if (dir == normalized.resolve("component/plugins")) FileVisitResult.SKIP_SUBTREE else FileVisitResult.CONTINUE
+
+        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+            require(!attrs.isSymbolicLink) { "Symlink in content: $file" }
+            if (file.extension == "md") markdownFiles.add(file)
+            return FileVisitResult.CONTINUE
+        }
+    })
     val result = mutableListOf<ContentBundle>()
     for (kind in ContentKind.entries) {
         val folder = normalized.resolve(kind.directory)
@@ -133,9 +146,9 @@ fun loadContent(root: Path): List<ContentBundle> {
             result += bundle
         } catch (e: Exception) { throw IllegalArgumentException("$path: ${e.message}", e) }
     }
-    Files.walk(normalized).use { paths -> paths.filter { it.extension == "md" }.forEach { file ->
+    markdownFiles.forEach { file ->
         require(result.any { file.startsWith(it.directory) }) { "$file: legacy Markdown outside a content package; run scripts/migrate_content.py" }
-    } }
+    }
     return result
 }
 

@@ -68,9 +68,14 @@ test('local references resolve HTML entities, encoded paths, redirects, and CSS 
     '<img src="/assets/image%20space.png?x=1&amp;y=2">' +
     '<script src="https://example.com/app.js"></script>' +
     '<img src="data:image/png;base64,AA=="><a href="#heading">heading</a>' +
-    '<link href="/assets/css/root.css" rel="stylesheet">');
+    '<link href="/assets/css/root.css" rel="stylesheet">' +
+    '<iframe srcdoc="&lt;script src=&quot;/assets/component.js&quot;&gt;&lt;/script&gt;"></iframe>');
+  const componentScript = write('assets/component.js', '// component runtime');
   const css = write('assets/css/root.css', 'body{background:url("../image%20space.png")}');
   checkLocalAssets(root);
+  rmSync(componentScript);
+  assert.throws(() => checkLocalAssets(root), /component\.js/);
+  write('assets/component.js', '// component runtime');
   for (const url of ['../../../outside.png', '../missing.png']) {
     writeFileSync(css, `body{background:url("${url}")}`);
     assert.throws(() => checkLocalAssets(root), /Missing or escaping local assets/);
@@ -127,6 +132,19 @@ test('artifact validation rejects malformed RSS, undefined entities, wrong-langu
   writeFileSync(localized, feed(locales[0]));
   writeFileSync(wasmFile, Buffer.from('not wasm'));
   assert.throws(() => validateSite(root), /Invalid WebAssembly/);
+});
+
+test('input validation can exclude plugin tooling without weakening checks on content', t => {
+  const { root, write } = fixture(t);
+  const data = path.join(root, 'data');
+  const plugins = path.join(data, 'component/plugins');
+  write('data/component/plugins/koiro_blog/node_modules/library/.github/config.yml');
+  symlinkSync(path.dirname(write('dependency/index.js')), path.join(plugins, 'linked'),
+    process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => checkTree(data), /repository metadata|symlink/);
+  checkTree(data, [plugins]);
+  write('data/component/.gitattributes', '*.png filter=lfs');
+  assert.throws(() => checkTree(data, [plugins]), /repository metadata/);
 });
 
 test('repository metadata cannot be published', t => {

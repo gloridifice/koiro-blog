@@ -43,3 +43,14 @@ kotlin {
 application {
     mainClass.set("MainKt")
 }
+
+// Export the Kotlin allowlist for the offline Obsidian build; no asset-directory globbing.
+tasks.register<JavaExec>("exportComponentAssets") {
+    group = "build"
+    description = "Export explicitly registered component CSS/JS for the Obsidian plugin"
+    dependsOn(tasks.classes)
+    classpath = sourceSets.main.get().runtimeClasspath
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) })
+    mainClass.set("htmlgen.component.ComponentAssetsKt")
+    args(layout.buildDirectory.file("generated/component-assets.json").get().asFile.absolutePath)
+}

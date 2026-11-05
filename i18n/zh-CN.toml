@@ -21,6 +21,9 @@ rssDescription = "这里是宏楼 Koiro 的个人博客。宏楼是人类、学�
 chooseLanguage = "选择语言"
 socialLinks = "社交链接与语言"
 
+[article]
+componentTitle = "文章交互组件"
+
 [pagination]
 label = "主页分页"
 previous = "上一页"

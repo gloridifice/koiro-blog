@@ -11,11 +11,13 @@
     "styles": "node scripts/site.mjs styles",
     "watch:styles": "node scripts/site.mjs watch-styles",
     "wasm": "node scripts/site.mjs wasm",
-    "test": "node --test scripts/site.test.mjs scripts/dev.test.mjs"
+    "test": "node --test scripts/site.test.mjs scripts/dev.test.mjs",
+    "test:components": "node --test scripts/article-components.test.mjs"
   },
   "devDependencies": {
     "lucide-static": "1.63.0",
     "parse5": "8.0.1",
+    "playwright": "1.64.1",
     "sass": "1.101.0",
     "saxes": "6.0.0",
     "smol-toml": "1.9.1"

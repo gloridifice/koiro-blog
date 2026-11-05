@@ -161,6 +161,79 @@ class ArticleContentTest {
     }
 
     @Test
+    fun `math preserves TeX before Markdown formatting in paragraphs lists tables and quotes`() {
+        val inline = "N_{previous} + \\frac{a_i}{b_j}"
+        val display = "(hu)_i = (hu)_j + P_{left}-P_{right}"
+        val cases = listOf(
+            "浓度 \$$inline\$。\n\n\$\$$display\$\$",
+            "- 浓度 \$$inline\$\n\n  \$\$$display\$\$",
+            "> 浓度 \$$inline\$\n> \$\$\n> $display\n> \$\$\n> 结束",
+            "| 浓度 |\n| --- |\n| \$$inline\$ |\n\n\$\$$display\$\$"
+        )
+        for (markdown in cases) {
+            val doc = Jsoup.parseBodyFragment(renderHtml(markdown))
+            assertEquals(listOf(inline), doc.select(".inline_math").map { it.wholeText() }, markdown)
+            assertEquals(listOf(display), doc.select(".equation").map { it.wholeText() }, markdown)
+            assertTrue(doc.select("em, strong").isEmpty(), markdown)
+        }
+        val literal = "`\$$inline\$`\n\n```text\n\$\$$display\$\$\n```\n\n\\\$escaped\\\$"
+        val doc = Jsoup.parseBodyFragment(renderHtml(literal))
+        assertTrue(doc.select(".inline_math, .equation").isEmpty())
+        assertEquals(listOf("\$$inline\$", "\$\$$display\$\$"), doc.select("code").map { it.wholeText() })
+    }
+
+    @Test
+    fun `multiline quotes omit syntax markers but retain literal greater than signs`() {
+        val doc = Jsoup.parseBodyFragment(renderHtml("> 第一行\n> 第二行 > 正文\n>\n> > 嵌套引用\n> > 下一行"))
+        assertEquals("第一行 第二行 > 正文", doc.selectFirst("blockquote > p")!!.text())
+        assertEquals("嵌套引用 下一行", doc.selectFirst("blockquote blockquote")!!.text())
+    }
+
+    @Test
+    fun `only separate html and component markers enable sandboxed components`() {
+        for (marker in listOf("html component", "component html", "html   component", "html component extra",
+            "html", "component", "html mycomponent", "htmlcomponent", "javascript component")) {
+            val doc = Jsoup.parseBodyFragment(renderHtml("```$marker\n<button>Run &amp; play</button>\n```"))
+            val enabled = marker in listOf("html component", "component html", "html   component", "html component extra")
+            assertEquals(if (enabled) 1 else 0, doc.select("iframe").size, marker)
+            assertEquals(if (enabled) 0 else 1, doc.select("pre code").size, marker)
+            assertEquals(0, doc.select("button, script, style").size, "Component must not leak into host: $marker")
+            if (enabled) {
+                val frame = doc.selectFirst("iframe")!!
+                assertEquals("allow-scripts", frame.attr("sandbox"))
+                assertTrue(frame.attr("title").isNotBlank())
+                assertEquals("Run & play", Jsoup.parse(frame.attr("srcdoc")).selectFirst("button")!!.text())
+            }
+        }
+    }
+
+    @Test
+    fun `component documents preserve script whitespace and resolve package assets`() {
+        val root = Files.createTempDirectory("article-component")
+        try {
+            Files.writeString(root.resolve("demo.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>")
+            val script = "const value = `first\n\n\tlast`;\n\ndocument.querySelector('button').textContent = value;"
+            val source = "<!doctype html>\n<html><head><title>Demo &amp; test</title>" +
+                "<style>button { color: red; }</style></head>\n<body>\n" +
+                "<img src=\"demo.svg\"><button></button>\n<script>$script</script>\n</body></html>"
+            val fenced = "```html component\n$source\n```"
+            val contexts = listOf(fenced, fenced.prependIndent("> "), "- Item\n\n" + fenced.prependIndent("    "))
+            for (newline in listOf("\n", "\r\n")) for (context in contexts) {
+                val doc = Jsoup.parseBodyFragment(renderHtml(("$context\n\nAfter").replace("\n", newline), root))
+                val frame = doc.selectFirst("iframe")!!
+                val component = Jsoup.parse(frame.attr("srcdoc"))
+                assertEquals("Demo & test", frame.attr("title"))
+                assertEquals(script, component.selectFirst("script:not([src])")!!.data())
+                assertEquals("button { color: red; }", component.select("style").last()!!.data())
+                val image = component.selectFirst("img")!!.attr("src")
+                assertTrue(image.startsWith("/images/content/"), image)
+                assertTrue(Files.isRegularFile(root.resolve("output").resolve(image.removePrefix("/"))))
+                assertEquals("After", doc.select("p").last()!!.text())
+            }
+        } finally { root.toFile().deleteRecursively() }
+    }
+
+    @Test
     fun `code spans preserve literal markup and backticks while normalizing padding`() {
         val cases = listOf(
             "`**加粗** *斜体* ~~删除线~~`" to "**加粗** *斜体* ~~删除线~~",

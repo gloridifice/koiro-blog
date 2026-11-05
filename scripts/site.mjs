@@ -21,11 +21,12 @@ export function isWithin(root, target) {
   return relative === '' || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith(`..${path.sep}`));
 }
 
-function* walk(root) {
+function* walk(root, excluded = []) {
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     const file = path.join(root, entry.name);
+    if (excluded.includes(file)) continue;
     yield file;
-    if (entry.isDirectory() && !entry.isSymbolicLink()) yield* walk(file);
+    if (entry.isDirectory() && !entry.isSymbolicLink()) yield* walk(file, excluded);
   }
 }
 
@@ -39,10 +40,10 @@ function header(file, length) {
   }
 }
 
-export function checkTree(root) {
+export function checkTree(root, excluded = []) {
   const stat = lstatSync(root);
   if (stat.isSymbolicLink() || !stat.isDirectory()) throw new Error(`Expected a real directory: ${root}`);
-  for (const file of walk(root)) {
+  for (const file of walk(root, excluded)) {
     const stat = lstatSync(file);
     if (stat.isSymbolicLink()) throw new Error(`Cannot publish symlink: ${file}`);
     if (METADATA.has(path.basename(file))) throw new Error(`Cannot publish repository metadata: ${file}`);
@@ -71,6 +72,7 @@ function* htmlReferences(node) {
     ['link', 'a'].includes(node.tagName) ? 'href' : null;
   if (attribute && attrs[attribute]) yield attrs[attribute];
   if (node.tagName === 'video' && attrs.poster) yield attrs.poster;
+  if (node.tagName === 'iframe' && attrs.srcdoc) yield* htmlReferences(parseHtml(attrs.srcdoc));
   if (node.tagName === 'meta' && attrs['http-equiv']?.toLowerCase() === 'refresh') {
     const match = /url\s*=\s*(.+)$/i.exec(attrs.content ?? '');
     if (match) yield match[1];
@@ -220,7 +222,7 @@ async function wasm() {
 
 export async function build() {
   checkTree(path.join(ROOT, 'assets'));
-  checkTree(path.join(ROOT, 'data'));
+  checkTree(path.join(ROOT, 'data'), [path.join(ROOT, 'data/component/plugins')]);
   const license = path.join(ROOT, 'node_modules/lucide-static/LICENSE');
   if (!existsSync(license)) throw new Error('Dependencies are missing. Run npm ci first.');
   prepareOutput(path.join(ROOT, 'assets'), DIST);

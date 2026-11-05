@@ -21,6 +21,9 @@ rssDescription = "Koiro's personal blog. Koiro is a human, student, graphic desi
 chooseLanguage = "Choose a language"
 socialLinks = "Social links and language"
 
+[article]
+componentTitle = "Interactive article component"
+
 [pagination]
 label = "Home page navigation"
 previous = "Previous page"

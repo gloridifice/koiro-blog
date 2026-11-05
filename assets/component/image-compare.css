@@ -1,8 +1,6 @@
-/* Independent of component.css: no panel, frame, padding, or image decoration. */
-html { height: auto; color-scheme: dark; }
-body { margin: 0; display: flow-root; background: transparent; }
-
+/* No global reset, panel, frame, padding, or image decoration. */
 .kc-compare {
+  color-scheme: dark;
   --compare-position: 50%;
   --compare-ratio: 8 / 5;
   --compare-caption-color: #b7b3b0;

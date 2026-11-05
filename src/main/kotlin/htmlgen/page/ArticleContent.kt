@@ -3,6 +3,7 @@ package htmlgen.page
 import ServerPath
 import decodeURL
 import htmlgen.component.Catalogue
+import htmlgen.component.ComponentAssets
 import htmlgen.ImageAssets
 import htmlgen.contentImage
 import kotlinx.html.ImgLoading
@@ -27,6 +28,7 @@ import kotlinx.html.hr
 import kotlinx.html.id
 import kotlinx.html.img
 import kotlinx.html.input
+import kotlinx.html.iframe
 import kotlinx.html.label
 import kotlinx.html.li
 import kotlinx.html.ol
@@ -47,7 +49,8 @@ import org.intellij.markdown.ast.findChildOfType
 import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
-import org.intellij.markdown.flavours.space.SFMFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.lexer.push
 import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
@@ -59,6 +62,7 @@ class ArticleContent(
     private val images: ImageAssets,
     private val imageLoading: ImgLoading? = null,
     private val linkResolver: (String) -> String = { it },
+    private val componentTitle: String = "HTML component",
 ) {
     // The Markdown parser expects LF, including for blank lines that terminate HTML blocks.
     // Keep AST offsets and all text extraction on the same normalized source.
@@ -81,7 +85,7 @@ class ArticleContent(
     class CollectedData(val headingInfos: ArrayList<Catalogue.HeadingInfo>)
 
     fun FlowContent.showPostContent(): CollectedData {
-        val parser = MarkdownParser(SFMFlavourDescriptor())
+        val parser = MarkdownParser(GFMFlavourDescriptor())
         val root = parser.buildMarkdownTreeFromString(markdownText)
         collectReferences(root)
         markdownBlock(root)
@@ -213,12 +217,7 @@ class ArticleContent(
 
             GFMElementTypes.TABLE -> renderTable(node)
 
-            GFMElementTypes.BLOCK_MATH -> {
-                div {
-                    classes += "equation"
-                    +node.getTextInNode(markdownText).toString().trim()
-                }
-            }
+            GFMElementTypes.BLOCK_MATH -> renderMath(node)
 
             MarkdownTokenTypes.HORIZONTAL_RULE -> {
                 hr { classes += "divider_block" }
@@ -296,6 +295,10 @@ class ArticleContent(
                 renderInlineContent(node)
             }
 
+            MarkdownTokenTypes.BLOCK_QUOTE -> {
+                // Continuation-line quote markers can also occur inside paragraphs.
+            }
+
             MarkdownTokenTypes.ATX_HEADER, MarkdownTokenTypes.SETEXT_1, MarkdownTokenTypes.SETEXT_2 -> {
                 // Heading markers are syntax, not content.
             }
@@ -335,12 +338,7 @@ class ArticleContent(
 
             GFMElementTypes.STRIKETHROUGH -> del { renderInlineContent(node) }
 
-            GFMElementTypes.INLINE_MATH -> {
-                span {
-                    classes += "inline_math"
-                    +node.getTextInNode(markdownText).toString()
-                }
-            }
+            GFMElementTypes.INLINE_MATH, GFMElementTypes.BLOCK_MATH -> renderMath(node)
 
             MarkdownTokenTypes.LBRACKET, MarkdownTokenTypes.RBRACKET -> {
             }
@@ -354,6 +352,16 @@ class ArticleContent(
             }
         }
 
+    }
+
+    private fun FlowContent.renderMath(node: ASTNode) {
+        // Math is an opaque payload: do not interpret TeX underscores or asterisks as Markdown.
+        val source = node.children.filter {
+            it.type != GFMTokenTypes.DOLLAR && it.type != MarkdownTokenTypes.BLOCK_QUOTE
+        }.joinToString("") { it.getTextInNode(markdownText) }.trim()
+        span(classes = if (node.type == GFMElementTypes.BLOCK_MATH) "equation" else "inline_math") {
+            +source
+        }
     }
 
     private fun LI.renderItemContent(node: ASTNode, isTodoList: Boolean) {
@@ -377,6 +385,18 @@ class ArticleContent(
     private fun FlowContent.renderCodeFence(node: ASTNode) {
         val lang =
             node.children.find { it.type == MarkdownTokenTypes.FENCE_LANG }?.getTextInNode(markdownText)?.toString()
+        val markers = lang.orEmpty().trim().split(Regex("\\s+"))
+        if ("html" in markers && "component" in markers) {
+            // Match the parser's fence indentation rules without altering source tabs/blank lines.
+            val indent = node.getTextInNode(markdownText).takeWhile { it == ' ' }.length
+            val source = node.children.dropWhile { it.type != MarkdownTokenTypes.EOL }.drop(1)
+                .takeWhile { it.type != MarkdownTokenTypes.CODE_FENCE_END }
+                .filter { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT ||
+                    it.type == MarkdownTokenTypes.CODE_LINE || it.type == MarkdownTokenTypes.EOL }
+                .joinToString("") { HtmlGenerator.trimIndents(it.getTextInNode(markdownText), indent).toString() }
+            renderComponent(source)
+            return
+        }
         val codeLines = node.children.filter {
                 it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT || it.type == MarkdownTokenTypes.CODE_LINE
             }.joinToString("\n") { it.getTextInNode(markdownText).toString() }.replace("\t", "  ")
@@ -397,6 +417,29 @@ class ArticleContent(
                     }
                 }
             }
+        }
+    }
+
+    private fun FlowContent.renderComponent(source: String) {
+        val document = org.jsoup.Jsoup.parse(source)
+        if (document.documentType() == null) document.prependChild(org.jsoup.nodes.DocumentType("html", "", ""))
+        document.outputSettings().prettyPrint(false)
+        rewriteHtmlUrls(document, includeScripts = true)
+        document.head().prependElement("meta").attr("charset", "utf-8")
+        document.head().appendElement("meta").attr("name", "viewport")
+            .attr("content", "width=device-width, initial-scale=1")
+        ComponentAssets.inject(document)
+        // A flow root contains floats and margins so intrinsic body height can shrink too.
+        document.head().prependElement("style").text("html{height:auto}body{margin:0;display:flow-root}")
+        document.head().appendElement("script").attr("src", "/assets/js/article-component-frame.js")
+            .attr("defer", "")
+        iframe {
+            classes += "article-component"
+            title = document.title().ifBlank { componentTitle }
+            attributes["sandbox"] = "allow-scripts"
+            attributes["referrerpolicy"] = "no-referrer"
+            attributes["style"] = "display:block;width:100%;height:150px;border:0"
+            attributes["srcdoc"] = document.outerHtml()
         }
     }
 
@@ -483,15 +526,20 @@ class ArticleContent(
     private fun rewriteHtml(source: String): String {
         val document = org.jsoup.Jsoup.parseBodyFragment(source)
         document.outputSettings().prettyPrint(false)
+        rewriteHtmlUrls(document)
+        return document.body().html()
+    }
+
+    private fun rewriteHtmlUrls(document: org.jsoup.nodes.Document, includeScripts: Boolean = false) {
         for (element in document.select("[href]")) element.attr("href", resolveHref(element.attr("href")))
-        for (element in document.select("img[src], source[src], video[src], audio[src], video[poster]")) {
+        val media = "img[src], source[src], video[src], audio[src], video[poster]"
+        for (element in document.select(if (includeScripts) "$media, script[src]" else media)) {
             for (attribute in listOf("src", "poster")) if (element.hasAttr(attribute)) {
                 val value = element.attr(attribute)
                 if (value.isNotBlank() && !value.startsWith('/') && !Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(value))
                     element.attr(attribute, images.copy(filePath, value).serverPath)
             }
         }
-        return document.body().html()
     }
 
     private fun FlowContent.renderTable(node: ASTNode) {

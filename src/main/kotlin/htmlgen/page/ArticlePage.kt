@@ -37,7 +37,8 @@ fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: Imag
                 div("page_content") {
                     lang = record.variant.localeTag
                     with(ArticleContent(record.variant.markdown, record.variant.sourcePath, images,
-                        linkResolver = { context.routes.resolveLink(record.variant.sourcePath, it, context.locale) })) {
+                        linkResolver = { context.routes.resolveLink(record.variant.sourcePath, it, context.locale) },
+                        componentTitle = context.text("article.componentTitle"))) {
                         collected = showPostContent()
                     }
                 }
