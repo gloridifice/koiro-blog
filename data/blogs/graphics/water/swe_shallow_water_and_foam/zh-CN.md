@@ -1,17 +1,18 @@
 ```toml
-title = "SWE 浅水模拟与泡沫"
+title = "SWE 浅水模拟与泡沫渲染 | 如何渲染水-1"
+summary = "本文主要介绍了常见的物理交互水实现方式浅水模拟的简易推导，以及浅水中最重要的着色模块－－泡沫着色的实现。本文使用双浓度场 & 纹理位移场 & 多噪波混合等值线的方式来渲染泡沫。"
 ai-translation = false
 ```
 
+本博文有 rust + wgpu 实现，源码看这里哦：
+https://github.com/gloridifice/wgpu-water-simulation
 # 前言
 
 流体有两种描述方式，一种是欧拉描述使用空间网格记录流体的速度、压力、水深等物理量。另一种流体描述方式为拉格朗日描述，其将流体视为无数个小微团，每个微团是一个粒子，粒子之间相互作用产生流体演变。由于通过后者模拟真实水体的计算量很大，实时渲染的物理水方案通常使用前者。
 
-本文不会具体介绍欧拉方程。我们需要知道的是：欧拉方程指忽略粘性的流体运动方程。我们的流体是不可压缩的。通常压缩能力较强的流体是气体。不可压缩的表示方式为：
+本文不会具体介绍欧拉方程。我们需要知道的是：欧拉方程指忽略粘性的流体运动方程。我们的流体是不可压缩的。通常压缩能力较强的流体是气体。不可压缩的表示方式为流体速度的散度为 0：
 $$\nabla\cdot\mathbf v=0$$
-（速度的散度为 0）
-
-从欧拉方程推导到浅水方程的过程也十分枯燥，因此本文亦不会涉及。本文会涉及实践上的公式，这些公式最终会被写到代码中。
+从欧拉方程推导到浅水方程的过程较为枯燥，因此本文不会涉及。本文会涉及实践上的公式，这些公式最终会被写到代码中。
 
 # 一、水体 - 浅水方程（SWE）
 
@@ -20,18 +21,18 @@ $$\nabla\cdot\mathbf v=0$$
 浅水方程是欧拉方程的一种简化近似。在欧拉描述中，我们记录三维空间的流体场，但是在浅水方程中，我们只记录一个二维的流速、水深场。可以从简单的直觉上来想象：我们规定一块水体被分化成二维的网格，每个网格都有一定高度的水，根据该高度的水与相邻网格的水的高度差，可以极端网格间压力，进而可以计算一个时间步流速和通量。进而更新本格水的高度，以此类推。该方法的珍贵之处在于，我们只用对上一帧的数据进行采样和计算，就能完整计算出这一帧的状态，每个网格可以并行计算，十分 GPU 友好。
 
 来看看具体怎么实现吧！我们的更新思想是：新水深 = 旧水深 + 流入的水 - 流出的水。我们在每个格子保存两个物理量水深 $h$ 和水深与流速乘积 $hu$，其中 $u$ 是此处的液体水平流速，所以 $hu$ 代表单位宽度上的水流量。对于第 $i$ 个格子，更新深度的公式为：
-$$ h_i^{\,t_0+\Delta t} = h_i^{\,t_0} + \frac{\Delta t}{\Delta x} \left(q_{\text{左}}-q_{\text{右}}\right) $$
+$$ h_i^{\,t_0+\Delta t} = h_i^{\,t_0} + \frac{\Delta t}{\Delta x} \left(q_{\text{left}}-q_{\text{right}}\right) $$
 其中 $q$ 为左右边界的流量。$t_0$ 为当前当前帧，$t_0+\Delta t$ 为下一帧。
 
 
 动量的更新和水深类似：
-$$ (hu)_i^{\,t_0+\Delta t} = (hu)_i^{\,t_0} + \frac{\Delta t}{\Delta x} \left(P_{\text{左}}-P_{\text{右}}\right) + \Delta t S_i$$
+$$ (hu)_i^{\,t_0+\Delta t} = (hu)_i^{\,t_0} + \frac{\Delta t}{\Delta x} \left(P_{\text{left}}-P_{\text{right}}\right) + \Delta t S_i$$
 - $P$ 是动量通量，$P=hu^2 + \frac{gh^2}{2}$
 	- $hu^2$：水流把动量带到旁边；
 	- $\frac12gh^2$：水压传递的作用，水越深，这一项越大。
 - $S_i$ 为地形作用
 
-P的具体计算公式为：
+$P$ 的具体计算公式为：
 $$ P=hu^2+\frac12gh^2 $$
 - $hu^2$：水流速度作用
 - $\frac{1}{2} gh^2$：重力作用
@@ -203,7 +204,55 @@ $$
 $$\phi_{new}=\operatorname{fract}(\phi+\frac{\Delta t}{T})$$
 其中 fract 是取小数。接着我们将这个相位作为输入，使用平滑三角波函数作为权重，就可以做出交替的 A 和 B 层混合。如图所示：
 
-![](images/foam_flow_blend_weights.jpg)
+```html component
+<style>
+  .foam-blend { display: block; width: 100%; height: auto; background: #0d0d0d; color-scheme: dark; }
+  .foam-blend text { fill: #b7b3b0; font: 15px -apple-system, sans-serif; }
+  .foam-blend .heading { fill: #eae7e7; font-size: 19px; }
+  .foam-blend .curve-label { font-size: 19px; }
+  .foam-blend .layer-a { color: #6eafff; }
+  .foam-blend .layer-b { color: #ffb65d; }
+  .foam-blend .layer-a text, .foam-blend .layer-b text { fill: currentColor; }
+  @media (max-width: 480px) {
+    .foam-blend text { font-size: 24px; }
+    .foam-blend .heading, .foam-blend .curve-label { font-size: 28px; }
+  }
+</style>
+<svg class="foam-blend" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 368" role="img" aria-labelledby="blend-title blend-desc">
+  <title id="blend-title">泡沫流动的双层混合权重</title>
+  <desc id="blend-desc">A、B 两层权重之和为一；A 在周期起点重置，B 在半周期重置，重置时对应层的权重为零。</desc>
+  <path d="M60 50H708 M60 158H708 M222 50V266 M384 50V266 M546 50V266 M708 50V266" fill="none" stroke="#b7b3b0" stroke-opacity=".18"/>
+  <path d="M60 50V266H708" fill="none" stroke="#b7b3b0" stroke-opacity=".6"/>
+  <g text-anchor="end">
+    <text x="44" y="55">1</text>
+    <text x="44" y="163">0.5</text>
+    <text x="44" y="271">0</text>
+  </g>
+  <g text-anchor="middle">
+    <text x="60" y="291">0</text>
+    <text x="222" y="291">0.25</text>
+    <text x="384" y="291">0.5</text>
+    <text x="546" y="291">0.75</text>
+    <text x="708" y="291">1</text>
+    <text x="384" y="354">Phase (time / period)</text>
+  </g>
+  <!-- 每半周期用一段三次 Bézier 精确表示 smoothstep，无需脚本采样。 -->
+  <g class="layer-a">
+    <path d="M60 266C168 266 276 50 384 50S600 266 708 266" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <text class="curve-label" x="462" y="73">A</text>
+    <circle cx="60" cy="266" r="3.5" fill="currentColor"/>
+    <circle cx="708" cy="266" r="3.5" fill="currentColor"/>
+    <text x="60" y="321">A reset</text>
+    <text x="708" y="321" text-anchor="end">A reset</text>
+  </g>
+  <g class="layer-b">
+    <path d="M60 50C168 50 276 266 384 266S600 50 708 50" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <text class="curve-label" x="156" y="73">B</text>
+    <circle cx="384" cy="266" r="3.5" fill="currentColor"/>
+    <text x="384" y="321" text-anchor="middle">B reset</text>
+  </g>
+</svg>
+```
 
 > 平滑三角波公式：
 > $$s=1-|2\phi_{\text{new}}-1|,\qquad w_A=s^2(3-2s),\qquad w_B=1-w_A$$

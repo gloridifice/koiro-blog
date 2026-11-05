@@ -1,0 +1,6 @@
+id = "swe_shallow_water_and_foam"
+icon = "waves"
+published = true
+class = "Dev"
+date = "2026-11-03"
+tags = ["Graphics", "Wgpu"]
