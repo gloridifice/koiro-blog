@@ -57,10 +57,3 @@ Finished = "Finished"
 [projectTypes]
 PersonalProject = "Personal project"
 IndieGame = "Indie game"
-
-[friends]
-rasp = "Hyrule Stable"
-dyron = "Did you know? The \"503\" in my ID comes from…"
-hana = "Music is the savior"
-iz = "Illustrator and game developer"
-duck = "When life gives me oranges"

@@ -57,10 +57,3 @@ Finished = "已完成"
 [projectTypes]
 PersonalProject = "个人项目"
 IndieGame = "独立游戏"
-
-[friends]
-rasp = "海拉鲁驿站"
-dyron = "你知道吗？我的 ID 中「503」的出处是……"
-hana = "音乐是救世主"
-iz = "插画师和游戏开发者"
-duck = "当生活给我橙子"

@@ -187,6 +187,7 @@ class HomePaginationTest {
         try {
             val data = root.resolve("data")
             for (folder in listOf("blogs", "devlogs", "portfolio", "actives")) data.resolve(folder).createDirectories()
+            data.resolve("friends.toml").writeText("friends = []\n")
             val gif = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
             for (index in 0 until count) {
                 val id = entryId(index)

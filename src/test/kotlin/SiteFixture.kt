@@ -7,6 +7,7 @@ fun withSiteFixture(block: (data: Path, output: Path, locales: Path) -> Unit) {
     val root = Files.createTempDirectory("localized-site-")
     try {
         val data = root.resolve("data").createDirectories()
+        data.resolve("friends.toml").writeText("friends = []\n")
         for (kind in listOf("blogs", "devlogs", "actives", "portfolio")) data.resolve(kind).createDirectories()
         val locales = root.resolve("i18n").createDirectories()
         for (file in Path.of("i18n").listDirectoryEntries("*.toml")) Files.copy(file, locales.resolve(file.name))

@@ -19,7 +19,7 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
                                       各语言 HTML、RSS、兼容入口
 ```
 
-- `content/`：公共 metadata 的四类类型、语言 Markdown 加载、ID/发布基线校验、译本选择。与 HTML DSL 无依赖。
+- `content/`：公共 metadata 的四类类型、语言 Markdown 加载、ID/发布基线校验、译本选择；另由 FriendLinks 加载和校验 `data/friends.toml`，在构建期解析各语言友链。与 HTML DSL 无依赖。
 - `i18n/`：语言注册、TOML 文案、命名参数模板及中文回退；缺失文案警告按构建去重。
 - `routing/`：稳定内容身份、统一分页、语言化 URL、站内文章互链及旧地址映射。PageContext 显式传给页面与组件。
 - `htmlgen/`：kotlinx.html 静态渲染。ArticleContent 使用 JetBrains GFM Markdown AST，将行内及块级公式作为不参与 Markdown 格式解析的 TeX 输出；独立的 `article-math.js` 在浏览器中调用 KaTeX，不依赖 Wasm。受信任原始 HTML 的本地 URL 用 Jsoup 解析后重写，不将 Jsoup 当作内容安全过滤器。元数据和文案普通文本由 DSL 转义。
@@ -35,6 +35,8 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 
 内容包为英文 snake_case 目录，meta.toml 保存公共字段，zh-CN.md 等保存译本。中文是发布基线，英文为默认访问语言；页面字典和正文的回退规则分别管理。
 
+友链是独立的结构化内容，集中保存在 `data/friends.toml`，不参与文章路由、时间线或 RSS。公共名称和 URL 与各语言名称覆盖、简介放在同一条目内；按目标语言、en-US、zh-CN 选择完整语言块。解析后的列表显式传给关于页，不扩充 PageContext。关于页每次全量生成，友链配置不进入文章或 RSS 的缓存指纹。
+
 每个已注册语言有独立目录及 RSS；assets、images、pkg 共享。index.html 由生成器输出，根入口按保存偏好、浏览器语言、英文默认值选择首页。直接语言 URL 不自动重定向。旧根页面和旧标题地址跳转中文稳定地址，根 rss.xml 为中文 XML 副本，历史图片 URL 由迁移清单维持。
 
 ## 工具与持久化
@@ -47,4 +49,4 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - 浏览器偏好只存于 localStorage 的 `koiro.site.locale`；构建不读取浏览器偏好，也不回写 data。
 - `.generated-site-files.json` 记录当前生成产物；`.incremental-site.json` 保存 Kotlin 原子资源指纹、输出状态、附件依赖及 RSS 条目；`.static-image-cache.json` 保存 Node 静态图片状态。均为 dist 内可丢弃输出，不是内容源或迁移历史；删除 dist 可执行冷构建。
 
-详细契约见 [内容](specs/content-localization.md)、[交互组件](specs/article-components.md)、[文案](specs/page-messages.md)、[输出](specs/localized-output.md)、[迁移兼容](specs/data-migration.md)。当前已提供完整英文字典，历史迁移内容包均含标记 `ai-translation = true` 的英文译本；新增内容包可仅含中文，草稿由公共 `published = false` 控制，仅在 release 构建中排除。缺失的文案或译本仍按上述规则回退，构建不自动翻译。
+详细契约见 [内容](specs/content-localization.md)、[友链](specs/friend-links.md)、[交互组件](specs/article-components.md)、[文案](specs/page-messages.md)、[输出](specs/localized-output.md)、[迁移兼容](specs/data-migration.md)。当前已提供完整英文字典，历史迁移内容包均含标记 `ai-translation = true` 的英文译本；新增内容包可仅含中文，草稿由公共 `published = false` 控制，仅在 release 构建中排除。缺失的文案或译本仍按上述规则回退，构建不自动翻译。

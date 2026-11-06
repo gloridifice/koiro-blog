@@ -36,6 +36,7 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
     fun generateAll() {
         val config = SiteConfig.load(i18nPath)
         val messages = Messages(config, i18nPath)
+        val friends = FriendLinks.load(databasePath, config)
         val bundles = loadContent(databasePath)
         for (bundle in bundles) (bundle.metadata as? BlogMetadata)?.icon?.let { icon ->
             try { htmlgen.LucideIcons.load(icon) }
@@ -118,7 +119,7 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             val portfolioCtx = context(PageKey.Portfolio)
             html(routes.page(locale, portfolioCtx.page)) { homePage(portfolioCtx, PortfolioHomeSubPage(projects, devlogs, portfolioCtx, images)) }
             val aboutCtx = context(PageKey.About)
-            html(routes.page(locale, aboutCtx.page)) { homePage(aboutCtx, AboutHomeSubPage(aboutCtx)) }
+            html(routes.page(locale, aboutCtx.page)) { homePage(aboutCtx, AboutHomeSubPage(aboutCtx, friends.resolve(locale))) }
             val feed = rss(rssItems.getValue(locale.tag), context(PageKey.Blogs)).toByteArray(Charsets.UTF_8)
             feeds[locale.tag] = feed
             resources.put(routes.feed(locale).relativePath, feed)

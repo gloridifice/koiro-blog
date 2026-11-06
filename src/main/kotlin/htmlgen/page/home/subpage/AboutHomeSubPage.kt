@@ -4,11 +4,12 @@ import htmlgen.component.message
 import htmlgen.SvgIcons
 import htmlgen.asLoc
 import htmlgen.component.touchableAvatar
-import htmlgen.friendLinkItems
+import content.ResolvedFriendLink
 import htmlgen.resourcesServerPath
 import kotlinx.html.*
 
-class AboutHomeSubPage(private val context: routing.PageContext) : HomeSubPage() {
+class AboutHomeSubPage(private val context: routing.PageContext,
+    private val friends: List<ResolvedFriendLink>) : HomeSubPage() {
     override fun DIV.showSubPage() {
         div {
             classes += "top_gap_space"
@@ -32,7 +33,7 @@ class AboutHomeSubPage(private val context: routing.PageContext) : HomeSubPage()
                 }
 
                 // Friends
-                div {
+                if (friends.isNotEmpty()) div {
                     classes += "friends"
                     div {
                         classes += "title"
@@ -43,10 +44,11 @@ class AboutHomeSubPage(private val context: routing.PageContext) : HomeSubPage()
                     }
                     div {
                         classes += "list"
-                        for (it in friendLinkItems) {
+                        for (friend in friends) {
                             a {
-                                href = it.link
+                                href = friend.url
                                 target = "_blank"
+                                rel = "noopener noreferrer"
                                 classes += arrayOf("button", "friend_link")
 
                                 div {
@@ -54,12 +56,14 @@ class AboutHomeSubPage(private val context: routing.PageContext) : HomeSubPage()
                                     classes += "start"
                                     SvgIcons.EXTERNAL_LINK.apply { showSvg() }
                                     div {
-                                        +it.name
+                                        lang = friend.nameLocale?.tag.orEmpty()
+                                        +friend.name
                                     }
                                 }
                                 div {
                                     classes += "desc"
-                                    message(context, "friends.${it.id}")
+                                    lang = friend.actualLocale.tag
+                                    +friend.description
                                 }
                             }
                         }

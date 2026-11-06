@@ -1,0 +1,58 @@
+# Entries appear in this order in every language.
+# Each translation requires a description; name may override the shared proper name.
+# Missing translations use the content-fallbacks from i18n/locales.toml.
+
+[[friends]]
+id = "rasp"
+name = "拉斯普的月台"
+url = "https://blog.rasp505.top/"
+
+[friends.translations.zh-CN]
+description = "海拉鲁驿站"
+
+[friends.translations.en-US]
+description = "Hyrule Stable"
+
+[[friends]]
+id = "dyron"
+name = "dyron503's"
+url = "https://career.dyron503.top/"
+
+[friends.translations.zh-CN]
+description = "你知道吗？我的 ID 中「503」的出处是……"
+
+[friends.translations.en-US]
+description = 'Did you know? The "503" in my ID comes from…'
+
+[[friends]]
+id = "hana"
+name = "北依的树洞"
+url = "https://www.hanax092.xyz/"
+
+[friends.translations.zh-CN]
+description = "音乐是救世主"
+
+[friends.translations.en-US]
+description = "Music is the savior"
+
+[[friends]]
+id = "iz"
+name = "以子iz"
+url = "https://www.dangoiz.com"
+
+[friends.translations.zh-CN]
+description = "插画师和游戏开发者"
+
+[friends.translations.en-US]
+description = "Illustrator and game developer"
+
+[[friends]]
+id = "duck"
+name = "三重鸭"
+url = "https://akacmd.github.io/blog/"
+
+[friends.translations.zh-CN]
+description = "当生活给我橙子"
+
+[friends.translations.en-US]
+description = "When life gives me oranges"
