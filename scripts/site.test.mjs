@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync, existsSync, statSync, utimesSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -18,16 +18,53 @@ function fixture(t) {
   return { root, write };
 }
 
-test('clean build replaces stale output and copies hidden static inputs without modifying source', t => {
+test('preparation preserves managed resources, removes unknown stale files and copies hidden static inputs', t => {
   const { root, write } = fixture(t);
   write('assets/.nojekyll');
   write('assets/assets/css/reset.css', 'body{margin:0}');
   write('dist/deleted-article.html', 'obsolete');
+  const retained = 'en-US/pages/blogs/retained.html';
+  write(`dist/${retained}`, 'cached article');
+  write('dist/.generated-site-files.json', JSON.stringify([retained]));
+  write('dist/.incremental-site.json', '{"version":1,"resources":{}}');
   prepareOutput(path.join(root, 'assets'), path.join(root, 'dist'));
   assert.equal(existsSync(path.join(root, 'dist/deleted-article.html')), false);
+  assert.equal(readFileSync(path.join(root, `dist/${retained}`), 'utf8'), 'cached article');
+  assert.equal(existsSync(path.join(root, 'dist/.incremental-site.json')), true);
   assert.equal(existsSync(path.join(root, 'dist/.nojekyll')), true);
   assert.equal(readFileSync(path.join(root, 'dist/assets/css/reset.css'), 'utf8'), 'body{margin:0}');
   assert.equal(readFileSync(path.join(root, 'assets/assets/css/reset.css'), 'utf8'), 'body{margin:0}');
+});
+
+test('static images are reused until input changes, while other static files are rewritten and removed images disappear', t => {
+  const { root, write } = fixture(t);
+  const image = write('assets/album/photo.png', 'original image');
+  write('assets/asset.js', 'original script');
+  const assets = path.join(root, 'assets');
+  const output = path.join(root, 'dist');
+  prepareOutput(assets, output);
+  const destination = path.join(output, 'album/photo.png');
+  const before = statSync(destination, { bigint: true }).mtimeNs;
+  write('dist/asset.js', 'edited output');
+  prepareOutput(assets, output);
+  assert.equal(statSync(destination, { bigint: true }).mtimeNs, before);
+  assert.equal(readFileSync(path.join(output, 'asset.js'), 'utf8'), 'original script');
+  writeFileSync(image, 'modified image');
+  utimesSync(image, new Date(1000), new Date(1000));
+  prepareOutput(assets, output);
+  assert.equal(readFileSync(destination, 'utf8'), 'modified image');
+  rmSync(image);
+  prepareOutput(assets, output);
+  assert.equal(existsSync(destination), false);
+});
+
+test('an unsafe retained-file manifest is rejected before modifying output', t => {
+  const { root, write } = fixture(t);
+  write('assets/index.html', 'new');
+  write('dist/index.html', 'previous build');
+  write('dist/.generated-site-files.json', '["../outside.txt"]');
+  assert.throws(() => prepareOutput(path.join(root, 'assets'), path.join(root, 'dist')), /Unsafe generated path/);
+  assert.equal(readFileSync(path.join(root, 'dist/index.html'), 'utf8'), 'previous build');
 });
 
 test('LFS pointers fail before deleting the previous build', t => {

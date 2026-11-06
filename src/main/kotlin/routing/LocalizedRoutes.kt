@@ -38,7 +38,7 @@ data class MigrationMap(val version: Int = 1, val contents: List<LegacyContent> 
 
 class LocalizedRoutes(private val config: SiteConfig, private val bundles: List<ContentBundle>,
     val timeline: List<ContentBundle>, private val pageSize: Int, private val root: Path,
-    val migration: MigrationMap) {
+    val migration: MigrationMap, private val release: Boolean = false) {
     val pageCount = maxOf(1, (timeline.size + pageSize - 1) / pageSize)
     private val byDirectory = bundles.associateBy { it.directory.toAbsolutePath().normalize() }
     private val byKey = bundles.associateBy { it.key }
@@ -65,7 +65,8 @@ class LocalizedRoutes(private val config: SiteConfig, private val bundles: List<
     }
     fun feed(locale: SiteLocale) = ServerPath("${locale.tag}/rss.xml")
     fun content(locale: SiteLocale, key: ContentKey): ServerPath {
-        require(byKey[key]?.metadata?.published == true) { "Unpublished or missing link target: $key" }
+        val bundle = byKey[key]
+        require(bundle != null && (!release || bundle.metadata.published)) { "Unpublished or missing link target: $key" }
         return when (key.kind) {
             ContentKind.BLOG, ContentKind.DEVLOG -> page(locale, PageKey.Article(key))
             ContentKind.ACTIVE -> {

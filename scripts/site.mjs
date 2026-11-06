@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import {
-  closeSync, copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, openSync,
-  readFileSync, readSync, readdirSync, realpathSync, rmSync,
+  closeSync, copyFileSync, existsSync, lstatSync, mkdirSync, openSync,
+  readFileSync, readSync, readdirSync, realpathSync, rmSync, writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseArgs } from 'node:util';
 import { parse as parseHtml } from 'parse5';
 import { SaxesParser } from 'saxes';
 import { parse as parseToml } from 'smol-toml';
@@ -15,6 +16,21 @@ export const DIST = path.join(ROOT, 'dist');
 const LFS_HEADER = Buffer.from('version https://git-lfs.github.com/spec/v1');
 const WASM_HEADER = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
 const METADATA = new Set(['.git', '.gitattributes', '.github', '.idea']);
+const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.svg', '.bmp', '.tif', '.tiff']);
+
+function generatedPathParts(relative) {
+  const parts = relative.split('/');
+  if (parts.some(part => !part || part === '..' || part === '.') || relative.includes('\\') || relative.includes(':')) {
+    throw new Error(`Unsafe generated path: ${relative}`);
+  }
+  return parts;
+}
+
+function fileState(file) {
+  if (!existsSync(file) || !lstatSync(file).isFile()) return null;
+  const stat = lstatSync(file, { bigint: true });
+  return `${stat.size}:${stat.mtimeNs}`;
+}
 
 export function isWithin(root, target) {
   const relative = path.relative(root, target);
@@ -54,6 +70,7 @@ export function checkTree(root, excluded = []) {
 }
 
 export function prepareOutput(assets, output) {
+  output = path.resolve(output);
   // Validate before touching the previous build, including dangling symlinks.
   checkTree(assets);
   let outputStat;
@@ -62,8 +79,63 @@ export function prepareOutput(assets, output) {
   const source = realpathSync(assets);
   const target = outputStat ? realpathSync(output) : path.resolve(realpathSync(path.dirname(output)), path.basename(output));
   if (isWithin(source, target) || isWithin(target, source)) throw new Error('Assets and output directories must not overlap');
-  rmSync(output, { recursive: true, force: true });
-  cpSync(assets, output, { recursive: true });
+  if (outputStat) checkTree(output);
+  // Keep generated atoms and their manifests; Kotlin replaces full resources and
+  // prunes obsolete generated files only after successful generation.
+  const manifest = path.join(output, '.generated-site-files.json');
+  let generated = [];
+  if (existsSync(manifest)) {
+    try { generated = JSON.parse(readFileSync(manifest, 'utf8')); }
+    catch (error) { throw new Error(`Invalid generated-file manifest: ${error.message}`); }
+  }
+  if (!Array.isArray(generated) || generated.some(entry => typeof entry !== 'string')) throw new Error('Invalid generated-file manifest');
+  generated.forEach(generatedPathParts);
+  const staticFiles = [...walk(assets)].filter(file => lstatSync(file).isFile());
+  const relative = file => path.relative(assets, file).split(path.sep).join('/');
+  const imageFiles = staticFiles.filter(file => IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()));
+  const cacheFile = path.join(output, '.static-image-cache.json');
+  let oldImages = {};
+  if (existsSync(cacheFile)) {
+    try {
+      const cache = JSON.parse(readFileSync(cacheFile, 'utf8'));
+      if (cache.version === 1 && cache.images && typeof cache.images === 'object' && !Array.isArray(cache.images)) {
+        oldImages = Object.fromEntries(Object.entries(cache.images).filter(([name, value]) => {
+          try {
+            generatedPathParts(name);
+            return typeof value?.input === 'string' && typeof value?.output === 'string';
+          } catch { return false; }
+        }));
+      }
+    } catch { /* A missing or unreadable cache is a cold build. */ }
+  }
+  const keep = new Set([...generated, ...imageFiles.map(relative), '.generated-site-files.json', '.incremental-site.json']);
+  if (outputStat) {
+    function prune(directory) {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        const file = path.join(directory, entry.name);
+        if (entry.isDirectory()) {
+          prune(file);
+          if (readdirSync(file).length === 0) rmSync(file, { recursive: true });
+        } else if (!keep.has(path.relative(output, file).split(path.sep).join('/'))) rmSync(file);
+      }
+    }
+    prune(output);
+  }
+  const images = {};
+  for (const file of staticFiles) {
+    const name = relative(file);
+    const destination = path.join(output, name);
+    const image = IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase());
+    const input = image ? fileState(file) : null;
+    const cached = oldImages[name];
+    if (!image || cached?.input !== input || cached?.output !== fileState(destination)) {
+      mkdirSync(path.dirname(destination), { recursive: true });
+      copyFileSync(file, destination);
+    }
+    if (image) images[name] = { input, output: fileState(destination) };
+  }
+  mkdirSync(output, { recursive: true });
+  writeFileSync(cacheFile, JSON.stringify({ version: 1, images }));
 }
 
 function* htmlReferences(node) {
@@ -112,10 +184,7 @@ export function checkGeneratedFiles(root) {
   const entries = JSON.parse(readFileSync(path.join(root, '.generated-site-files.json'), 'utf8'));
   if (!Array.isArray(entries) || entries.some(entry => typeof entry !== 'string')) throw new Error('Invalid generated-file manifest');
   for (const relative of entries) {
-    const parts = relative.split('/');
-    if (parts.some(part => !part || part === '..' || part === '.') || relative.includes('\\') || /^[a-z]:/i.test(relative)) {
-      throw new Error(`Unsafe generated path: ${relative}`);
-    }
+    const parts = generatedPathParts(relative);
     let current = root;
     for (const part of parts) {
       if (!lstatSync(current).isDirectory() || !readdirSync(current).includes(part)) {
@@ -220,7 +289,7 @@ async function wasm() {
   rmSync(path.join(DIST, 'pkg/.gitignore'), { force: true });
 }
 
-export async function build() {
+export async function build({ release = false } = {}) {
   checkTree(path.join(ROOT, 'assets'));
   checkTree(path.join(ROOT, 'data'), [path.join(ROOT, 'data/component/plugins')]);
   const license = path.join(ROOT, 'node_modules/lucide-static/LICENSE');
@@ -228,7 +297,8 @@ export async function build() {
   prepareOutput(path.join(ROOT, 'assets'), DIST);
   mkdirSync(path.join(DIST, 'assets/licenses'), { recursive: true });
   copyFileSync(license, path.join(DIST, 'assets/licenses/lucide.txt'));
-  await completed(start(path.join(ROOT, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew'), ['--no-daemon', 'test', 'run']));
+  await completed(start(path.join(ROOT, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew'),
+    ['--no-daemon', 'test', 'run', ...(release ? ['--args=--release'] : [])]));
   await completed(styles());
   await wasm();
   validateSite(DIST);
@@ -237,12 +307,16 @@ export async function build() {
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     switch (process.argv[2] ?? 'build') {
-      case 'build': await build(); break;
+      case 'build': {
+        const { values } = parseArgs({ args: process.argv.slice(3), options: { release: { type: 'boolean' } } });
+        await build(values);
+        break;
+      }
       case 'check': validateSite(DIST); break;
       case 'styles': await completed(styles()); break;
       case 'watch-styles': await completed(styles(true)); break;
       case 'wasm': await wasm(); break;
-      default: throw new Error('Usage: node scripts/site.mjs [build|check|styles|watch-styles|wasm]');
+      default: throw new Error('Usage: node scripts/site.mjs [build [--release]|check|styles|watch-styles|wasm]');
     }
   } catch (error) {
     console.error(`Build failed: ${error.message}`);

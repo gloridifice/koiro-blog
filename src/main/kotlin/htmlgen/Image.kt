@@ -2,22 +2,37 @@ package htmlgen
 
 import ImageCompressor
 import ServerPath
+import buildsystem.ResourceOutput
+import buildsystem.SiteResources
+import buildsystem.fingerprint
+import buildsystem.implementationFingerprint
 import decodeURL
 import kotlinx.html.IMG
 import kotlinx.html.ImgLoading
 import javax.imageio.ImageIO
 import java.nio.file.Path
-import kotlin.io.path.createParentDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readBytes
-import kotlin.io.path.writeBytes
 
 /** Copies article attachments into the same output tree as the generated pages. */
-class ImageAssets(databasePath: Path, private val outputPath: Path) {
+class ImageAssets(databasePath: Path, private val outputPath: Path,
+    private val resources: SiteResources = SiteResources(outputPath, databasePath),
+    private val version: String = implementationFingerprint(ImageCompressor::class.java)) {
     private val databaseRoot = databasePath.toAbsolutePath().normalize()
     private val imageSizes = mutableMapOf<ServerPath, ImageSize>()
+    private var collecting: MutableSet<String>? = null
+
+    fun capture(block: () -> Map<String, ByteArray>): ResourceOutput {
+        check(collecting == null)
+        val sources = linkedSetOf<String>()
+        collecting = sources
+        return try { ResourceOutput(files = block(), sources = sources) }
+        finally { collecting = null }
+    }
+
+    fun restore(sources: Set<String>) { sources.forEach { copySource(resources.source(it)) } }
 
     /** Read the published image header, not the uncompressed source dimensions. */
     fun dimensions(path: ServerPath): ImageSize = imageSizes.getOrPut(path) {
@@ -49,22 +64,34 @@ class ImageAssets(databasePath: Path, private val outputPath: Path) {
         require(source.isRegularFile()) { "Missing image: $source" }
         val relativePath = databaseRoot.relativize(source).invariantSeparatorsPathString
         val serverPath = ServerPath("images/content/$relativePath")
-        val output = outputPath.resolve(serverPath.relativePath)
-        val root = outputPath.toAbsolutePath().normalize()
-        var ancestor: Path? = output.toAbsolutePath().normalize()
-        while (ancestor != null && ancestor.startsWith(root)) {
-            require(!java.nio.file.Files.isSymbolicLink(ancestor)) { "Output image symlink: $ancestor" }
-            ancestor = ancestor.parent
-        }
-        if (!output.isRegularFile() || source.toFile().lastModified() > output.toFile().lastModified()) {
+        collecting?.add(relativePath)
+        val input = fingerprint(version, relativePath, resources.sourceSignature(relativePath))
+        resources.atomic("asset:$relativePath", input, setOf(serverPath.relativePath), immediate = true) {
             val bytes = source.readBytes()
             val image = if (source.extension.lowercase() in setOf("png", "jpg", "jpeg")) ImageCompressor.compressMemory(bytes)
                 else bytes // Preserve GIF animation and non-raster attachments.
-            output.createParentDirectories().writeBytes(image)
             imageSizes.remove(serverPath)
-            println("Write Image: <$output>")
+            println("Write Image: <${outputPath.resolve(serverPath.relativePath)}>")
+            ResourceOutput(files = mapOf(serverPath.relativePath to image))
         }
         return serverPath
+    }
+
+    fun alias(source: ServerPath, relative: String) {
+        if (relative == source.relativePath) return
+        val file = outputPath.resolve(source.relativePath)
+        val input = fingerprint(version, source.relativePath, java.nio.file.Files.size(file).toString(),
+            java.nio.file.Files.getLastModifiedTime(file).toString(), Path.of(relative).extension)
+        resources.atomic("alias:$relative", input, setOf(relative), immediate = true) {
+            val bytes = if (file.extension.equals(Path.of(relative).extension, true)) file.readBytes() else {
+                val image = requireNotNull(ImageIO.read(file.toFile())) { "Unsupported legacy image format: $file" }
+                java.io.ByteArrayOutputStream().use { stream ->
+                    require(ImageIO.write(image, Path.of(relative).extension, stream)) { "Cannot encode legacy image: $relative" }
+                    stream.toByteArray()
+                }
+            }
+            ResourceOutput(files = mapOf(relative to bytes))
+        }
     }
 }
 

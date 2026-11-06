@@ -64,6 +64,64 @@ class KoiroCatCafeTest {
     }
 
     @Test
+    fun `default generation includes drafts and release removes them from pages feeds links and aliases`() = withSiteFixture { data, output, locales ->
+        data.resolve("image.gif").writeBytes(Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"))
+        for ((id, published) in listOf("live" to true, "draft" to false)) {
+            writeBundle(data, "blogs/$id", "id = \"$id\"\npublished = $published\nclass = \"Dev\"\ndate = \"2025-01-01\"",
+                "[self](zh-CN.md)", "title = \"$id\"")
+        }
+        writeBundle(data, "devlogs/draft", "id = \"draft\"\npublished = false\nwork = \"Example\"\nindex = 1\ndate = \"2025-01-02\"", "log")
+        writeBundle(data, "actives/draft", "id = \"draft\"\npublished = false\ndate = \"2025-01-03\"",
+            "[draft article](../../blogs/draft/zh-CN.md)", "")
+        writeBundle(data, "portfolio/draft", """
+            id = "draft"
+            published = false
+            project = "Example"
+            url = "https://example.com"
+            preview = "../../image.gif"
+            status = "WIP"
+            type = "Game"
+            lite = true
+        """, "", "title = \"Draft project\"\ndescription = \"Work in progress\"")
+        data.resolve("migration-map.toml").writeText("""
+            [[contents]]
+            kind = "blog"
+            old-source = "blogs/old.md"
+            directory = "blogs/draft"
+            id = "draft"
+            old-url = "/pages/blogs/Old.html"
+        """.trimIndent())
+        val directories = arrayOf(data.toString(), output.toString(), locales.toString())
+        for (release in listOf(false, true, false)) {
+            main(directories + if (release) arrayOf("--release") else emptyArray())
+            for (locale in listOf("en-US", "zh-CN")) {
+                assertTrue(output.resolve("$locale/pages/blogs/live.html").isRegularFile())
+                for (kind in listOf("blogs", "devlogs")) {
+                    val article = output.resolve("$locale/pages/$kind/draft.html")
+                    assertEquals(!release, article.exists())
+                    if (!release && kind == "blogs") {
+                        assertEquals("/$locale/pages/blogs/draft.html", Jsoup.parse(article.readText()).selectFirst(".page_content a")!!.attr("href"))
+                    }
+                }
+                val home = Jsoup.parse(output.resolve("$locale/home.html").readText())
+                assertEquals(if (release) 1 else 4, home.select(".elements > .element").size)
+                assertEquals(!release, home.selectFirst("#active-draft a[href='/$locale/pages/blogs/draft.html']") != null)
+                val projects = Jsoup.parse(output.resolve("$locale/portfolio.html").readText())
+                assertEquals(!release, projects.selectFirst("#project-draft") != null)
+                val feed = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.resolve("$locale/rss.xml").toFile())
+                val items = feed.getElementsByTagName("item")
+                assertEquals(if (release) 1 else 2, items.length)
+                assertEquals(!release, feed.documentElement.textContent.contains("/$locale/pages/blogs/draft.html"))
+            }
+            assertEquals(!release, output.resolve("pages/blogs/Old.html").exists())
+        }
+        assertTrue(data.resolve("blogs/draft/meta.toml").readText().contains("published = false"))
+        data.resolve("blogs/live/zh-CN.md").appendText("\n\n[draft](../draft/zh-CN.md)")
+        val failure = assertFailsWith<IllegalArgumentException> { main(directories + "--release") }
+        assertTrue(failure.message.orEmpty().contains("Unpublished or missing link target"))
+    }
+
+    @Test
     fun `variant selection is atomic and AI and missing translation states follow the selected variant`() = withSiteFixture { data, output, locales ->
         locales.resolve("locales.toml").appendText("\n[locales.ja-JP]\nname = \"日本語\"\nlanguage = \"ja\"\nmatch-default = true\n")
         val base = locales.resolve("zh-CN.toml")

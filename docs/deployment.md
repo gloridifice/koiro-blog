@@ -24,7 +24,9 @@ npm run dev
 
 The Node scripts work on Windows, macOS and Linux and resolve project paths relative to the scripts rather than the caller's working directory. They select `gradlew.bat` on Windows and `gradlew` elsewhere. Java, Node/npm and wasm-pack must be on PATH. Run `npm ci` after checkout or lockfile changes; builds use the installed dependencies without reinstalling them. No global npm packages, Python runtime or frontend bundler are needed for building and serving the site.
 
-`npm run build` validates input files, recreates `dist/`, copies static inputs including hidden files, runs Kotlin tests and generation, compiles styles and Wasm, then validates the resulting site. It rejects LFS pointers, repository metadata, missing local image/script/stylesheet references, invalid RSS and invalid Wasm output. External URLs are not fetched. The build does not run the image-preparation script or modify content.
+`npm run build` validates input files, prepares `dist/` while retaining registered incremental resources, copies static inputs including hidden files, runs Kotlin tests and generation, compiles styles and Wasm, then validates the resulting site. It rejects LFS pointers, repository metadata, missing local image/script/stylesheet references, invalid RSS and invalid Wasm output. External URLs are not fetched. The build does not run the image-preparation script or modify content.
+
+The default build includes drafts with `published = false` in shared `meta.toml`, including their pages, list entries and RSS items. Use `npm run build -- --release` for production: only shared `published = true` content is generated. The option after `--` is passed to the generator; direct Gradle generation supports `./gradlew run --args=--release`. Both modes keep the existing language-variant publication and fallback rules. Drafts included in a debug build need an available language variant.
 
 `npm run dev` serves `dist/` on the loopback interface and watches SCSS. If the generated index, manifest or Wasm is missing, it first runs a full build. Existing output is reused; styles are compiled before serving. The default port is 8000; occupied ports are skipped until a free one is found. Always use the URL printed in the terminal. Override the starting port with `npm run dev -- --port 9000` (or `PORT`), and optionally bind another interface with `--host 0.0.0.0`. Only expose this development server on a trusted network.
 
@@ -43,17 +45,25 @@ The independent content migration and image-preparation tools remain Python scri
 
 ## Home pagination and images
 
-The home timeline is split into static files under each language: `/zh-CN/home.html`, `/zh-CN/home-2.html`, `/en-US/home.html`, and so on. All languages share the published set, ordering and page numbers; each file contains only its own entries. Articles use `/LANG/pages/blogs/ID.html` or `/LANG/pages/devlogs/ID.html`.
+The home timeline is split into static files under each language: `/zh-CN/home.html`, `/zh-CN/home-2.html`, `/en-US/home.html`, and so on. All languages share the current build's content set, ordering and page numbers; each file contains only its own entries. Articles use `/LANG/pages/blogs/ID.html` or `/LANG/pages/devlogs/ID.html`.
 
-The root entry chooses an enabled language from the saved `koiro.site.locale` preference, browser languages, then English. Direct language URLs are not redirected. Missing content variants fall back to English, then Chinese, while retaining the requested page language and URL. Chinese is required for published content. English UI messages and content variants are supplied; AI-translated content declares `ai-translation = true` in its language header. Translations do not change the shared publication status, so translated drafts remain unpublished.
+The root entry chooses an enabled language from the saved `koiro.site.locale` preference, browser languages, then English. Direct language URLs are not redirected. Missing content variants fall back to English, then Chinese, while retaining the requested page language and URL. Chinese is required for published content. English UI messages and content variants are supplied; AI-translated content declares `ai-translation = true` in its language header. Translations do not change the shared publication status, so translated drafts remain excluded from release builds.
 
 Old root pages and pre-migration title URLs retain Chinese redirect pages. `/rss.xml` remains actual Chinese XML; each language also has its own RSS. `data/migration-map.toml` retains article and image aliases. Do not delete it or replace root RSS with an HTML redirect. See the [output contract](../doco/specs/localized-output.md).
 
-Set `HOME_PAGE_SIZE` in `src/main/kotlin/htmlgen/Configs.kt` to change the default of 10 entries per page. Callers can also pass `homePageSize` to `KoiroCatCafe`; the value must be positive. An empty timeline still generates each language's `home.html`. Pagination is hidden for a single page; large archives show the first, last and neighboring pages with ellipses. Direct Gradle generation removes obsolete files listed in `.generated-site-files.json`, preserving unrelated files; a full build recreates all of `dist/`.
+Set `HOME_PAGE_SIZE` in `src/main/kotlin/htmlgen/Configs.kt` to change the default of 10 entries per page. Callers can also pass `homePageSize` to `KoiroCatCafe`; the value must be positive. An empty timeline still generates each language's `home.html`. Pagination is hidden for a single page; large archives show the first, last and neighboring pages with ellipses. Direct Gradle generation removes obsolete files listed in `.generated-site-files.json`, preserving unrelated files; an npm build also removes unregistered stale files but preserves valid atomic resources.
 
 On each home page, images in the first two entries load normally; later entries use native `loading="lazy"`. Published image dimensions reserve space, including for image stacks. The browser decides when nearby images load, and overlapping gallery images may load together. Article detail pages retain their existing image-loading behavior.
 
 The pagination styles are in `src/main/stylesheet/home_pagination.scss`. Rebuilding replaces the temporary preview; no preview CSS or `noindex` marker is part of the generated pages.
+
+## Incremental resources
+
+Only three resource types are incremental: all language HTML files for one article as a group, individual images/attachments (including legacy aliases and static images), and all language RSS items for one blog post. Missing or modified outputs invalidate the affected atom; changing one translation rebuilds all article languages. Article inputs also include shared dictionaries, routes and generator code. Cache hits restore attachment dependencies, so an image used only inside a cached article is retained and can be repaired independently.
+
+Home/list/about/portfolio pages, pagination, root and compatibility HTML, complete language RSS feeds and the root Chinese RSS copy are regenerated and written on every build. Feed assembly uses cached items but refreshes `lastBuildDate`.
+
+`.generated-site-files.json` lists generated outputs including attachments; `.incremental-site.json` stores Kotlin atomic state and private RSS fragments; `.static-image-cache.json` stores Node static-image state. These are disposable build outputs, not source data. Delete `dist/` to force a cold build. Image reuse checks source modification time and size, processing code, and output state; edits that preserve both source timestamp and size are not guaranteed to be detected. Safety and final-site validation still run on every build. Obsolete registered outputs are removed after successful Kotlin generation, including after switching between debug and release.
 
 ## Blog icons
 
@@ -69,7 +79,7 @@ Kotlin reads SVGs from `node_modules/lucide-static/icons/` at build time and inl
 
 ## GitHub Actions
 
-`.github/workflows/site.yml` builds on pushes to `master`, pull requests and manual dispatches. The build job runs `npm ci`, `npm test` and `npm run build`, then uploads the site as an artifact, including `.nojekyll`. The separate Python content-tools job retains the migration tests; Python is not used by the build or publish jobs. PRs never publish. The publish job waits for both jobs and runs `npm run check` on the downloaded artifact before using a deployment token.
+`.github/workflows/site.yml` builds on pushes to `master`, pull requests and manual dispatches. The build job runs `npm ci`, `npm test` and `npm run build -- --release`, then uploads the site as an artifact, including `.nojekyll`. The separate Python content-tools job retains the migration tests; Python is not used by the build or publish jobs. PRs never publish. The publish job waits for both jobs and runs `npm run check` on the downloaded artifact before using a deployment token.
 
 Publishing is **disabled by default**. Before enabling it:
 
@@ -117,6 +127,7 @@ Use the [migration contract](../doco/specs/data-migration.md) and the explicit `
 ```sh
 npm test
 npm run build
+npm run build -- --release
 npm run check
 git diff --check
 ```

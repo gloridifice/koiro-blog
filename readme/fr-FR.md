@@ -18,7 +18,7 @@ npm ci
 npm run dev
 ```
 
-Ouvrez l’URL affichée dans le terminal : le port 8000, ou le prochain port libre. `npm run dev` génère les fichiers manquants, sert `dist/` et surveille les SCSS ; rechargez le navigateur après modification. Utilisez `npm run build` pour un build de production propre.
+Ouvrez l’URL affichée dans le terminal : le port 8000, ou le prochain port libre. `npm run dev` génère les fichiers manquants, sert `dist/` et surveille les SCSS ; rechargez le navigateur après modification. `npm run build` inclut les brouillons pour le débogage ; utilisez `npm run build -- --release` pour un build de production.
 
 ## Technologies
 
@@ -35,7 +35,7 @@ Ouvrez l’URL affichée dans le terminal : le port 8000, ou le prochain port li
 - `assets/` : fichiers statiques suivis par Git, copiés dans `dist/`. Le sous-dossier `assets/` conserve les URL `/assets/...` existantes.
 - `data/` : contenus répartis entre `blogs/`, `devlogs/`, `portfolio/` et `actives/`. Chaque dossier anglais en `snake_case` contient `meta.toml`, `zh-CN.md`, les traductions éventuelles et les pièces jointes communes. Voir le [format des contenus](../doco/specs/content-localization.md).
 - `i18n/` : langues disponibles et dictionnaires TOML de l’interface. Le chinois sert de base ; l’entrée par défaut est anglaise. L’interface anglaise et les contenus traduits par IA sont fournis ; les traductions manquantes restent remplacées par le chinois.
-- `dist/` : site généré complet, ignoré par Git et recréé à chaque build complet.
+- `dist/` : site généré et caches incrémentaux jetables, ignorés par Git. Supprimez ce dossier pour forcer une génération complète.
 
 ## Git LFS
 

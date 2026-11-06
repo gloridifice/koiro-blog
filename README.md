@@ -18,7 +18,7 @@ npm ci
 npm run dev
 ```
 
-Open the URL printed in the terminal (port 8000, or the next free port). `npm run dev` builds missing output, serves `dist/` and watches SCSS; refresh the browser after changes. Use `npm run build` for a clean production build.
+Open the URL printed in the terminal (port 8000, or the next free port). `npm run dev` builds missing output, serves `dist/` and watches SCSS; refresh the browser after changes. `npm run build` includes drafts for debugging; use `npm run build -- --release` for a production build.
 
 ## Stack
 
@@ -35,7 +35,7 @@ Open the URL printed in the terminal (port 8000, or the next free port). `npm ru
 - `assets/` — tracked static inputs copied into `dist/`. The nested `assets/` preserves `/assets/...` URLs.
 - `data/` — content packages grouped into `blogs/`, `devlogs/`, `portfolio/` and `actives/`. Each English `snake_case` folder contains `meta.toml`, `zh-CN.md` and optional translations with shared attachments. See the [content contract](doco/specs/content-localization.md).
 - `i18n/` — locale registration and TOML UI dictionaries. Chinese is the base dictionary; English is the default entry language. English UI and AI-translated content are supplied; missing translations still fall back to Chinese.
-- `dist/` — complete generated site, ignored by Git and recreated on every full build.
+- `dist/` — complete generated site and disposable incremental caches, ignored by Git. Delete it to force a cold build.
 
 ## Git LFS
 

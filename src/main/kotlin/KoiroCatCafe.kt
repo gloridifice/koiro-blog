@@ -1,4 +1,5 @@
 import content.*
+import buildsystem.*
 import htmlgen.HOME_PAGE_SIZE
 import htmlgen.ImageAssets
 import htmlgen.component.HomePagination
@@ -12,22 +13,18 @@ import i18n.Messages
 import i18n.SiteConfig
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import routing.*
 import java.io.StringWriter
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import javax.imageio.ImageIO
 import javax.xml.stream.XMLOutputFactory
 import kotlin.io.path.*
 
 class KoiroCatCafe(private val databasePath: Path, outputPath: String,
-    private val homePageSize: Int = HOME_PAGE_SIZE, private val i18nPath: Path = Path.of("i18n")) {
+    private val homePageSize: Int = HOME_PAGE_SIZE, private val i18nPath: Path = Path.of("i18n"),
+    private val release: Boolean = false) {
     private val outputRoot = Path.of(outputPath).toAbsolutePath().normalize()
     init {
         require(homePageSize > 0) { "Home page size must be positive" }
@@ -44,31 +41,64 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             try { htmlgen.LucideIcons.load(icon) }
             catch (e: IllegalArgumentException) { throw IllegalArgumentException("${bundle.directory.resolve("meta.toml")}: ${e.message}", e) }
         }
-        val published = bundles.filter { it.metadata.published }
-        val timeline = published.filter { it.date != null }.sortedWith(
+        val selected = bundles.filter { !release || it.metadata.published }
+        val timeline = selected.filter { it.date != null }.sortedWith(
             compareByDescending<ContentBundle> { it.date }.thenBy { it.key.kind.name }.thenBy { it.key.id })
-        val routes = LocalizedRoutes(config, bundles, timeline, homePageSize, databasePath, MigrationMap.load(databasePath))
-        val images = ImageAssets(databasePath, outputRoot)
-        val outputs = linkedMapOf<String, ByteArray>()
-        val outputNames = mutableSetOf<String>()
-        fun put(path: String, bytes: ByteArray) {
-            checkedOutput(path)
-            require(outputNames.add(path.lowercase())) { "Duplicate or case-colliding generated output: $path" }
-            outputs[path] = bytes
+        val routes = LocalizedRoutes(config, bundles, timeline, homePageSize, databasePath, MigrationMap.load(databasePath), release)
+        val resources = SiteResources(outputRoot, databasePath)
+        val code = implementationFingerprint(KoiroCatCafe::class.java, TitleExtractor::class.java)
+        val presentation = fingerprint(code, directoryFingerprint(i18nPath, "toml"))
+        val migrationFile = databasePath.resolve("migration-map.toml")
+        val routeInput = fingerprint(homePageSize.toString(), release.toString(),
+            if (migrationFile.exists()) migrationFile.readText() else "", timeline.joinToString { it.key.toString() },
+            *bundles.map { fingerprint(it.key.kind.name, it.key.id, it.directory.toString(),
+                it.metadata.published.toString(), it.date.toString()) }.toTypedArray())
+        val images = ImageAssets(databasePath, outputRoot, resources, code)
+        fun render(block: HTML.() -> Unit) = ("<!DOCTYPE html>\n" + createHTML().html(block = block)).toByteArray(Charsets.UTF_8)
+        fun html(path: ServerPath, block: HTML.() -> Unit) = resources.put(path.relativePath, render(block))
+        fun context(locale: i18n.SiteLocale, page: PageKey) = PageContext(locale, page, messages, routes, config)
+        val byLocale = config.locales.associate { locale ->
+            locale.tag to selected.associate { it.key to resolveContent(it, locale, config) }
         }
-        fun html(path: ServerPath, block: HTML.() -> Unit) {
-            put(path.relativePath, ("<!DOCTYPE html>\n" + createHTML().html(block = block)).toByteArray(Charsets.UTF_8))
+        val rssItems = config.locales.associate { it.tag to mutableListOf<String>() }
+        for (bundle in timeline.filter { it.key.kind in setOf(ContentKind.BLOG, ContentKind.DEVLOG) }) {
+            val input = fingerprint(presentation, routeInput, bundle.directory.toString(), bundle.directory.resolve("meta.toml").readText(),
+                *bundle.variants.toSortedMap().entries.map { (tag, variant) -> fingerprint(tag, variant.sourcePath.readText()) }.toTypedArray())
+            val paths = config.locales.map { routes.content(it, bundle.key).relativePath }.toSet()
+            resources.atomic("article:${bundle.key}", input, paths, restoreSources = images::restore) {
+                images.capture {
+                    config.locales.associate { locale ->
+                        val record = byLocale.getValue(locale.tag).getValue(bundle.key)
+                        routes.content(locale, bundle.key).relativePath to render {
+                            articlePage(record, context(locale, PageKey.Article(bundle.key)), images)
+                        }
+                    }
+                }
+            }
+            if (bundle.key.kind == ContentKind.BLOG) {
+                val records = config.locales.map { byLocale.getValue(it.tag).getValue(bundle.key) }
+                val rssInput = fingerprint(presentation, *records.map { record ->
+                    val ctx = context(record.requested, PageKey.Blogs)
+                    val meta = record.bundle.metadata as BlogMetadata
+                    fingerprint(record.requested.tag, record.title, record.variant.header.summary, record.date.toString(),
+                        meta.blogClass, record.variant.localeTag, record.variant.header.aiTranslation.toString(),
+                        record.fallback.toString(), ctx.routes.content(ctx.locale, bundle.key).serverPath)
+                }.toTypedArray())
+                val items = resources.atomic("rss:${bundle.key}", rssInput, fragmentKeys = config.locales.map { it.tag }.toSet()) {
+                    ResourceOutput(fragments = records.associate { record ->
+                        record.requested.tag to rssItem(record, context(record.requested, PageKey.Blogs))
+                    })
+                }
+                for (locale in config.locales) rssItems.getValue(locale.tag) += items.getValue(locale.tag)
+            }
         }
+        val feeds = linkedMapOf<String, ByteArray>()
         for (locale in config.locales) {
-            fun context(page: PageKey) = PageContext(locale, page, messages, routes, config)
-            val resolved = published.associate { it.key to resolveContent(it, locale, config) }
+            fun context(page: PageKey) = context(locale, page)
+            val resolved = byLocale.getValue(locale.tag)
             val blogs = timeline.filter { it.key.kind == ContentKind.BLOG }.map { resolved.getValue(it.key) }
             val devlogs = timeline.filter { it.key.kind == ContentKind.DEVLOG }.map { resolved.getValue(it.key) }
-            val projects = published.filter { it.key.kind == ContentKind.PORTFOLIO }.sortedBy { it.key.id }.map { resolved.getValue(it.key) }
-            for (record in blogs + devlogs) {
-                val ctx = context(PageKey.Article(record.bundle.key))
-                html(routes.content(locale, record.bundle.key)) { articlePage(record, ctx, images) }
-            }
+            val projects = selected.filter { it.key.kind == ContentKind.PORTFOLIO }.sortedBy { it.key.id }.map { resolved.getValue(it.key) }
             for (number in 1..routes.pageCount) {
                 val ctx = context(PageKey.Home(number))
                 val pagination = HomePagination(number, timeline.size, homePageSize)
@@ -89,7 +119,9 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             html(routes.page(locale, portfolioCtx.page)) { homePage(portfolioCtx, PortfolioHomeSubPage(projects, devlogs, portfolioCtx, images)) }
             val aboutCtx = context(PageKey.About)
             html(routes.page(locale, aboutCtx.page)) { homePage(aboutCtx, AboutHomeSubPage(aboutCtx)) }
-            put(routes.feed(locale).relativePath, rss(blogs, context(PageKey.Blogs)).toByteArray(Charsets.UTF_8))
+            val feed = rss(rssItems.getValue(locale.tag), context(PageKey.Blogs)).toByteArray(Charsets.UTF_8)
+            feeds[locale.tag] = feed
+            resources.put(routes.feed(locale).relativePath, feed)
         }
         val defaultContext = PageContext(config.defaultLocale, PageKey.Home(), messages, routes, config)
         html(ServerPath("index.html")) {
@@ -115,7 +147,7 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
         for (legacy in routes.migration.contents.filter { it.oldUrl != null }) {
             val key = ContentKey(ContentKind.entries.single { it.name.lowercase() == legacy.kind }, legacy.id)
             val bundle = bundles.singleOrNull { it.key == key } ?: error("Legacy map references missing content: $key")
-            if (!bundle.metadata.published) continue
+            if (release && !bundle.metadata.published) continue
             require(legacy.oldUrl!!.startsWith("/pages/${key.kind.directory}/") && legacy.oldUrl.endsWith(".html")) { "Invalid legacy article URL: ${legacy.oldUrl}" }
             val alias = legacy.oldUrl.trimStart('/')
             require(alias !in aliases) { "Duplicate legacy URL: $alias" }
@@ -132,47 +164,20 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             }
             body { a(target) { id = "legacy-target"; +target } }
         }
-        put("rss.xml", outputs.getValue(routes.feed(chinese).relativePath))
+        resources.put("rss.xml", feeds.getValue(chinese.tag))
         for (asset in routes.migration.assets) {
             require(asset.oldUrl.startsWith("/images/") && !asset.oldUrl.lowercase().startsWith("/images/content/")) {
                 "Legacy asset conflicts with the shared content namespace: ${asset.oldUrl}"
             }
             val source = images.copySource(routes.legacyAssetSource(asset))
-            val file = outputRoot.resolve(source.relativePath)
-            val alias = asset.oldUrl.trimStart('/')
-            val bytes = if (file.extension.equals(Path.of(alias).extension, true)) file.readBytes() else {
-                val image = requireNotNull(ImageIO.read(file.toFile())) { "Unsupported legacy image format: $file" }
-                java.io.ByteArrayOutputStream().use { stream ->
-                    require(ImageIO.write(image, Path.of(alias).extension, stream)) { "Cannot encode legacy image: $alias" }
-                    stream.toByteArray()
-                }
-            }
-            if (alias == source.relativePath) continue
-            put(alias, bytes)
+            images.alias(source, asset.oldUrl.trimStart('/'))
         }
-        val manifest = outputRoot.resolve(".generated-site-files.json")
-        val previous = if (manifest.exists()) Json.decodeFromString<List<String>>(manifest.readText()) else emptyList()
-        previous.forEach(::checkedOutput)
-        // All page generation and content/link validation above must succeed before replacing HTML.
-        for ((relative, bytes) in outputs) checkedOutput(relative).createParentDirectories().writeBytes(bytes)
-        for (obsolete in previous.toSet() - outputs.keys) checkedOutput(obsolete).deleteIfExists()
-        manifest.writeText(Json.encodeToString(outputs.keys.toList()))
-        println("Generated ${outputs.size} files in ${config.locales.size} locales: $outputRoot")
-    }
-
-    private fun checkedOutput(relative: String): Path {
-        require(relative.isNotBlank() && !relative.startsWith('/') && !relative.contains('\\')) { "Unsafe output: $relative" }
-        val path = outputRoot.resolve(relative).normalize()
-        require(path.startsWith(outputRoot) && path != outputRoot) { "Escaping output: $relative" }
-        var parent: Path? = path
-        while (parent != null && parent.startsWith(outputRoot)) {
-            require(!parent.isSymbolicLink()) { "Output symlink: $parent" }; parent = parent.parent
-        }
-        return path
+        resources.finish()
+        println("Generated site in ${config.locales.size} locales: $outputRoot")
     }
 }
 
-private fun rss(records: List<ResolvedContent>, context: PageContext): String {
+private fun rss(items: List<String>, context: PageContext): String {
     val string = StringWriter()
     val xml = XMLOutputFactory.newFactory().createXMLStreamWriter(string)
     fun element(name: String, text: String) { xml.writeStartElement(name); xml.writeCharacters(text); xml.writeEndElement() }
@@ -181,19 +186,27 @@ private fun rss(records: List<ResolvedContent>, context: PageContext): String {
     element("title", context.text("site.title")); element("link", "https://blog.koiro.xyz" + context.routes.page(context.locale, PageKey.Home()).serverPath)
     element("description", context.text("site.rssDescription")); element("language", context.locale.tag)
     element("lastBuildDate", DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("UTC"))))
-    for (record in records) {
-        xml.writeStartElement("item")
-        element("title", record.title)
-        val link = "https://blog.koiro.xyz" + context.routes.content(context.locale, record.bundle.key).serverPath
-        element("link", link)
-        xml.writeStartElement("guid"); xml.writeAttribute("isPermaLink", "true"); xml.writeCharacters(link); xml.writeEndElement()
-        val date = java.time.LocalDateTime.parse(record.date.toString()).atZone(ZoneId.of("Asia/Shanghai"))
-        element("pubDate", DateTimeFormatter.RFC_1123_DATE_TIME.format(date))
-        val notices = htmlgen.component.translationMessages(record, context).joinToString(" ") { it.second.text }
-        val description = "${record.variant.header.summary} #${(record.bundle.metadata as BlogMetadata).blogClass}".trim()
-        element("description", listOf(description, notices).filter { it.isNotBlank() }.joinToString("\n"))
-        xml.writeEndElement()
-    }
+    xml.flush()
+    // Items are complete, escaped XML fragments generated by the same writer below.
+    items.forEach(string::write)
     xml.writeEndElement(); xml.writeEndElement(); xml.writeEndDocument(); xml.close()
+    return string.toString()
+}
+
+private fun rssItem(record: ResolvedContent, context: PageContext): String {
+    val string = StringWriter()
+    val xml = XMLOutputFactory.newFactory().createXMLStreamWriter(string)
+    fun element(name: String, text: String) { xml.writeStartElement(name); xml.writeCharacters(text); xml.writeEndElement() }
+    xml.writeStartElement("item")
+    element("title", record.title)
+    val link = "https://blog.koiro.xyz" + context.routes.content(context.locale, record.bundle.key).serverPath
+    element("link", link)
+    xml.writeStartElement("guid"); xml.writeAttribute("isPermaLink", "true"); xml.writeCharacters(link); xml.writeEndElement()
+    val date = java.time.LocalDateTime.parse(record.date.toString()).atZone(ZoneId.of("Asia/Shanghai"))
+    element("pubDate", DateTimeFormatter.RFC_1123_DATE_TIME.format(date))
+    val notices = htmlgen.component.translationMessages(record, context).joinToString(" ") { it.second.text }
+    val description = "${record.variant.header.summary} #${(record.bundle.metadata as BlogMetadata).blogClass}".trim()
+    element("description", listOf(description, notices).filter { it.isNotBlank() }.joinToString("\n"))
+    xml.writeEndElement(); xml.close()
     return string.toString()
 }

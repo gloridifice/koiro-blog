@@ -36,7 +36,7 @@ class HomePaginationTest {
             withSite(case.count) { data, output ->
                 // A newer unpublished item must not consume a slot or produce another page.
                 writeBundle(data, "actives/draft", "id = \"draft\"\ndate = \"2030-01-01\"\npublished = false", "unpublished-entry", "")
-                KoiroCatCafe(data, output.toString(), case.pageSize).generateAll()
+                KoiroCatCafe(data, output.toString(), case.pageSize, release = true).generateAll()
                 val allIds = mutableListOf<String>()
                 for ((index, count) in case.pageCounts.withIndex()) {
                     val number = index + 1
