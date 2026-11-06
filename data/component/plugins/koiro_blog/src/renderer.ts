@@ -12,7 +12,8 @@ export function mountComponent(container: HTMLElement, source: string, resolveRe
   frame.title = 'HTML component';
   frame.setAttribute('sandbox', 'allow-scripts');
   frame.referrerPolicy = 'no-referrer';
-  frame.style.cssText = 'display:block;width:100%;height:150px;border:0';
+  // Match srcdoc's default scheme so dark hosts do not force an opaque canvas.
+  frame.style.cssText = 'display:block;width:100%;height:150px;border:0;background:transparent;color-scheme:normal';
   let disposed = false;
 
   const onMessage = (event: MessageEvent) => {
@@ -41,7 +42,7 @@ export function mountComponent(container: HTMLElement, source: string, resolveRe
     base.href = 'about:blank';
     parsed.head.prepend(base);
     const style = parsed.createElement('style');
-    style.textContent = 'html{height:auto}body{margin:0;display:flow-root}';
+    style.textContent = 'html{height:auto}html,body{background:transparent}body{margin:0;display:flow-root}';
     parsed.head.prepend(style);
     const viewport = parsed.createElement('meta');
     viewport.name = 'viewport';

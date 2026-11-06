@@ -28,7 +28,7 @@ TOML 编辑器为纯文本输入，支持原生选择、复制粘贴与撤销；
 
 ## 运行与资源
 
-iframe 只设置 `sandbox="allow-scripts"`，不开放同源权限、弹窗、下载、表单提交或顶层导航。父窗口只接受该 iframe 的 contentWindow、`origin=null`、正确消息类型及有限正数高度；高度向上取整并限制为 10000px。默认宽度 100%、高度 150px，body 使用无外边距的 flow-root。标题来自组件 `<title>`，缺省为 `HTML component`。
+iframe 只设置 `sandbox="allow-scripts"`，不开放同源权限、弹窗、下载、表单提交或顶层导航。父窗口只接受该 iframe 的 contentWindow、`origin=null`、正确消息类型及有限正数高度；高度向上取整并限制为 10000px。默认宽度 100%、高度 150px，iframe 及内部 html/body 背景透明，body 使用无外边距的 flow-root；iframe 不继承宿主的 color-scheme，避免深色宿主导致默认画布不透明。作者仍可覆盖内部背景。标题来自组件 `<title>`，缺省为 `HTML component`。
 
 HTML 先在脱离主文档的 DOMParser 中解析，再写入 srcdoc；不把作者源码插入 Obsidian 主 DOM。已注册预设提供明确的组件样式，不动态继承博客主题变量或字体；CSS 限定在组件作用域，普通自定义 HTML 不被强加面板或主题。作者的 base 标签被替换为 `about:blank`，未处理的相对地址不能意外继承 Obsidian 的应用地址。
 

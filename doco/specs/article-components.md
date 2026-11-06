@@ -28,7 +28,7 @@
 
 每个组件输出独立的 `iframe srcdoc`，由 HTML DSL 转义属性值。沙箱只开放 `allow-scripts`，不开放 `allow-same-origin`、弹窗、表单提交、下载或顶层导航。组件之间的变量、DOM ID 和 CSS 互不干扰，组件不能直接访问主页面 DOM、Cookie 或 localStorage。
 
-作者的 `<title>` 用作 iframe 的无障碍名称；未提供时使用当前页面字典的 `article.componentTitle`。未声明 doctype 的片段补 HTML doctype。默认 body 无外边距，使用 flow-root 包含浮动及子元素外边距；作者可以覆盖。
+作者的 `<title>` 用作 iframe 的无障碍名称；未提供时使用当前页面字典的 `article.componentTitle`。未声明 doctype 的片段补 HTML doctype。默认 iframe 及内部 html/body 背景透明，透出宿主页面背景；iframe 不继承宿主的 color-scheme，避免深色宿主与默认 srcdoc 配色不一致时出现不透明画布。body 无外边距，使用 flow-root 包含浮动及子元素外边距；作者可以覆盖内部背景和布局。
 
 沙箱不是网络防火墙，也不限制脚本 CPU/内存消耗。这里只接受仓库作者维护的内容，不将此机制作为公开接收不可信代码的服务。原有正文原始 HTML 的受信任策略不变。
 

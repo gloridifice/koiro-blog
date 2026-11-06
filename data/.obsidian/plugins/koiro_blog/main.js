@@ -5562,7 +5562,7 @@ function mountComponent(container, source, resolveResource) {
   frame.title = "HTML component";
   frame.setAttribute("sandbox", "allow-scripts");
   frame.referrerPolicy = "no-referrer";
-  frame.style.cssText = "display:block;width:100%;height:150px;border:0";
+  frame.style.cssText = "display:block;width:100%;height:150px;border:0;background:transparent;color-scheme:normal";
   let disposed = false;
   const onMessage = (event) => {
     if (event.origin !== "null" || event.source !== frame.contentWindow || event.data?.type !== "koiro:component-height") return;
@@ -5586,7 +5586,7 @@ function mountComponent(container, source, resolveResource) {
     base2.href = "about:blank";
     parsed.head.prepend(base2);
     const style = parsed.createElement("style");
-    style.textContent = "html{height:auto}body{margin:0;display:flow-root}";
+    style.textContent = "html{height:auto}html,body{background:transparent}body{margin:0;display:flow-root}";
     parsed.head.prepend(style);
     const viewport = parsed.createElement("meta");
     viewport.name = "viewport";

@@ -430,7 +430,7 @@ class ArticleContent(
             .attr("content", "width=device-width, initial-scale=1")
         ComponentAssets.inject(document)
         // A flow root contains floats and margins so intrinsic body height can shrink too.
-        document.head().prependElement("style").text("html{height:auto}body{margin:0;display:flow-root}")
+        document.head().prependElement("style").text("html{height:auto}html,body{background:transparent}body{margin:0;display:flow-root}")
         document.head().appendElement("script").attr("src", "/assets/js/article-component-frame.js")
             .attr("defer", "")
         iframe {
@@ -438,7 +438,8 @@ class ArticleContent(
             title = document.title().ifBlank { componentTitle }
             attributes["sandbox"] = "allow-scripts"
             attributes["referrerpolicy"] = "no-referrer"
-            attributes["style"] = "display:block;width:100%;height:150px;border:0"
+            // Match srcdoc's default scheme so dark hosts do not force an opaque canvas.
+            attributes["style"] = "display:block;width:100%;height:150px;border:0;background:transparent;color-scheme:normal"
             attributes["srcdoc"] = document.outerHtml()
         }
     }

@@ -102,6 +102,19 @@ try { parent.document.body.dataset.escaped = 'yes'; } catch { document.body.data
     const height = () => frames.nth(0).evaluate(el => parseFloat(el.style.height));
     await page.waitForFunction(() => parseFloat(document.querySelector('iframe.article-component').style.height) < 150);
     const small = await height();
+    // Computed backgrounds can be transparent while Chromium paints a white canvas
+    // when the dark host and srcdoc use different color schemes. Compare real pixels.
+    await first.locator('#space').scrollIntoViewIfNeeded();
+    const space = await first.locator('#space').boundingBox();
+    const clip = { x: Math.ceil(space.x + 4), y: Math.ceil(space.y + 4), width: 4, height: 4 };
+    const visible = await page.screenshot({ clip });
+    await frames.nth(0).evaluate(el => { el.style.visibility = 'hidden'; });
+    const backdrop = await page.screenshot({ clip });
+    await frames.nth(0).evaluate(el => { el.style.visibility = ''; });
+    assert.deepEqual(visible, backdrop, 'component canvas must reveal the host background');
+    await first.locator('body').evaluate(el => { el.style.background = 'rgb(255, 255, 255)'; });
+    assert.notDeepEqual(await page.screenshot({ clip }), backdrop, 'author backgrounds must remain visible');
+    await first.locator('body').evaluate(el => { el.style.background = ''; });
     await first.locator('#resize').click();
     await page.waitForFunction(() => parseFloat(document.querySelector('iframe.article-component').style.height) > 400);
     await first.locator('#resize').click();
