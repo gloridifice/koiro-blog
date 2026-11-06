@@ -4,7 +4,7 @@
 
 每篇内容在 data 的 blogs、devlogs、actives 或 portfolio 下有一个内容包。包目录为英文 snake_case，可置于分类子目录中；含 meta.toml、zh-CN.md、可选其他语言文件和附件。语言文件统一使用规范连字符标识，如 en-US.md，不使用下划线。
 
-`data/component/plugins/` 为编辑工具工程目录，不参与内容发现或站点输入校验，也不会自动发布。该子树之外的 Markdown 仍必须位于内容包中。
+`data/.obsidian/` 为 Obsidian 配置与插件目录，不参与内容发现或站点输入校验，也不会自动发布。该子树之外的 Markdown 仍必须位于内容包中。
 
 公共 ID 使用 `[a-z][a-z0-9]*(?:_[a-z0-9]+)*`，禁止 Windows 设备名，同类型内唯一。初始包目录名与 ID 相同；标题或目录改名不重算 ID。分类目录不参与 URL，也不替代 class 字段。
 

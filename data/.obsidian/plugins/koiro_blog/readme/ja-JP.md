@@ -8,11 +8,11 @@ Obsidian でブログの HTML コンポーネントを表示し、TOML ファイ
 
 ### インストール
 
-`data/component/plugins/koiro_blog/` でビルドし、`main.js`、`manifest.json`、`styles.css` を `<vault>/.obsidian/plugins/koiro_blog/` にコピーします。この 3 つのファイル名は Obsidian の指定です。旧 Component Renderer を無効化・削除してから Obsidian を再読み込みし、**koiro_blog** を有効にしてください。コードを信頼できる Vault でのみ使用してください。
+`data/.obsidian/plugins/koiro_blog/` でビルドすると、`data/` Vault はこのディレクトリから直接プラグインを読み込むため、コピーは不要です。別の Vault にインストールする場合は、`main.js`、`manifest.json`、`styles.css` を `<vault>/.obsidian/plugins/koiro_blog/` にコピーします。この 3 つのファイル名は Obsidian の指定です。旧 Component Renderer を無効化・削除してから Obsidian を再読み込みし、**koiro_blog** を有効にしてください。コードを信頼できる Vault でのみ使用してください。
 
 ### 更新
 
-プラグインを無効にし、上記の 3 ファイルを新しいビルドで置き換えてから再度有効にします。
+プラグインを無効にし、同じディレクトリで再ビルドしてから再度有効にします。別の Vault では上記の 3 ファイルを置き換えてください。
 
 ## 機能
 

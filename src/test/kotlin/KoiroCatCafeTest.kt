@@ -196,17 +196,18 @@ class KoiroCatCafeTest {
     }
 
     @Test
-    fun `plugin sources are not content but stray Markdown elsewhere still fails`() = withSiteFixture { data, output, locales ->
+    fun `Obsidian state and plugin sources are not content but stray Markdown elsewhere still fails`() = withSiteFixture { data, output, locales ->
         writeBundle(data, "blogs/post", "id = \"post\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\"", "article")
-        val plugin = data.resolve("component/plugins/koiro_blog").createDirectories()
+        val plugin = data.resolve(".obsidian/plugins/koiro_blog").createDirectories()
         plugin.resolve("README.md").writeText("Plugin documentation, not a content package")
         plugin.resolve("node_modules/library").createDirectories().resolve("README.md").writeText("Dependency docs")
+        data.resolve(".obsidian/README.md").writeText("Vault configuration documentation")
         val site = KoiroCatCafe(data, output.toString(), i18nPath = locales)
         site.generateAll()
         assertTrue(output.resolve("en-US/pages/blogs/post.html").isRegularFile())
-        assertFalse(output.resolve("component").exists())
-        val stray = data.resolve("component/README.md")
-        stray.writeText("Still invalid outside the excluded plugins subtree")
+        assertFalse(output.resolve(".obsidian").exists())
+        val stray = data.resolve("README.md")
+        stray.writeText("Still invalid outside the excluded Obsidian subtree")
         val failure = assertFailsWith<IllegalArgumentException> { site.generateAll() }
         assertTrue(failure.message.orEmpty().contains(stray.toString()))
     }

@@ -8,11 +8,11 @@ Prévisualisez les composants HTML du blog et créez, modifiez, renommez ou dép
 
 ### Installation
 
-Compilez depuis `data/component/plugins/koiro_blog/`, puis copiez `main.js`, `manifest.json` et `styles.css` dans `<vault>/.obsidian/plugins/koiro_blog/`. Ces trois noms sont imposés par Obsidian. Désactivez et supprimez l’ancienne installation de Component Renderer, puis rechargez Obsidian et activez **koiro_blog**. Utilisez uniquement des coffres dont vous connaissez et acceptez le code des composants.
+Compilez dans `data/.obsidian/plugins/koiro_blog/` : le coffre `data/` charge directement l’extension depuis ce répertoire, sans copie. Pour un autre coffre, copiez `main.js`, `manifest.json` et `styles.css` dans `<vault>/.obsidian/plugins/koiro_blog/`. Ces trois noms sont imposés par Obsidian. Désactivez et supprimez l’ancienne installation de Component Renderer, puis rechargez Obsidian et activez **koiro_blog**. Utilisez uniquement des coffres dont vous connaissez et acceptez le code des composants.
 
 ### Mise à jour
 
-Désactivez l’extension, remplacez ces trois fichiers par la nouvelle compilation, puis réactivez-la.
+Désactivez l’extension, recompilez sur place (ou remplacez ces trois fichiers dans un autre coffre), puis réactivez-la.
 
 ## Fonctionnalités
 

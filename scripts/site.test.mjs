@@ -171,17 +171,17 @@ test('artifact validation rejects malformed RSS, undefined entities, wrong-langu
   assert.throws(() => validateSite(root), /Invalid WebAssembly/);
 });
 
-test('input validation can exclude plugin tooling without weakening checks on content', t => {
+test('input validation can exclude Obsidian state and plugin tooling without weakening checks on content', t => {
   const { root, write } = fixture(t);
   const data = path.join(root, 'data');
-  const plugins = path.join(data, 'component/plugins');
-  write('data/component/plugins/koiro_blog/node_modules/library/.github/config.yml');
-  symlinkSync(path.dirname(write('dependency/index.js')), path.join(plugins, 'linked'),
+  const obsidian = path.join(data, '.obsidian');
+  write('data/.obsidian/plugins/koiro_blog/node_modules/library/.github/config.yml');
+  symlinkSync(path.dirname(write('dependency/index.js')), path.join(obsidian, 'linked'),
     process.platform === 'win32' ? 'junction' : 'dir');
   assert.throws(() => checkTree(data), /repository metadata|symlink/);
-  checkTree(data, [plugins]);
+  checkTree(data, [obsidian]);
   write('data/component/.gitattributes', '*.png filter=lfs');
-  assert.throws(() => checkTree(data, [plugins]), /repository metadata/);
+  assert.throws(() => checkTree(data, [obsidian]), /repository metadata/);
 });
 
 test('repository metadata cannot be published', t => {

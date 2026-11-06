@@ -51,12 +51,8 @@ __pycache__/
 /notionData/
 crates/
 
-### Obsidian vault state (keep our plugin release) ###
+### Obsidian vault state (keep our plugin project) ###
 data/.obsidian/*
 !data/.obsidian/plugins/
 data/.obsidian/plugins/*
 !data/.obsidian/plugins/koiro_blog/
-data/.obsidian/plugins/koiro_blog/*
-!data/.obsidian/plugins/koiro_blog/main.js
-!data/.obsidian/plugins/koiro_blog/manifest.json
-!data/.obsidian/plugins/koiro_blog/styles.css

@@ -2,7 +2,7 @@
 
 ## 交付与边界
 
-插件位于 `data/component/plugins/koiro_blog/`，ID、显示名和 npm 包名均为 `koiro_blog`，源码入口为 `src/koiro_blog.ts`。它是独立的 npm 工程，不进入博客构建和发布产物；Node 输入校验和 Kotlin 内容发现跳过 `data/component/plugins/` 子树，其他目录仍执行原有内容检查。构建输出 `main.js`，安装只需该文件、`manifest.json` 和 `styles.css`，这三个文件名由 Obsidian 固定要求。仓库跟踪 `data/.obsidian/plugins/koiro_blog/` 中的这三个发布文件，其余 Obsidian 配置、插件和运行状态仍忽略。复制到 `<库>/.obsidian/plugins/koiro_blog/` 后启用；原 Component Renderer 安装需先停用，再移除旧插件目录，避免重复渲染。
+插件位于 `data/.obsidian/plugins/koiro_blog/`，ID、显示名和 npm 包名均为 `koiro_blog`，源码入口为 `src/koiro_blog.ts`。它是独立的 npm 工程，不进入博客构建和发布产物；Node 输入校验和 Kotlin 内容发现跳过整个 `data/.obsidian/` 子树，其他目录仍执行原有内容检查。构建输出 `main.js`，安装只需该文件、`manifest.json` 和 `styles.css`，这三个文件名由 Obsidian 固定要求。源码与发布文件保存在同一目录，`data/` 库直接加载，无需复制。仓库跟踪该插件的源码、文档、构建配置和三个发布文件，忽略 `node_modules/`、`.test-build/`、运行配置 `data.json` 及其他 Obsidian 配置、插件和运行状态。安装到其他库时，复制三个发布文件到 `<库>/.obsidian/plugins/koiro_blog/` 后启用；原 Component Renderer 安装需先停用，再移除旧插件目录，避免重复渲染。
 
 插件构建将博客的 `assets/assets/js/article-component-frame.js` 内联到 bundle，保证测量协议复用同一实现。同时通过 Gradle 的 `exportComponentAssets` 执行 Kotlin 注册表，读取 `build/generated/component-assets.json`，只将其中登记的 `assets/component/` CSS/JS 编码为 data URL 后打包。不扫描目录、不维护第二份清单；导出或文件读取失败即终止构建，不回退旧清单。
 

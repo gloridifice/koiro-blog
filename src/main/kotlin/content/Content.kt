@@ -92,7 +92,7 @@ fun loadContent(root: Path): List<ContentBundle> {
     val markdownFiles = mutableListOf<Path>()
     Files.walkFileTree(normalized, object : SimpleFileVisitor<Path>() {
         override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult =
-            if (dir == normalized.resolve("component/plugins")) FileVisitResult.SKIP_SUBTREE else FileVisitResult.CONTINUE
+            if (dir == normalized.resolve(".obsidian")) FileVisitResult.SKIP_SUBTREE else FileVisitResult.CONTINUE
 
         override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
             require(!attrs.isSymbolicLink) { "Symlink in content: $file" }

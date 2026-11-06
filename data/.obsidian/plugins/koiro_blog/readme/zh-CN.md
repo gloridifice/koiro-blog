@@ -8,11 +8,11 @@
 
 ### 安装
 
-在 `data/component/plugins/koiro_blog/` 中构建后，将 `main.js`、`manifest.json`、`styles.css` 复制到 `<库>/.obsidian/plugins/koiro_blog/`。这三个文件名为 Obsidian 固定要求。先停用并移除旧版 Component Renderer，再重载 Obsidian，在第三方插件中启用 **koiro_blog**。只在组件代码可信的库中启用。
+在 `data/.obsidian/plugins/koiro_blog/` 中构建，`data/` 库会直接从该目录加载插件，无需复制。安装到其他库时，将 `main.js`、`manifest.json`、`styles.css` 复制到 `<库>/.obsidian/plugins/koiro_blog/`。这三个文件名为 Obsidian 固定要求。先停用并移除旧版 Component Renderer，再重载 Obsidian，在第三方插件中启用 **koiro_blog**。只在组件代码可信的库中启用。
 
 ### 更新
 
-停用插件，用新构建替换上述三个文件，再重新启用。
+停用插件，在原目录重新构建（其他库则替换上述三个文件），再重新启用。
 
 ## 功能
 

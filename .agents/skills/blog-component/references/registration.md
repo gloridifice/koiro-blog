@@ -31,7 +31,7 @@ val registered = ComponentAssetManifest(
    npm run build
    ```
    已安装 Chrome 时可用 `BROWSER_CHANNEL=chrome npm run test:components`。完整构建还需要项目原有的 Sass、Rust/Wasm 环境。
-5. **构建插件。** 在 `data/component/plugins/koiro_blog/` 运行：
+5. **构建插件。** 在 `data/.obsidian/plugins/koiro_blog/` 运行：
    ```sh
    npm ci
    npm run build

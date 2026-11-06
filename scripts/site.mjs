@@ -291,7 +291,7 @@ async function wasm() {
 
 export async function build({ release = false } = {}) {
   checkTree(path.join(ROOT, 'assets'));
-  checkTree(path.join(ROOT, 'data'), [path.join(ROOT, 'data/component/plugins')]);
+  checkTree(path.join(ROOT, 'data'), [path.join(ROOT, 'data/.obsidian')]);
   const license = path.join(ROOT, 'node_modules/lucide-static/LICENSE');
   if (!existsSync(license)) throw new Error('Dependencies are missing. Run npm ci first.');
   prepareOutput(path.join(ROOT, 'assets'), DIST);

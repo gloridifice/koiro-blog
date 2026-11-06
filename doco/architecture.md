@@ -43,7 +43,7 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - `scripts/dev.mjs` 为 `npm run dev` 提供 dist 本地 HTTP 服务与 Sass 监听；缺少入口、生成清单或 Wasm 时先完整构建。默认监听本机 8000 端口，占用时递增查找空闲端口；支持 `--port`/`PORT` 与 `--host`，终端打印实际地址。响应不缓存，修改样式后手动刷新；正文、Kotlin 和 Rust 不自动重建。Ctrl+C 同时停止服务和监听。
 - `scripts/migrate_content.py` 默认 dry-run，显式 apply 才写内容；使用临时树、哈希校验与独立备份，生成持久兼容清单，不翻译正文。
 - `scripts/prepare_images.py` 独立于部署构建，处理图像隐私元数据和 PNG/JPEG 转换；同步修改 Markdown、meta.toml 封面及兼容清单中的新源路径。
-- `data/component/plugins/koiro_blog/` 为独立 Obsidian 插件工程，在阅读视图及 CodeMirror Live Preview 中预览同样的组件标记，并注册 TOML 纯文本编辑视图和文件树右键创建入口；改名、移动沿用 Obsidian 原生操作。构建时内联博客高度脚本，并调用 Gradle 导出唯一的 Kotlin 组件注册表，将登记的 CSS/JS 打包供离线加载；不维护第二份清单或扫描资源目录。运行时通过 Vault API 读取明确引用的本地资源，不参与站点构建；Node 输入校验和 Kotlin 内容发现跳过 `data/component/plugins/` 子树，避免把插件源码和依赖当作内容。详见[插件契约](specs/obsidian-koiro-blog.md)。
+- `data/.obsidian/plugins/koiro_blog/` 为独立 Obsidian 插件工程，在阅读视图及 CodeMirror Live Preview 中预览同样的组件标记，并注册 TOML 纯文本编辑视图和文件树右键创建入口；改名、移动沿用 Obsidian 原生操作。构建时内联博客高度脚本，并调用 Gradle 导出唯一的 Kotlin 组件注册表，将登记的 CSS/JS 打包供离线加载；不维护第二份清单或扫描资源目录。运行时通过 Vault API 读取明确引用的本地资源，不参与站点构建；源码与构建产物位于同一目录，`data/` 库直接加载，无需复制。仓库跟踪该插件工程及三个发布文件，忽略依赖、测试临时产物、插件运行配置和其他 Obsidian 文件；Node 输入校验和 Kotlin 内容发现跳过整个 `data/.obsidian/` 子树，避免把编辑器配置、插件源码和依赖当作内容。详见[插件契约](specs/obsidian-koiro-blog.md)。
 - 浏览器偏好只存于 localStorage 的 `koiro.site.locale`；构建不读取浏览器偏好，也不回写 data。
 - `.generated-site-files.json` 记录当前生成产物；`.incremental-site.json` 保存 Kotlin 原子资源指纹、输出状态、附件依赖及 RSS 条目；`.static-image-cache.json` 保存 Node 静态图片状态。均为 dist 内可丢弃输出，不是内容源或迁移历史；删除 dist 可执行冷构建。
 

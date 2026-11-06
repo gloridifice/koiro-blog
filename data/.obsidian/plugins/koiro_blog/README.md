@@ -8,11 +8,11 @@ Preview blog HTML components and create, edit, rename and move TOML files in Obs
 
 ### Install
 
-Build from `data/component/plugins/koiro_blog/`, then copy `main.js`, `manifest.json`, and `styles.css` into `<vault>/.obsidian/plugins/koiro_blog/`. Obsidian requires these three filenames. Disable and remove the old Component Renderer installation first. Reload Obsidian and enable **koiro_blog** under Community plugins. Only enable it for vaults whose component code you trust.
+Build in `data/.obsidian/plugins/koiro_blog/`; the `data/` vault loads the plugin directly from this directory, with no copy step. For another vault, copy `main.js`, `manifest.json`, and `styles.css` into `<vault>/.obsidian/plugins/koiro_blog/`. Obsidian requires these three filenames. Disable and remove the old Component Renderer installation first. Reload Obsidian and enable **koiro_blog** under Community plugins. Only enable it for vaults whose component code you trust.
 
 ### Update
 
-Disable the plugin, replace those three files with a new build, and enable it again.
+Disable the plugin, rebuild in place (or replace those three files in another vault), and enable it again.
 
 ## Features
 
