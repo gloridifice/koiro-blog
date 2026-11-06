@@ -54,26 +54,22 @@ class SiteResources(outputPath: Path, sourcePath: Path) {
         pending[path] = bytes
     }
 
-    private fun canonicalizeOldCase() {
-        if (!System.getProperty("os.name").startsWith("Windows")) return
-        root.createDirectories()
-        val planned = current.values.flatMap { it.files.keys } + this.planned
-        for (relative in planned) {
-            val parts = relative.split('/')
-            var parent = root
-            for ((index, part) in parts.withIndex()) {
-                val expected = parent.resolve(part)
-                val actual = parent.listDirectoryEntries().firstOrNull {
-                    it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, expected)
-                } ?: break
-                if (actual.name != part) {
-                    val temporary = Files.createTempFile(parent, ".site-case-", ".tmp")
-                    temporary.deleteExisting()
-                    Files.move(actual, temporary)
-                    Files.move(temporary, expected)
-                }
-                parent = expected
+    private fun canonicalizePathCase(relative: String) {
+        var parent = root
+        for (part in relative.split('/')) {
+            val expected = parent.resolve(part)
+            if (!expected.exists()) break
+            val actual = parent.listDirectoryEntries().firstOrNull {
+                it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, expected)
+            } ?: break
+            if (actual.name != part) {
+                val temporary = Files.createTempFile(parent, ".site-case-", ".tmp")
+                temporary.deleteExisting()
+                Files.move(actual, temporary)
+                try { Files.move(temporary, expected) }
+                catch (error: Exception) { Files.move(temporary, actual); throw error }
             }
+            parent = expected
         }
     }
 
@@ -114,7 +110,8 @@ class SiteResources(outputPath: Path, sourcePath: Path) {
 
     /** Page generation must finish successfully before replacing HTML or deleting obsolete files. */
     fun finish() {
-        canonicalizeOldCase()
+        root.createDirectories()
+        for (relative in planned) canonicalizePathCase(relative)
         for ((relative, bytes) in pending) writeOutput(relative, bytes)
         val replacements = planned.associateBy { it.lowercase() }
         for (obsolete in previous.toSet() - planned) {
@@ -124,6 +121,11 @@ class SiteResources(outputPath: Path, sourcePath: Path) {
             // not an obsolete file to delete. Linux still removes the distinct old file.
             if (replacement != null && oldPath.exists() && replacement.exists() && Files.isSameFile(oldPath, replacement)) continue
             oldPath.deleteIfExists()
+            var directory = oldPath.parent
+            while (directory != null && directory != root && directory.isDirectory() && directory.listDirectoryEntries().isEmpty()) {
+                directory.deleteExisting()
+                directory = directory.parent
+            }
         }
         val records = current.mapValues { (_, record) ->
             record.copy(files = record.files.keys.associateWith { state(checkedOutput(it)) })
@@ -150,73 +152,10 @@ class SiteResources(outputPath: Path, sourcePath: Path) {
 
     private fun writeOutput(relative: String, bytes: ByteArray) {
         val target = checkedOutput(relative)
-        root.createDirectories()
-        var parent = root
-        val parts = relative.split('/')
-        for ((index, part) in parts.withIndex()) {
-            val expected = parent.resolve(part)
-            val present = expected.exists() || (System.getProperty("os.name").startsWith("Windows") && parent.isDirectory() && parent.listDirectoryEntries().any {
-                it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, expected)
-            })
-            if (present) {
-                // Windows otherwise preserves the old spelling after a case-only
-                // source rename, which breaks the exact-case deployment contract.
-                val actual = parent.listDirectoryEntries().firstOrNull {
-                    it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, expected)
-                }
-                if (actual != null && actual.name != part) {
-                    val temporary = Files.createTempFile(parent, ".site-case-", ".tmp")
-                    temporary.deleteExisting()
-                    Files.move(actual, temporary)
-                    try { Files.move(temporary, expected) }
-                    catch (error: Exception) { Files.move(temporary, actual); throw error }
-                }
-                if (System.getProperty("os.name").startsWith("Windows")) {
-                    val current = parent.listDirectoryEntries().firstOrNull {
-                        it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, expected)
-                    }
-                    if (current != null) parent = expected
-                }
-            } else {
-                // Do not reuse a differently cased directory left by an old build.
-                val obsolete = parent.listDirectoryEntries().filter { it.name.equals(part, ignoreCase = true) && it.name != part }
-                if (obsolete.isNotEmpty()) {
-                    require(index < parts.lastIndex) { "Cannot replace differently cased output file: $expected" }
-                    val lower = prefixLower(parts, index)
-                    require(previous.none { it.lowercase() == lower }) { "Differently cased output is not managed: $expected" }
-                    for (old in obsolete) {
-                        val temporary = Files.createTempDirectory(parent, ".site-case-dir-")
-                        Files.move(old, temporary.resolve(old.name))
-                        try { old.toFile().deleteRecursively() }
-                        catch (error: Exception) {
-                            temporary.resolve(old.name).moveTo(old)
-                            throw error
-                        }
-                        temporary.deleteIfExists()
-                    }
-                }
-                if (index < parts.lastIndex) expected.createDirectory()
-            }
-            parent = expected
-            if (index < parts.lastIndex) {
-                // A just-created case-insensitive directory may still resolve
-                // through an old spelling; subsequent checks must see the new path.
-                val oldCase = parent.parent.listDirectoryEntries().firstOrNull {
-                    it.name.equals(part, ignoreCase = true) && Files.isSameFile(it, parent) && it.name != part
-                }
-                if (oldCase != null) {
-                    val temporary = Files.createTempFile(parent.parent, ".site-case-", ".tmp")
-                    temporary.deleteExisting()
-                    Files.move(oldCase, temporary)
-                    Files.move(temporary, parent)
-                }
-            }
-        }
+        target.createParentDirectories()
+        canonicalizePathCase(relative)
         target.writeBytes(bytes)
     }
-
-    private fun prefixLower(parts: List<String>, index: Int): String =
-        parts.take(index + 1).joinToString("/").lowercase()
 
     private fun replaceState(target: Path, text: String) {
         root.createDirectories()
