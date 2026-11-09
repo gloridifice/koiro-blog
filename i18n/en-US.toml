@@ -23,6 +23,7 @@ socialLinks = "Social links and language"
 
 [article]
 componentTitle = "Interactive article component"
+contents = "Table of contents"
 
 [pagination]
 label = "Home page navigation"

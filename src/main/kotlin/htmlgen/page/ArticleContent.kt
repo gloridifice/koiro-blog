@@ -51,7 +51,6 @@ import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.lexer.push
 import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
 import kotlin.collections.plus
@@ -67,9 +66,7 @@ class ArticleContent(
     // The Markdown parser expects LF, including for blank lines that terminate HTML blocks.
     // Keep AST offsets and all text extraction on the same normalized source.
     val markdownText = markdownText.replace("\r\n", "\n").replace('\r', '\n')
-    var h1Index = 0
-    var h2Index = 0
-    var h3Index = 0
+    private val headingIndices = IntArray(6)
     var collectedData = CollectedData(arrayListOf())
     private val references = mutableMapOf<String, String>()
     private fun referenceKey(value: String) = value.trim('[', ']').trim().replace(Regex("\\s+"), " ").lowercase(java.util.Locale.ROOT)
@@ -122,54 +119,12 @@ class ArticleContent(
         when (node.type) {
             MarkdownElementTypes.MARKDOWN_FILE -> markdownBlocks(node.children)
 
-            MarkdownElementTypes.ATX_1 -> {
-                h1 {
-                    id = "heading1_${h1Index}"
-                    collectedData.headingInfos.push(Catalogue.HeadingInfo(Catalogue.HeadingType.H1, "", id))
-                    attributes["index-text"] = FormatUtils.intToRoman(h1Index + 1)
-                    h1Index++
-                    renderInlineContent(node)
-                }
-            }
-
-            MarkdownElementTypes.ATX_2 -> {
-                h2 {
-                    id = "heading2_${h2Index}"
-                    collectedData.headingInfos.push(Catalogue.HeadingInfo(Catalogue.HeadingType.H2, "", id))
-                    h2Index++
-                    renderInlineContent(node)
-                }
-            }
-
-            MarkdownElementTypes.ATX_3 -> {
-                h3 {
-                    id = "heading3_${h3Index}"
-                    collectedData.headingInfos.push(Catalogue.HeadingInfo(Catalogue.HeadingType.H3, "", id))
-                    h3Index++
-                    renderInlineContent(node)
-                }
-            }
-
-            MarkdownElementTypes.ATX_4 -> h4 { renderInlineContent(node) }
-            MarkdownElementTypes.ATX_5 -> h5 { renderInlineContent(node) }
-            MarkdownElementTypes.ATX_6 -> h6 { renderInlineContent(node) }
-
-            MarkdownElementTypes.SETEXT_1 -> {
-                h1 {
-                    id = "heading1_${h1Index}"
-                    attributes["index-text"] = FormatUtils.intToRoman(h1Index + 1)
-                    h1Index++
-                    renderInlineContent(node)
-                }
-            }
-
-            MarkdownElementTypes.SETEXT_2 -> {
-                h2 {
-                    id = "heading2_${h2Index}"
-                    h2Index++
-                    renderInlineContent(node)
-                }
-            }
+            MarkdownElementTypes.ATX_1, MarkdownElementTypes.SETEXT_1 -> renderHeading(node, 1)
+            MarkdownElementTypes.ATX_2, MarkdownElementTypes.SETEXT_2 -> renderHeading(node, 2)
+            MarkdownElementTypes.ATX_3 -> renderHeading(node, 3)
+            MarkdownElementTypes.ATX_4 -> renderHeading(node, 4)
+            MarkdownElementTypes.ATX_5 -> renderHeading(node, 5)
+            MarkdownElementTypes.ATX_6 -> renderHeading(node, 6)
 
             MarkdownElementTypes.PARAGRAPH -> p { renderInlineContent(node) }
 
@@ -225,6 +180,35 @@ class ArticleContent(
 
             else -> markdownBlocks(node.children)
         }
+    }
+
+    private fun FlowContent.renderHeading(node: ASTNode, level: Int) {
+        val index = headingIndices[level - 1]++
+        val headingId = "heading${level}_$index"
+        collectedData.headingInfos.add(Catalogue.HeadingInfo(level,
+            headingText(node).trim().replace(Regex("\\s+"), " "), headingId))
+        when (level) {
+            1 -> h1 {
+                id = headingId
+                attributes["index-text"] = FormatUtils.intToRoman(index + 1)
+                renderInlineContent(node)
+            }
+            2 -> h2 { id = headingId; renderInlineContent(node) }
+            3 -> h3 { id = headingId; renderInlineContent(node) }
+            4 -> h4 { id = headingId; renderInlineContent(node) }
+            5 -> h5 { id = headingId; renderInlineContent(node) }
+            6 -> h6 { id = headingId; renderInlineContent(node) }
+        }
+    }
+
+    private fun headingText(node: ASTNode): String = when (node.type) {
+        MarkdownTokenTypes.ATX_HEADER, MarkdownTokenTypes.SETEXT_1, MarkdownTokenTypes.SETEXT_2 -> ""
+        MarkdownElementTypes.INLINE_LINK, MarkdownElementTypes.FULL_REFERENCE_LINK,
+        MarkdownElementTypes.SHORT_REFERENCE_LINK -> node.findChildOfType(MarkdownElementTypes.LINK_TEXT)
+            ?.let(::headingText).orEmpty()
+        MarkdownElementTypes.IMAGE -> node.children.joinToString("") { headingText(it) }
+        else -> if (node.children.isEmpty()) node.getTextInNode(markdownText).toString()
+            else inlineContentChildren(node).joinToString("") { headingText(it) }
     }
 
     private fun inlineContentChildren(node: ASTNode): List<ASTNode> {
@@ -288,12 +272,7 @@ class ArticleContent(
         when (node.type) {
             MarkdownTokenTypes.TEXT -> +node.getTextInNode(markdownText).toString()
 
-            MarkdownTokenTypes.ATX_CONTENT -> {
-                collectedData.headingInfos.lastOrNull()?.let {
-                    if (it.content.isEmpty()) it.content = extractText(node).trim()
-                }
-                renderInlineContent(node)
-            }
+            MarkdownTokenTypes.ATX_CONTENT -> renderInlineContent(node)
 
             MarkdownTokenTypes.BLOCK_QUOTE -> {
                 // Continuation-line quote markers can also occur inside paragraphs.

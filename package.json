@@ -12,7 +12,8 @@
     "watch:styles": "node scripts/site.mjs watch-styles",
     "wasm": "node scripts/site.mjs wasm",
     "test": "node --test scripts/site.test.mjs scripts/dev.test.mjs",
-    "test:components": "node --test scripts/article-components.test.mjs"
+    "test:components": "node --test scripts/article-components.test.mjs",
+    "test:toc": "node --test scripts/article-toc.test.mjs"
   },
   "devDependencies": {
     "lucide-static": "1.63.0",

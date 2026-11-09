@@ -1,0 +1,137 @@
+// Desktop-only preview rail. Only title labels have a translucent backdrop.
+.article-toc {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 20;
+  --toc-column-width: 280px;
+}
+
+.article-toc__column {
+  position: fixed;
+  width: max-content;
+  max-width: var(--toc-column-width);
+  max-height: min(70vh, calc(100vh - 48px));
+  margin: 0;
+  padding: 2px 12px 2px 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  text-align: left;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:not([data-depth='0']) {
+    animation: toc-column-enter 160ms ease-out;
+  }
+
+  &[data-depth='0'] .article-toc__label {
+    padding-block: 0;
+    background: none;
+  }
+}
+
+a.article-toc__link {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  padding: 2px 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--text-color-2);
+  font-size: 13px;
+  line-height: 20px;
+  text-decoration: none;
+  transition: color 160ms ease;
+
+  &:focus-visible {
+    outline: none;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.article-toc__tick {
+  display: block;
+  width: var(--toc-tick-width, 16px);
+  height: 3px;
+  background: currentColor;
+  transition: width 180ms ease-out, color 160ms ease;
+}
+
+.article-toc__label {
+  justify-self: start;
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-color-0) 80%, transparent);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.article-toc:not([data-open]) {
+  .article-toc__column[data-depth='0'] {
+    width: 44px;
+    padding-right: 0;
+  }
+
+  .article-toc__label {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+
+  .article-toc__link[data-current] {
+    color: var(--text-color-0);
+    --toc-tick-width: 32px;
+  }
+}
+
+.article-toc[data-open] .article-toc__link[data-preview] {
+  color: var(--text-color-0);
+}
+
+.post .page_content :is(h1, h2, h3, h4, h5, h6)[id] {
+  scroll-margin-top: 100px;
+}
+
+@keyframes toc-column-enter {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+// Below this width there is not enough gutter for three readable columns.
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+  .article-toc[data-ready] {
+    display: block;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .article-toc__column { animation: none; }
+  .article-toc__link, .article-toc__tick, .article-toc__label { transition: none; }
+}

@@ -23,6 +23,7 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - `i18n/`：语言注册、TOML 文案、命名参数模板及中文回退；缺失文案警告按构建去重。
 - `routing/`：稳定内容身份、统一分页、语言化 URL、站内文章互链及旧地址映射。PageContext 显式传给页面与组件。
 - `htmlgen/`：kotlinx.html 静态渲染。ArticleContent 使用 JetBrains GFM Markdown AST，将行内及块级公式作为不参与 Markdown 格式解析的 TeX 输出；独立的 `article-math.js` 在浏览器中调用 KaTeX，不依赖 Wasm。受信任原始 HTML 的本地 URL 用 Jsoup 解析后重写，不将 Jsoup 当作内容安全过滤器。元数据和文案普通文本由 DSL 转义。
+- 文章目录由 ArticleContent 收集正文 Markdown 标题及锚点，Catalogue 在构建期生成最多三级的导航列表；独立的 `article-toc.js` 管理桌面端透明 Preview Rail 的逐级预览、键盘操作和阅读位置，不依赖 Wasm。样式通过 post.scss 引入 `_article_toc.scss`，手机端不显示目录，详见[输出契约](specs/localized-output.md#文章目录)。
 - `buildsystem/SiteResources`：统一登记输出、校验路径及大小写冲突，缓存原子资源并在生成成功后清理过期产物。文章全部语言 HTML 为一个原子，图片/附件与历史图片别名独立为原子，单篇博文的各语言 RSS 条目为一个无文件输出的原子；首页、列表页、兼容跳转和完整 feed 始终全量生成。缓存命中的文章恢复附件依赖，不依赖重新渲染发现图片。
 - `ImageAssets`：相对正文/元数据解析附件，限制在内容根内，复制到共享 images/content；images 下其他路径保留给历史别名，避免 Windows 大小写折叠破坏 Linux 托管路径；PNG/JPEG 保留原有压缩行为，GIF 与其他附件按字节复制；尺寸缓存在一次构建内共享；源修改时间、大小及处理代码未变且产物存在、状态未变时复用图片，不重复压缩或写入。
 - `src/main/rs-wasm-script/`：头像、滚动显现、图片栈及文章类型筛选等浏览器交互。站点固定使用已发布的深色主题，不按系统偏好或旧 Cookie 加载其他主题。语言选择使用独立静态 `site-language.js`，根入口不依赖 Wasm 初始化。

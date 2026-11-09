@@ -23,6 +23,7 @@ socialLinks = "社交链接与语言"
 
 [article]
 componentTitle = "文章交互组件"
+contents = "文章目录"
 
 [pagination]
 label = "主页分页"

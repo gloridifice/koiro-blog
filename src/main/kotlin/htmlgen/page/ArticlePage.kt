@@ -8,7 +8,6 @@ import htmlgen.component.translationLines
 import htmlgen.page.home.navigation
 import kotlinx.html.*
 import routing.PageContext
-import java.time.format.DateTimeFormatter
 
 fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: ImageAssets) {
     var collected: ArticleContent.CollectedData? = null
@@ -17,9 +16,7 @@ fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: Imag
         cssNames = arrayOf("post", "color_scheme_v2.dark_mode", "highlightjs/github-dark")) {
         script { unsafe { +"hljs.highlightAll();" } }
         div("post") {
-            div("sidebar_wrapper_left sidebar_wrapper") {
-                navi(context) { languageTools(context, menuId = "site-language-menu-navi", placement = "right") }
-            }
+            div("sidebar_wrapper_left sidebar_wrapper")
             div("contents") {
                 div("top_gap_space")
                 div("header") {
@@ -46,8 +43,12 @@ fun HTML.articlePage(record: ResolvedContent, context: PageContext, images: Imag
                 }
             }
             div("sidebar_wrapper_right sidebar_wrapper") {
-                collected?.let { Catalogue(it.headingInfos).apply { show() } }
+                navi(context) { languageTools(context, menuId = "site-language-menu-navi", placement = "left") }
+            }
+            collected?.let {
+                with(Catalogue(it.headingInfos)) { show(context.text("article.contents"), record.variant.localeTag) }
             }
         }
+        script { src = "/assets/js/article-toc.js"; defer = true }
     }
 }
