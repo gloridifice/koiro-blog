@@ -27,7 +27,7 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - `ImageAssets`：相对正文/元数据解析附件，限制在内容根内，复制到共享 images/content；images 下其他路径保留给历史别名，避免 Windows 大小写折叠破坏 Linux 托管路径；PNG/JPEG 保留原有压缩行为，GIF 与其他附件按字节复制；尺寸缓存在一次构建内共享；源修改时间、大小及处理代码未变且产物存在、状态未变时复用图片，不重复压缩或写入。
 - `src/main/rs-wasm-script/`：头像、滚动显现、图片栈及文章类型筛选等浏览器交互。站点固定使用已发布的深色主题，不按系统偏好或旧 Cookie 加载其他主题。语言选择使用独立静态 `site-language.js`，根入口不依赖 Wasm 初始化。
 - Markdown 的 `html component` 围栏由 ArticleContent 生成仅允许脚本的沙箱 iframe/srcdoc；独立的 `article-components.js` 与 `article-component-frame.js` 通过校验来源的 postMessage 同步高度，不依赖 Wasm。公共 CSS/JS 位于 `assets/component/`，由 `htmlgen/component/ComponentAssets.kt` 显式注册后注入，禁止扫描目录自动加载；预设只作用于标记组件，作者可覆盖样式或编写自己的逻辑。组件 HTML 资源沿用内容包附件解析，CSS/JS 字符串中的依赖不自动重写。
-- `src/main/stylesheet/`：Dart Sass 编译的全局样式；language.scss 维护语言控件及翻译提示，颜色使用 CSS 自定义属性。
+- `src/main/stylesheet/`：Dart Sass 编译的全局样式；language.scss 维护语言控件及翻译提示，颜色使用 CSS 自定义属性。正文 Markdown 文字链接在构建期标记图标类型，page_content.scss 用空伪元素和本地 SVG mask 显示前置图标，不插入可复制字符或图片节点；默认链条图标，仅 HTTP/HTTPS（含协议相对地址）的 github.com、www.github.com 使用 GitHub 图标，域名不区分大小写。普通、引用式及自动链接一致处理，纯图片链接、原始 HTML 链接、导航及组件 iframe 不参与。
 
 生成器先加载并验证输入，按构建模式确定统一内容集合和页面计划，再按语言选择译本、复用原子资源并渲染其余页面。文章指纹覆盖全部译本、公共 metadata、字典、路由计划及生成代码，保守处理共享依赖变化；RSS 条目指纹仅覆盖其实际字段及生成配置。HTML/RSS 在全部页面生成成功后写出；附件复制可能先发生。生成文件清单包含附件并限制增量删除范围，不删除无关手写文件。npm 构建保留登记产物和缓存，静态图片按源/输出时间与大小复用，其余静态文件重拷；清除未登记的旧文件，Kotlin 成功生成后清理不再需要的登记产物。
 

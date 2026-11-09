@@ -375,6 +375,29 @@ t.italic {
   font-style: italic;
 }
 
+// Empty generated content decorates links without adding selectable text or image nodes.
+.page_content a[data-link-icon] {
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    margin-inline-end: 0.25em;
+    vertical-align: -0.1em;
+    background-color: currentColor;
+    -webkit-mask: url("/assets/resources/icon/link.svg") center / contain no-repeat;
+    mask: url("/assets/resources/icon/link.svg") center / contain no-repeat;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  &[data-link-icon="github"]::before {
+    -webkit-mask-image: url("/assets/resources/icon/github.svg");
+    mask-image: url("/assets/resources/icon/github.svg");
+  }
+}
+
 a.link {
   color: var(--text-color-2);
   transition: color 0.3s;

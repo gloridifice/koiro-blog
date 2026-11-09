@@ -329,7 +329,7 @@ class ArticleContent(
             MarkdownElementTypes.AUTOLINK -> {
                 val url = node.getTextInNode(markdownText).toString().removeSurrounding("<", ">")
                 a(href = resolveHref(url)) {
-                    classes += "link"
+                    decorateLink()
                     +url
                 }
             }
@@ -492,8 +492,8 @@ class ArticleContent(
         val linkTextNode = node.children.find { it.type == MarkdownElementTypes.LINK_TEXT }
         val linkTitleNode = node.children.find { it.type == MarkdownElementTypes.LINK_TITLE }
         a {
-            this.href = resolveHref(href)
-            classes += "link"
+            this.href = resolveHref(href.removeSurrounding("<", ">"))
+            decorateLink(linkTextNode == null || hasLinkText(linkTextNode))
             linkTitleNode?.getTextInNode(markdownText)?.toString()?.trim('"')?.let { title = it }
             if (linkTextNode != null) renderInlineContent(linkTextNode)
             else +href
@@ -508,10 +508,29 @@ class ArticleContent(
         val href = references[referenceKey(label)]
         if (href == null) { +node.getTextInNode(markdownText).toString(); return }
         a(href = resolveHref(href)) {
-            classes += "link"
+            decorateLink(linkTextNode == null || hasLinkText(linkTextNode))
             if (linkTextNode != null) renderInlineContent(linkTextNode)
             else +href
         }
+    }
+
+    private fun hasLinkText(node: ASTNode): Boolean = when {
+        node.type == MarkdownElementTypes.IMAGE -> false
+        node.children.isEmpty() -> node.getTextInNode(markdownText).isNotBlank()
+        else -> inlineContentChildren(node).any(::hasLinkText)
+    }
+
+    private fun kotlinx.html.A.decorateLink(hasText: Boolean = true) {
+        classes += "link"
+        if (!hasText) return
+        // Parse the authority, never match a domain embedded in a path or user info.
+        val uri = try { java.net.URI(href.orEmpty()) } catch (_: java.net.URISyntaxException) { null }
+        val scheme = uri?.scheme?.lowercase(java.util.Locale.ROOT)
+        val host = uri?.host?.lowercase(java.util.Locale.ROOT)
+        attributes["data-link-icon"] = if (
+            (scheme == "http" || scheme == "https" || (scheme == null && href.orEmpty().startsWith("//"))) &&
+            host in setOf("github.com", "www.github.com")
+        ) "github" else "link"
     }
 
     private fun resolveHref(href: String): String {

@@ -68,6 +68,42 @@ class ArticleContentTest {
     }
 
     @Test
+    fun `text links select icons by URL host without changing their content`() {
+        val destinations = listOf(
+            "https://github.com/user/repo" to "github",
+            "HTTP://GITHUB.COM/user" to "github",
+            "//www.github.com/user" to "github",
+            "https://github.com:443/user" to "github",
+            "https://github.com.evil.example/" to "link",
+            "https://github.com@evil.example/" to "link",
+            "https://example.com/?url=github.com" to "link",
+            "https://someone.github.io/" to "link",
+            "https://gist.github.com/user" to "link",
+            "#section" to "link",
+            "mailto:hello@github.com" to "link",
+            "https://[invalid" to "link"
+        )
+        for ((url, icon) in destinations) {
+            val link = Jsoup.parseBodyFragment(renderHtml("[**项目**源码]($url)")).selectFirst("a")!!
+            assertEquals(url, link.attr("href"))
+            assertEquals(icon, link.attr("data-link-icon"), url)
+            assertEquals("项目源码", link.text())
+            assertEquals("<strong>项目</strong>源码", link.html())
+        }
+        val doc = Jsoup.parseBodyFragment(renderHtml("""
+            [引用][repo] [repo] <https://github.com/user>
+
+            [![封面](https://example.com/a.png)](https://github.com/user)
+
+            [![封面](https://example.com/a.png)说明](https://github.com/user)
+
+            [repo]: https://github.com/user
+        """.trimIndent()))
+        assertEquals(listOf("github", "github", "github", "", "github"),
+            doc.select("a").map { it.attr("data-link-icon") })
+    }
+
+    @Test
     fun `literal bracket expressions are not broken links and reference definitions provide real destinations`() {
         val doc = render("[0, 1] and [优先] and [reference][target]\n\n[target]: https://example.com/resource")
         val links = doc.getElementsByTagName("a")
