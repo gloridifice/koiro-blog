@@ -104,6 +104,52 @@ class ArticleContentTest {
     }
 
     @Test
+    fun `bare HTTP links render inline across prose without changing code or existing links`() {
+        val url = "https://github.com/user/repo_name?q=one&other=two#section"
+        val cases = listOf(
+            "See $url, then http://example.com/path." to "p",
+            "# $url" to "h1",
+            "- $url" to "li",
+            "> $url" to "blockquote",
+            "| Link |\n| --- |\n| $url |" to "td",
+            "**$url**" to "strong"
+        )
+        for ((markdown, container) in cases) {
+            val doc = Jsoup.parseBodyFragment(renderHtml(markdown))
+            val links = doc.select("a")
+            val expected = if (markdown.startsWith("See")) listOf(url, "http://example.com/path") else listOf(url)
+            assertEquals(expected, links.map { it.attr("href") }, markdown)
+            assertEquals(expected, links.map { it.text() }, markdown)
+            assertEquals(expected.size, doc.select("$container a.link").size, markdown)
+            assertEquals("github", links.first()!!.attr("data-link-icon"), markdown)
+            if (markdown.startsWith("See")) assertEquals("See $url, then http://example.com/path.", doc.text())
+        }
+        val markdown = """
+            `$url`
+
+            ```text
+            http://example.com/fenced
+            ```
+
+                https://example.com/indented
+
+            [$url](https://example.com/explicit) [reference][target] <https://example.com/angle>
+
+            www.example.com ftp://example.com hello@example.com
+
+            [target]: https://example.com/reference
+        """.trimIndent()
+        val doc = Jsoup.parseBodyFragment(renderHtml(markdown))
+        assertEquals(listOf("https://example.com/explicit", "https://example.com/reference", "https://example.com/angle"),
+            doc.select("a").map { it.attr("href") })
+        assertEquals(listOf(url, "http://example.com/fenced", "    https://example.com/indented"),
+            doc.select("code").map { it.wholeText() })
+        assertTrue(doc.select("code a, a a").isEmpty())
+        assertEquals(url, doc.selectFirst("a")!!.text())
+        assertTrue(doc.text().contains("www.example.com ftp://example.com hello@example.com"))
+    }
+
+    @Test
     fun `literal bracket expressions are not broken links and reference definitions provide real destinations`() {
         val doc = render("[0, 1] and [优先] and [reference][target]\n\n[target]: https://example.com/resource")
         val links = doc.getElementsByTagName("a")

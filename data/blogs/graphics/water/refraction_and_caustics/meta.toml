@@ -1,6 +1,6 @@
 id = "refraction_and_caustics"
 icon = "waves"
 published = false
-class = "Dev"
+class = "graphics"
 date = "2026-11-04"
 tags = ["Graphics", "Wgpu"]

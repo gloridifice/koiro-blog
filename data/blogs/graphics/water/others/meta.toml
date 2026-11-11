@@ -1,6 +1,6 @@
 id = "others"
 icon = "waves"
 published = false
-class = "Dev"
+class = "graphics"
 date = "2026-11-05"
 tags = ["Graphics", "Wgpu"]

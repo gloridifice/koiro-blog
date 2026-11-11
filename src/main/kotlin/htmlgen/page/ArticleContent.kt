@@ -226,8 +226,8 @@ class ArticleContent(
         } else children
     }
 
-    private fun FlowContent.renderInlineContent(node: ASTNode) {
-        for (child in inlineContentChildren(node)) renderInlineNode(child)
+    private fun FlowContent.renderInlineContent(node: ASTNode, allowAutolinks: Boolean = true) {
+        for (child in inlineContentChildren(node)) renderInlineNode(child, allowAutolinks)
     }
 
     private fun FlowContent.renderImageStack(imageStack: List<Pair<ServerPath, String>>) {
@@ -268,11 +268,11 @@ class ArticleContent(
         }
     }
 
-    private fun FlowContent.renderInlineNode(node: ASTNode) {
+    private fun FlowContent.renderInlineNode(node: ASTNode, allowAutolinks: Boolean) {
         when (node.type) {
             MarkdownTokenTypes.TEXT -> +node.getTextInNode(markdownText).toString()
 
-            MarkdownTokenTypes.ATX_CONTENT -> renderInlineContent(node)
+            MarkdownTokenTypes.ATX_CONTENT -> renderInlineContent(node, allowAutolinks)
 
             MarkdownTokenTypes.BLOCK_QUOTE -> {
                 // Continuation-line quote markers can also occur inside paragraphs.
@@ -286,8 +286,8 @@ class ArticleContent(
 
             MarkdownTokenTypes.HARD_LINE_BREAK -> br
 
-            MarkdownElementTypes.EMPH -> em { renderInlineContent(node) }
-            MarkdownElementTypes.STRONG -> strong { renderInlineContent(node) }
+            MarkdownElementTypes.EMPH -> em { renderInlineContent(node, allowAutolinks) }
+            MarkdownElementTypes.STRONG -> strong { renderInlineContent(node, allowAutolinks) }
 
             MarkdownElementTypes.CODE_SPAN -> {
                 val text = inlineContentChildren(node)
@@ -305,6 +305,17 @@ class ArticleContent(
             MarkdownElementTypes.FULL_REFERENCE_LINK -> renderReferenceLink(node)
             MarkdownElementTypes.SHORT_REFERENCE_LINK -> renderReferenceLink(node)
 
+            GFMTokenTypes.GFM_AUTOLINK -> {
+                val url = node.getTextInNode(markdownText).toString()
+                // Let GFM determine URL boundaries; do not invent schemes for www or email text.
+                if (allowAutolinks && (url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true))) {
+                    a(href = resolveHref(url)) {
+                        decorateLink()
+                        +url
+                    }
+                } else +url
+            }
+
             MarkdownElementTypes.AUTOLINK -> {
                 val url = node.getTextInNode(markdownText).toString().removeSurrounding("<", ">")
                 a(href = resolveHref(url)) {
@@ -313,9 +324,9 @@ class ArticleContent(
                 }
             }
 
-            MarkdownElementTypes.LINK_TEXT -> renderInlineContent(node)
+            MarkdownElementTypes.LINK_TEXT -> renderInlineContent(node, allowAutolinks)
 
-            GFMElementTypes.STRIKETHROUGH -> del { renderInlineContent(node) }
+            GFMElementTypes.STRIKETHROUGH -> del { renderInlineContent(node, allowAutolinks) }
 
             GFMElementTypes.INLINE_MATH, GFMElementTypes.BLOCK_MATH -> renderMath(node)
 
@@ -323,7 +334,7 @@ class ArticleContent(
             }
 
             else -> {
-                if (node.children.isNotEmpty()) renderInlineContent(node)
+                if (node.children.isNotEmpty()) renderInlineContent(node, allowAutolinks)
                 else {
                     val text = node.getTextInNode(markdownText).toString()
                     if (text.isNotEmpty()) +text
@@ -474,7 +485,7 @@ class ArticleContent(
             this.href = resolveHref(href.removeSurrounding("<", ">"))
             decorateLink(linkTextNode == null || hasLinkText(linkTextNode))
             linkTitleNode?.getTextInNode(markdownText)?.toString()?.trim('"')?.let { title = it }
-            if (linkTextNode != null) renderInlineContent(linkTextNode)
+            if (linkTextNode != null) renderInlineContent(linkTextNode, allowAutolinks = false)
             else +href
         }
     }
@@ -488,7 +499,7 @@ class ArticleContent(
         if (href == null) { +node.getTextInNode(markdownText).toString(); return }
         a(href = resolveHref(href)) {
             decorateLink(linkTextNode == null || hasLinkText(linkTextNode))
-            if (linkTextNode != null) renderInlineContent(linkTextNode)
+            if (linkTextNode != null) renderInlineContent(linkTextNode, allowAutolinks = false)
             else +href
         }
     }
