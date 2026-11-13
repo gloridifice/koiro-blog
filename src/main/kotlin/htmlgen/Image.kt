@@ -5,10 +5,11 @@ import ServerPath
 import buildsystem.ResourceOutput
 import buildsystem.SiteResources
 import buildsystem.fingerprint
-import buildsystem.implementationFingerprint
+import buildsystem.scopedImplementationFingerprint
 import decodeURL
 import kotlinx.html.IMG
 import kotlinx.html.ImgLoading
+import net.coobird.thumbnailator.Thumbnails
 import javax.imageio.ImageIO
 import java.nio.file.Path
 import kotlin.io.path.extension
@@ -18,8 +19,10 @@ import kotlin.io.path.readBytes
 
 /** Copies article attachments into the same output tree as the generated pages. */
 class ImageAssets(databasePath: Path, private val outputPath: Path,
-    private val resources: SiteResources = SiteResources(outputPath, databasePath),
-    private val version: String = implementationFingerprint(ImageCompressor::class.java)) {
+    private val resources: SiteResources = SiteResources(outputPath, databasePath)) {
+    // Page/template changes must not invalidate shared images or their historical aliases.
+    private val version = scopedImplementationFingerprint(ImageAssets::class.java, ImageCompressor::class.java,
+        dependencies = listOf(Thumbnails::class.java))
     private val databaseRoot = databasePath.toAbsolutePath().normalize()
     private val imageSizes = mutableMapOf<ServerPath, ImageSize>()
     private var collecting: MutableSet<String>? = null

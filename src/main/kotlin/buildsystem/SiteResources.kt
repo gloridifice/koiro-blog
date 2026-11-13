@@ -8,6 +8,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
+import java.util.jar.JarFile
 import kotlin.io.path.*
 
 @Serializable
@@ -205,7 +206,37 @@ fun directoryFingerprint(root: Path, extension: String): String {
     return fingerprint(*parts.toTypedArray())
 }
 
-/** Compiled project code invalidates templates/encoders automatically, including packaged runs. */
+/** Hash only the named class families, plus complete processing dependencies, in directories or JARs. */
+fun scopedImplementationFingerprint(vararg anchors: Class<*>, dependencies: List<Class<*>> = emptyList()): String {
+    fun hash(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+    fun location(type: Class<*>) = Path.of(requireNotNull(type.protectionDomain?.codeSource?.location) {
+        "Cannot locate implementation of ${type.name}"
+    }.toURI())
+    val classes = anchors.flatMap { type ->
+        val prefix = type.name.replace('.', '/')
+        fun included(name: String) = name == "$prefix.class" || (name.startsWith("$prefix\$") && name.endsWith(".class"))
+        val origin = location(type)
+        if (origin.isDirectory()) Files.list(origin.resolve(prefix).parent).use { files ->
+            files.filter { it.isRegularFile() && included(origin.relativize(it).invariantSeparatorsPathString) }
+                .sorted().toList().map { origin.relativize(it).invariantSeparatorsPathString + ":" + hash(it.readBytes()) }
+        } else JarFile(origin.toFile()).use { jar ->
+            jar.entries().asSequence().filter { !it.isDirectory && included(it.name) }.sortedBy { it.name }.map { entry ->
+                entry.name + ":" + jar.getInputStream(entry).use { hash(it.readBytes()) }
+            }.toList()
+        }
+    }
+    val libraries = dependencies.map(::location).distinct().flatMap { origin ->
+        if (origin.isDirectory()) Files.walk(origin).use { files ->
+            files.filter { it.isRegularFile() }.sorted().toList().map {
+                origin.relativize(it).invariantSeparatorsPathString + ":" + hash(it.readBytes())
+            }
+        } else listOf(hash(origin.readBytes()))
+    }
+    return fingerprint("scoped-implementation-v1", System.getProperty("java.runtime.version"),
+        System.getProperty("java.vendor"), *(classes + libraries).toTypedArray())
+}
+
+/** Compiled project code invalidates templates automatically, including packaged runs. */
 fun implementationFingerprint(vararg anchors: Class<*>): String {
     val parts = anchors.mapNotNull { it.protectionDomain?.codeSource?.location?.toURI()?.let(Path::of) }.distinct()
         .flatMap { location ->

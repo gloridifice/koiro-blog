@@ -1,7 +1,14 @@
 import org.jsoup.Jsoup
+import java.awt.image.BufferedImage
+import java.net.URLClassLoader
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 import java.util.Base64
+import java.util.jar.JarEntry
+import java.util.jar.JarOutputStream
+import javax.imageio.ImageIO
+import javax.tools.ToolProvider
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.io.path.*
 import kotlin.test.*
@@ -112,6 +119,75 @@ class IncrementalBuildTest {
         assertFailsWith<IllegalArgumentException> { site.generateAll() }
         assertEquals(previousHtml, article.readText())
         assertEquals(previousManifest, output.resolve(".generated-site-files.json").readText())
+    }
+
+    @Test
+    fun `images and aliases survive unrelated compiled code changes but follow processing changes in directories and jars`() {
+        for (packaged in listOf(false, true)) withSiteFixture { data, output, locales ->
+            val classes = data.parent.resolve("classes").createDirectories()
+            val original = Path.of(KoiroCatCafe::class.java.protectionDomain.codeSource.location.toURI())
+            Files.walk(original).use { files -> files.filter { it.isRegularFile() }.forEach { file ->
+                val destination = classes.resolve(original.relativize(file))
+                destination.createParentDirectories()
+                Files.copy(file, destination)
+            } }
+            val image = data.resolve("image.png")
+            ImageIO.write(BufferedImage(32, 16, BufferedImage.TYPE_INT_RGB), "png", image.toFile())
+            writeBundle(data, "blogs/post", blogMeta("post"), "![image](../../image.png)")
+            data.resolve("migration-map.toml").writeText("""
+                [[assets]]
+                old-url = "/images/legacy.png"
+                source = "image.png"
+            """.trimIndent())
+
+            fun generate() {
+                val location = if (packaged) data.parent.resolve("site.jar").also { jar ->
+                    JarOutputStream(Files.newOutputStream(jar)).use { archive ->
+                        Files.walk(classes).use { files -> files.filter { it.isRegularFile() }.sorted().forEach { file ->
+                            archive.putNextEntry(JarEntry(classes.relativize(file).invariantSeparatorsPathString))
+                            Files.copy(file, archive)
+                            archive.closeEntry()
+                        } }
+                    }
+                } else classes
+                // Isolate compiled site code without changing the checkout or introducing generator flags.
+                val loader = object : URLClassLoader(arrayOf(location.toUri().toURL()), KoiroCatCafe::class.java.classLoader) {
+                    override fun loadClass(name: String, resolve: Boolean): Class<*> = synchronized(getClassLoadingLock(name)) {
+                        val type = findLoadedClass(name) ?: if (findResource(name.replace('.', '/') + ".class") != null) findClass(name)
+                            else super.loadClass(name, false)
+                        if (resolve) resolveClass(type)
+                        type
+                    }
+                }
+                loader.use {
+                    it.loadClass("MainKt").getMethod("main", Array<String>::class.java)
+                        .invoke(null, arrayOf(data.toString(), output.toString(), locales.toString()) as Any)
+                }
+            }
+            fun addCompiledClass(name: String) {
+                val source = data.parent.resolve("$name.java")
+                source.writeText("public class $name {}")
+                assertEquals(0, ToolProvider.getSystemJavaCompiler().run(null, null, null, "-d", classes.toString(), source.toString()))
+            }
+
+            generate()
+            val copied = output.resolve("images/content/image.png")
+            val alias = output.resolve("images/legacy.png")
+            val article = output.resolve("en-US/pages/blogs/post.html")
+            val first = listOf(copied, alias, article).map { it.getLastModifiedTime() }
+            addCompiledClass("UnrelatedPage")
+            generate()
+            assertEquals(first[0], copied.getLastModifiedTime(), "Page code must not rewrite images (packaged=$packaged)")
+            assertEquals(first[1], alias.getLastModifiedTime(), "Page code must not rewrite aliases (packaged=$packaged)")
+            assertNotEquals(first[2], article.getLastModifiedTime(), "The changed site code must still invalidate article HTML")
+
+            addCompiledClass("ImageCompressor\$PipelineRevision")
+            generate()
+            assertNotEquals(first[0], copied.getLastModifiedTime(), "Processing code must invalidate images (packaged=$packaged)")
+            assertNotEquals(first[1], alias.getLastModifiedTime(), "Processing code must invalidate aliases (packaged=$packaged)")
+            assertEquals(32, ImageIO.read(copied.toFile()).width)
+            assertContentEquals(copied.readBytes(), alias.readBytes())
+        }
     }
 
     private fun blogMeta(id: String) = "id = \"$id\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\""

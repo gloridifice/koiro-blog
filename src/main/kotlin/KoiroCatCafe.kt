@@ -54,7 +54,7 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             if (migrationFile.exists()) migrationFile.readText() else "", timeline.joinToString { it.key.toString() },
             *bundles.map { fingerprint(it.key.kind.name, it.key.id, it.directory.toString(),
                 it.metadata.published.toString(), it.date.toString()) }.toTypedArray())
-        val images = ImageAssets(databasePath, outputRoot, resources, code)
+        val images = ImageAssets(databasePath, outputRoot, resources)
         fun render(block: HTML.() -> Unit) = ("<!DOCTYPE html>\n" + createHTML().html(block = block)).toByteArray(Charsets.UTF_8)
         fun html(path: ServerPath, block: HTML.() -> Unit) = resources.put(path.relativePath, render(block))
         fun context(locale: i18n.SiteLocale, page: PageKey) = PageContext(locale, page, messages, routes, config)
@@ -147,7 +147,11 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
         }
         for (legacy in routes.migration.contents.filter { it.oldUrl != null }) {
             val key = ContentKey(ContentKind.entries.single { it.name.lowercase() == legacy.kind }, legacy.id)
-            val bundle = bundles.singleOrNull { it.key == key } ?: error("Legacy map references missing content: $key")
+            val bundle = bundles.singleOrNull { it.key == key }
+            if (bundle == null) {
+                System.err.println("Warning: $migrationFile: skipping legacy URL ${legacy.oldUrl} for missing or skipped content: $key")
+                continue
+            }
             if (release && !bundle.metadata.published) continue
             require(legacy.oldUrl!!.startsWith("/pages/${key.kind.directory}/") && legacy.oldUrl.endsWith(".html")) { "Invalid legacy article URL: ${legacy.oldUrl}" }
             val alias = legacy.oldUrl.trimStart('/')
