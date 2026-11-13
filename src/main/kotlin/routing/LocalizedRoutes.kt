@@ -81,7 +81,8 @@ class LocalizedRoutes(private val config: SiteConfig, private val bundles: List<
         val owner = migration.contents.filter { asset.source.startsWith(it.directory + "/") }.maxByOrNull { it.directory.length }
             ?: return root.resolve(asset.source)
         val kind = ContentKind.entries.single { it.name.lowercase() == owner.kind }
-        val bundle = byKey[ContentKey(kind, owner.id)] ?: error("Missing legacy asset owner: ${owner.kind}/${owner.id}")
+        // A skipped article may still have historical attachment URLs to preserve.
+        val bundle = byKey[ContentKey(kind, owner.id)] ?: return root.resolve(asset.source)
         return bundle.directory.resolve(asset.source.removePrefix(owner.directory + "/"))
     }
 

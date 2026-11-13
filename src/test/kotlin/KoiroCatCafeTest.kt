@@ -1,4 +1,6 @@
 import org.jsoup.Jsoup
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import java.nio.file.Files
 import java.util.Base64
 import javax.xml.parsers.DocumentBuilderFactory
@@ -196,7 +198,7 @@ class KoiroCatCafeTest {
     }
 
     @Test
-    fun `Obsidian state and plugin sources are not content but stray Markdown elsewhere still fails`() = withSiteFixture { data, output, locales ->
+    fun `Obsidian state is ignored and Markdown without a content package warns without stopping generation`() = withSiteFixture { data, output, locales ->
         writeBundle(data, "blogs/post", "id = \"post\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\"", "article")
         val plugin = data.resolve(".obsidian/plugins/koiro_blog").createDirectories()
         plugin.resolve("README.md").writeText("Plugin documentation, not a content package")
@@ -207,9 +209,17 @@ class KoiroCatCafeTest {
         assertTrue(output.resolve("en-US/pages/blogs/post.html").isRegularFile())
         assertFalse(output.resolve(".obsidian").exists())
         val stray = data.resolve("README.md")
-        stray.writeText("Still invalid outside the excluded Obsidian subtree")
-        val failure = assertFailsWith<IllegalArgumentException> { site.generateAll() }
-        assertTrue(failure.message.orEmpty().contains(stray.toString()))
+        stray.writeText("Markdown without metadata")
+        val warnings = ByteArrayOutputStream()
+        val previous = System.err
+        try {
+            System.setErr(PrintStream(warnings))
+            site.generateAll()
+        } finally { System.setErr(previous) }
+        assertTrue(warnings.toString().contains("Warning:"))
+        assertTrue(warnings.toString().contains(stray.toString()))
+        assertFalse(warnings.toString().contains(".obsidian"))
+        assertTrue(output.resolve("en-US/pages/blogs/post.html").isRegularFile())
     }
 
     @Test
@@ -224,24 +234,69 @@ class KoiroCatCafeTest {
     }
 
     @Test
-    fun `invalid published content fails before writing pages`() = withSiteFixture { data, output, locales ->
-        val source = writeBundle(data, "blogs/post", """
+    fun `invalid or missing metadata warns and skips the entire article including cached pages and legacy redirects`() = withSiteFixture { data, output, locales ->
+        val metadata = "id = \"post\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\""
+        writeBundle(data, "blogs/good", metadata.replace("post", "good"), "Good article", "title = \"Good\"")
+        val source = writeBundle(data, "blogs/post", metadata, "Skipped article")
+        val meta = source.resolveSibling("meta.toml")
+        val english = source.resolveSibling("en-US.md")
+        val validHeader = source.readText()
+        data.resolve("migration-map.toml").writeText("""
+            [[contents]]
+            kind = "blog"
+            old-source = "blogs/old.md"
+            directory = "blogs/post"
             id = "post"
-            published = true
-            class = "Dev"
-            date = "2025-01-01"
-        """, "content")
-        for ((file, replacement) in listOf(
+            old-url = "/pages/blogs/Old.html"
+            [[assets]]
+            old-url = "/images/legacy.txt"
+            source = "blogs/post/attachment.txt"
+        """.trimIndent())
+        source.resolveSibling("attachment.txt").writeText("Historical attachment")
+        val site = KoiroCatCafe(data, output.toString(), i18nPath = locales)
+        val cases = listOf(
+            source to "Body without a header",
+            source to "```toml\ntitle = [\n```\nbody",
             source to "```toml\ntitle = \"Valid title\"\nai-translation = \"false\"\n```\nbody",
+            source to "```toml\n```\nbody",
             source to "```toml\npublished = false\n```\nbody",
-            source.resolveSibling("meta.toml") to "id = \"bad-id\"\npublished = true\nclass = \"Dev\"\ndate = \"2025-01-01\"")) {
-            val original = file.readText(); file.writeText(replacement)
-            val failure = assertFailsWith<IllegalArgumentException> { KoiroCatCafe(data, output.toString(), i18nPath = locales).generateAll() }
-            assertTrue(failure.message.orEmpty().contains(source.parent.toString()))
-            assertFalse(output.resolve("en-US/home.html").exists())
-            file.writeText(original)
+            english to "Translation without a header",
+            meta to "id = [",
+            meta to metadata.replace("published = true", "published = \"true\""),
+            meta to metadata.replace("post", "bad-id"),
+            meta to metadata.replace("2025-01-01", "not-a-date"),
+            meta to (metadata + "\ntags = \"not-an-array\""),
+            meta to metadata.replace("class = \"Dev\"", ""),
+            meta to null,
+            source to null
+        )
+        for ((file, replacement) in cases) {
+            source.writeText(validHeader)
+            english.writeText(validHeader)
+            meta.writeText(metadata)
+            site.generateAll()
+            assertTrue(output.resolve("en-US/pages/blogs/post.html").exists())
+            assertTrue(output.resolve("pages/blogs/Old.html").exists())
+            if (replacement == null) file.deleteExisting() else file.writeText(replacement)
+            val warnings = ByteArrayOutputStream()
+            val previous = System.err
+            try {
+                System.setErr(PrintStream(warnings))
+                site.generateAll()
+            } finally { System.setErr(previous) }
+            assertTrue(warnings.toString().contains("Warning:"), "$file: $replacement")
+            assertTrue(warnings.toString().contains(file.toString()), warnings.toString())
+            for (locale in listOf("en-US", "zh-CN")) {
+                assertTrue(output.resolve("$locale/pages/blogs/good.html").isRegularFile())
+                assertFalse(output.resolve("$locale/pages/blogs/post.html").exists(), "$file: $replacement")
+                val links = Jsoup.parse(output.resolve("$locale/home.html").readText()).select(".post_preview[href]").map { it.attr("href") }
+                assertEquals(listOf("/$locale/pages/blogs/good.html"), links)
+                val feed = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.resolve("$locale/rss.xml").toFile())
+                assertEquals(1, feed.getElementsByTagName("item").length)
+                assertEquals("Good", feed.getElementsByTagName("item").item(0).firstChild.textContent)
+            }
+            assertFalse(output.resolve("pages/blogs/Old.html").exists())
+            assertEquals("Historical attachment", output.resolve("images/legacy.txt").readText())
         }
-        source.deleteExisting()
-        assertFailsWith<IllegalArgumentException> { KoiroCatCafe(data, output.toString(), i18nPath = locales).generateAll() }
     }
 }

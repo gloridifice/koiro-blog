@@ -101,53 +101,68 @@ fun loadContent(root: Path): List<ContentBundle> {
         }
     })
     val result = mutableListOf<ContentBundle>()
+    val packageDirectories = mutableSetOf<Path>()
     for (kind in ContentKind.entries) {
         val folder = normalized.resolve(kind.directory)
         if (!folder.exists()) continue
         val metas = Files.walk(folder).use { it.filter { p -> p.name == "meta.toml" }.sorted().toList() }
-        for (path in metas) try {
+        packageDirectories += metas.map { it.parent }
+        for (path in metas) {
             require(metas.none { it != path && path.parent.startsWith(it.parent) }) { "Nested content package: $path" }
-            validateId(path.parent.name)
-            val text = path.readText()
-            val common = setOf("id", "published", "date")
-            val metadata = when (kind) {
-                ContentKind.BLOG -> {
-                    validateHeader(text, path, common + setOf("class", "tags", "icon", "emoji"))
-                    toml.decodeFromString<BlogMetadata>(text)
+            var source = path
+            val bundle = try {
+                validateId(path.parent.name)
+                val text = path.readText()
+                val common = setOf("id", "published", "date")
+                val metadata = when (kind) {
+                    ContentKind.BLOG -> {
+                        validateHeader(text, path, common + setOf("class", "tags", "icon", "emoji"))
+                        toml.decodeFromString<BlogMetadata>(text)
+                    }
+                    ContentKind.DEVLOG -> { validateHeader(text, path, common + setOf("work", "index", "preview")); toml.decodeFromString<DevlogMetadata>(text) }
+                    ContentKind.ACTIVE -> { validateHeader(text, path, common); toml.decodeFromString<ActiveMetadata>(text) }
+                    ContentKind.PORTFOLIO -> {
+                        validateHeader(text, path, common + setOf("project", "url", "preview", "status", "type", "lite"))
+                        toml.decodeFromString<PortfolioMetadata>(text)
+                    }
                 }
-                ContentKind.DEVLOG -> { validateHeader(text, path, common + setOf("work", "index", "preview")); toml.decodeFromString<DevlogMetadata>(text) }
-                ContentKind.ACTIVE -> { validateHeader(text, path, common); toml.decodeFromString<ActiveMetadata>(text) }
-                ContentKind.PORTFOLIO -> {
-                    validateHeader(text, path, common + setOf("project", "url", "preview", "status", "type", "lite"))
-                    toml.decodeFromString<PortfolioMetadata>(text)
+                validateId(metadata.id)
+                val variants = path.parent.listDirectoryEntries("*.md").sorted().mapNotNull { file ->
+                    source = file
+                    val tag = file.nameWithoutExtension
+                    require(!tag.matches(Regex("[a-z]{2,3}_[A-Z]{2}"))) { "$file: use a hyphen in locale filenames" }
+                    if (!isLocaleTag(tag)) return@mapNotNull null
+                    val markdown = file.readText()
+                    val match = requireNotNull(Regex("\\A\\s*```toml[^\\S\\r\\n]*\\r?\\n(.*?)^```[^\\S\\r\\n]*(?:\\r?\\n|\\z)", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
+                        .find(markdown)) { "$file: missing fenced TOML header" }
+                    val headerText = match.groupValues[1]
+                    validateHeader(headerText, file, setOf("title", "summary", "description", "published", "ai-translation", "preview"))
+                    val h = toml.decodeFromString<VariantHeader>(headerText)
+                    if (metadata.published && h.published) {
+                        if (kind != ContentKind.ACTIVE) require(!h.title.isNullOrBlank()) { "$file: title required" }
+                        if (kind == ContentKind.PORTFOLIO) require(!h.description.isNullOrBlank()) { "$file: description required" }
+                    }
+                    tag to ContentVariant(tag, h, markdown.substring(match.range.last + 1), file)
+                }.toMap()
+                source = path
+                if (metadata.published) require(variants["zh-CN"]?.header?.published == true) { "${path.parent.resolve("zh-CN.md")}: published content requires an available Chinese variant" }
+                require(variants.values.any { it.header.published }) { "$path: no available content variants" }
+                ContentBundle(ContentKey(kind, metadata.id), path.parent, metadata, variants).also {
+                    it.date // Validate even unpublished date metadata.
                 }
+            } catch (e: IllegalArgumentException) {
+                System.err.println("Warning: $source: skipping content package ${path.parent}: ${e.message}")
+                continue
             }
-            validateId(metadata.id)
-            val variants = path.parent.listDirectoryEntries("*.md").mapNotNull { file ->
-                val tag = file.nameWithoutExtension
-                require(!tag.matches(Regex("[a-z]{2,3}_[A-Z]{2}"))) { "$file: use a hyphen in locale filenames" }
-                if (!isLocaleTag(tag)) return@mapNotNull null
-                val match = Regex("\\A\\s*```toml[^\\S\\r\\n]*\\r?\\n(.*?)^```[^\\S\\r\\n]*(?:\\r?\\n|\\z)", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
-                    .find(file.readText()) ?: error("$file: missing fenced TOML header")
-                val headerText = match.groupValues[1]
-                validateHeader(headerText, file, setOf("title", "summary", "description", "published", "ai-translation", "preview"))
-                val h = toml.decodeFromString<VariantHeader>(headerText)
-                if (metadata.published && h.published) {
-                    if (kind != ContentKind.ACTIVE) require(!h.title.isNullOrBlank()) { "$file: title required" }
-                    if (kind == ContentKind.PORTFOLIO) require(!h.description.isNullOrBlank()) { "$file: description required" }
-                }
-                tag to ContentVariant(tag, h, file.readText().substring(match.range.last + 1), file)
-            }.toMap()
-            if (metadata.published) require(variants["zh-CN"]?.header?.published == true) { "$path: published content requires zh-CN.md" }
-            val bundle = ContentBundle(ContentKey(kind, metadata.id), path.parent, metadata, variants)
-            bundle.date // Validate even unpublished date metadata.
             val previous = result.firstOrNull { it.key == bundle.key }
             require(previous == null) { "Duplicate ${bundle.key}: ${previous?.directory} and ${bundle.directory}" }
             result += bundle
-        } catch (e: Exception) { throw IllegalArgumentException("$path: ${e.message}", e) }
+        }
     }
     markdownFiles.forEach { file ->
-        require(result.any { file.startsWith(it.directory) }) { "$file: legacy Markdown outside a content package; run scripts/migrate_content.py" }
+        if (packageDirectories.none { file.startsWith(it) }) {
+            System.err.println("Warning: $file: skipping Markdown outside a content package; missing ${file.parent.resolve("meta.toml")}")
+        }
     }
     return result
 }
