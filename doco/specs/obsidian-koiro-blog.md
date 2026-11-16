@@ -4,9 +4,9 @@
 
 插件位于 `data/.obsidian/plugins/koiro_blog/`，ID、显示名和 npm 包名均为 `koiro_blog`，源码入口为 `src/koiro_blog.ts`。它是独立的 npm 工程，不进入博客构建和发布产物；Node 输入校验和 Kotlin 内容发现跳过整个 `data/.obsidian/` 子树，其他目录仍执行原有内容检查。构建输出 `main.js`，安装只需该文件、`manifest.json` 和 `styles.css`，这三个文件名由 Obsidian 固定要求。源码与发布文件保存在同一目录，`data/` 库直接加载，无需复制。仓库跟踪该插件的源码、文档、构建配置和三个发布文件，忽略 `node_modules/`、`.test-build/`、运行配置 `data.json` 及其他 Obsidian 配置、插件和运行状态。安装到其他库时，复制三个发布文件到 `<库>/.obsidian/plugins/koiro_blog/` 后启用；原 Component Renderer 安装需先停用，再移除旧插件目录，避免重复渲染。
 
-插件构建将博客的 `assets/assets/js/article-component-frame.js` 内联到 bundle，保证测量协议复用同一实现。同时通过 Gradle 的 `exportComponentAssets` 执行 Kotlin 注册表，读取 `build/generated/component-assets.json`，只将其中登记的 `assets/component/` CSS/JS 编码为 data URL 后打包。不扫描目录、不维护第二份清单；导出或文件读取失败即终止构建，不回退旧清单。
+插件构建将博客的 `assets/assets/js/article-component-frame.js` 内联到 bundle，保证测量协议复用同一实现。同时通过 Gradle 的 `exportComponentAssets` 执行 Kotlin 注册表，读取 `build/generated/component-assets.json`，只打包其中登记的 `assets/component/` 资源：CSS 保留为文本并以内联 style 注入组件 iframe，JS 编码为 data URL。不扫描目录、不维护第二份清单；导出或文件读取失败即终止构建，不回退旧清单。
 
-公共 CSS 顺序与博客一致，放在作者样式之前；公共脚本按注册顺序加载并在文档就绪后初始化标记组件。图片对比等预设的最小 HTML 与博客一致，不需要在 Vault 中安装共享资源，也不请求博客域名或本地服务器。修改注册表、公共资源或高度脚本后需重建插件，已安装版本不会自动同步。
+公共 CSS 顺序与博客一致，放在作者样式之前；使用内联 style 以兼容 Obsidian 禁止 data: 样式表的继承 CSP，不修改或放宽宿主策略。公共脚本按注册顺序加载并在文档就绪后初始化标记组件。图片对比等预设的最小 HTML 与博客一致，不需要在 Vault 中安装共享资源，也不请求博客域名或本地服务器。修改注册表、公共资源或高度脚本后需重建插件，已安装版本不会自动同步。
 
 ## TOML 文件
 
@@ -42,6 +42,6 @@ HTML 媒体 src/poster、script src 和 stylesheet href 支持相对于当前笔
 
 源码构建需要 Node.js 24+、JDK 21 与仓库 Gradle wrapper；安装后的插件仍只需三个发布文件。在插件目录执行 `npm ci`、`npm run build`。构建和浏览器测试均从真实 Kotlin 注册表导出预设。首次使用测试浏览器时执行 `npx playwright install chromium`，随后 `npm test`；也可设置 BROWSER_CHANNEL 为 chrome 或 msedge。
 
-`npm test` 覆盖标记、嵌套围栏、注释/frontmatter、真实 Chromium 沙箱与高度、真实 CodeMirror 编辑和销毁，以及离线预设加载、作者样式覆盖和未注册 CSS/JS 不自动生效。CodeMirror 测试仅替代 Obsidian 提供的两个状态字段。
+`npm test` 覆盖标记、嵌套围栏、注释/frontmatter、真实 Chromium 沙箱与高度、真实 CodeMirror 编辑和销毁，以及继承 Obsidian style-src CSP 时的离线预设加载、滑杆轨道样式、作者样式覆盖和未注册 CSS/JS 不自动生效。CodeMirror 测试仅替代 Obsidian 提供的两个状态字段。
 
 设置 `OBSIDIAN_EXECUTABLE` 为桌面 Obsidian 可执行文件路径后执行 `npm run test:obsidian`，会构建插件并启动隔离的临时库和应用配置，不操作日常库。真实客户端测试覆盖隐藏不支持文件时的 TOML 显示、自动保存、原生改名和移动后的继续编辑、外部更新、文件/目录/空白区域右键创建、重名保护、关闭前保存及停用清理。已在 Windows Obsidian 1.12.4 验证；其他版本和移动客户端仍需单独验收。

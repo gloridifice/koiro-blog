@@ -18,7 +18,7 @@ export function componentDefines() {
   const urls = (files, mime) => files.map(file => `data:${mime};base64,${readFileSync(path.join(root, 'assets/component', file)).toString('base64')}`);
   return {
     COMPONENT_FRAME_RUNTIME: JSON.stringify(readFileSync(path.join(root, 'assets/assets/js/article-component-frame.js'), 'utf8')),
-    COMPONENT_PRESET_STYLES: JSON.stringify(urls(registry.css, 'text/css')),
+    COMPONENT_PRESET_STYLES: JSON.stringify(registry.css.map(file => readFileSync(path.join(root, 'assets/component', file), 'utf8'))),
     COMPONENT_PRESET_SCRIPTS: JSON.stringify(urls(registry.js, 'text/javascript')),
   };
 }

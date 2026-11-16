@@ -22,7 +22,9 @@ test('real browser and CM6 render, isolate, resize, edit and dispose components'
     const page = await browser.newPage();
     const network = [];
     page.on('request', request => { if (/^https?:/.test(request.url())) network.push(request.url()); });
-    await page.setContent('<main></main>');
+    // srcdoc inherits Obsidian's CSP: inline styles work, data: stylesheets do not.
+    await page.setContent(`<meta http-equiv="Content-Security-Policy"
+      content="style-src 'unsafe-inline' 'self' https://fonts.googleapis.com"><main></main>`);
     await page.addScriptTag({ content: result.outputFiles[0].text });
     const source = `<style>body{color:rgb(255,0,0)} #space{height:40px}</style>
 <button id="count">0</button><button id="resize">Resize</button><div id="space"></div>
@@ -75,7 +77,7 @@ try { parent.document.body.dataset.escaped='yes'; } catch { document.body.datase
     await page.waitForTimeout(50);
     assert.equal(await page.locator('#pending iframe').count(), 0);
 
-    // Offline preset transport: real exported allowlist, data-URL CSS/JS, and resolved images.
+    // Offline presets must also render under the desktop app's inherited style policy.
     await page.evaluate(() => {
       const container = document.createElement('div');
       container.id = 'preset'; document.body.append(container);
@@ -93,6 +95,8 @@ try { parent.document.body.dataset.escaped='yes'; } catch { document.body.datase
     assert.equal(await compareSlider.inputValue(), '100');
     const progress = preset.getByRole('slider', { name: 'Progress', exact: true });
     await progress.scrollIntoViewIfNeeded();
+    assert.equal(await preset.locator('.kc-slider-track').evaluate(el => el.getBoundingClientRect().height), 3,
+      'registered styles must survive the inherited Obsidian CSP');
     const progressBox = await progress.boundingBox();
     await page.mouse.click(progressBox.x + progressBox.width * .75, progressBox.y + progressBox.height / 2);
     assert.equal(await progress.inputValue(), '75');

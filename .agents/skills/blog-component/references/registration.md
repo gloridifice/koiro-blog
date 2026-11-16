@@ -44,8 +44,8 @@ val registered = ComponentAssetManifest(
 
 - 博客的 `ArticleContent` 调用 `ComponentAssets.inject`。CSS 按清单顺序放在作者样式之前；经典 JS 以 defer 按清单顺序加载。样式正常级联，作者可在围栏内覆盖局部规则。
 - `exportComponentAssets` 执行 Kotlin 导出入口，生成 `build/generated/component-assets.json`，并检查注册文件的路径、类型和存在性。该文件是构建产物，不能手改或作为第二份配置提交。
-- 插件构建的 `component-assets.mjs` 每次先执行导出；失败即终止，不回退到旧清单。随后只读取清单列出的资源，编码为 data URL 并打包。
-- 插件在 iframe 内按相同顺序加载资源，CSS 仍先于作者样式；不从 Vault、博客服务器或插件安装目录临时扫描资源。
+- 插件构建的 `component-assets.mjs` 每次先执行导出；失败即终止，不回退到旧清单。随后只读取清单列出的资源，将 CSS 文本及 JS data URL 打包。
+- 插件在 iframe 内按相同顺序加载资源，CSS 以内联 style 放在作者样式之前，避免 Obsidian 的继承 CSP 拦截 data: 样式表；不放宽宿主策略，不从 Vault、博客服务器或插件安装目录临时扫描资源。
 - 修改公共文件或 Kotlin 注册表后必须重建博客输出及插件；已安装插件不会自动同步仓库更新。
 
 ## 验收重点

@@ -48,13 +48,12 @@ export function mountComponent(container: HTMLElement, source: string, resolveRe
     viewport.name = 'viewport';
     viewport.content = 'width=device-width, initial-scale=1';
     parsed.head.append(viewport);
-    // These data URLs come only from the Kotlin allowlist exported at build time.
-    // Prepend in reverse so preset order is preserved and author styles still win.
-    for (const href of [...COMPONENT_PRESET_STYLES].reverse()) {
-      const link = parsed.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = href;
-      parsed.head.prepend(link);
+    // Only build-time registered CSS; Obsidian's inherited CSP blocks data: stylesheets.
+    // Inline styles preserve that policy, registration order and author overrides.
+    for (const css of [...COMPONENT_PRESET_STYLES].reverse()) {
+      const preset = parsed.createElement('style');
+      preset.textContent = css;
+      parsed.head.prepend(preset);
     }
     for (const src of COMPONENT_PRESET_SCRIPTS) {
       const script = parsed.createElement('script');
