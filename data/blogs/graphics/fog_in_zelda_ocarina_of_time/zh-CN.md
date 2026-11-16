@@ -100,14 +100,12 @@ Froxel 体积雾技术最早在 2013 年被使用：
     border-top: 1px solid #292929;
   }
   .froxel label { display: grid; gap: 6px; min-width: 0; }
-  .froxel label span {
+  .froxel label > span {
     display: flex;
     justify-content: space-between;
     gap: 8px;
   }
   .froxel output { color: #ffad83; font-variant-numeric: tabular-nums; }
-  .froxel input { width: 100%; accent-color: #ce4623; }
-  .froxel input[type="range"] { height: 32px; margin: 0; }
   .froxel select, .froxel button {
     min-height: 40px;
     padding: 6px 10px;
@@ -163,19 +161,19 @@ Froxel 体积雾技术最早在 2013 年被使用：
 
     <label>
       <span>深度层 k <output data-value="k"></output></span>
-      <input data-axis="k" aria-label="深度层 k" type="range"
+      <input class="kc-range" data-axis="k" aria-label="深度层 k" type="range"
              min="0" max="15" value="7" step="1">
     </label>
 
     <label>
       <span>横向索引 i <output data-value="i"></output></span>
-      <input data-axis="i" aria-label="横向索引 i" type="range"
+      <input class="kc-range" data-axis="i" aria-label="横向索引 i" type="range"
              min="0" max="7" value="4" step="1">
     </label>
 
     <label>
       <span>纵向索引 j <output data-value="j"></output></span>
-      <input data-axis="j" aria-label="纵向索引 j" type="range"
+      <input class="kc-range" data-axis="j" aria-label="纵向索引 j" type="range"
              min="0" max="5" value="3" step="1">
     </label>
   </div>
@@ -402,6 +400,7 @@ Froxel 体积雾技术最早在 2013 年被使用：
       const fraction = (Number(input.value) + 0.5) / previous[index];
       input.max = size - 1;
       input.value = clamp(Math.floor(fraction * size), 0, size - 1);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
     });
     schedule();
   });
@@ -520,13 +519,12 @@ Froxel 体积雾技术最早在 2013 年被使用：
     border-top: 1px solid #303030;
   }
   .reprojection label { display: grid; gap: 6px; min-width: 0; }
-  .reprojection label span {
+  .reprojection label > span {
     display: flex;
     justify-content: space-between;
     gap: 8px;
   }
   .reprojection output { font-variant-numeric: tabular-nums; }
-  .reprojection input { width: 100%; height: 36px; margin: 0; accent-color: #ce4623; }
   .reprojection .result {
     display: flex;
     align-items: center;
@@ -585,22 +583,22 @@ Froxel 体积雾技术最早在 2013 年被使用：
   <div class="controls">
     <label>
       <span>历史相机横移 <output data-out="offset"></output></span>
-      <input data-key="offset" aria-label="历史相机横移"
+      <input class="kc-range" data-key="offset" aria-label="历史相机横移"
         type="range" min="-8" max="8" step=".1" value="-3">
     </label>
     <label>
       <span>历史相机偏航 <output data-out="angle"></output></span>
-      <input data-key="angle" aria-label="历史相机偏航"
+      <input class="kc-range" data-key="angle" aria-label="历史相机偏航"
         type="range" min="-40" max="40" step="1" value="12">
     </label>
     <label>
       <span>当前采样深度 <output data-out="depth"></output></span>
-      <input data-key="depth" aria-label="当前采样深度"
+      <input class="kc-range" data-key="depth" aria-label="当前采样深度"
         type="range" min="2" max="17" step=".1" value="11">
     </label>
     <label>
       <span>时间抖动帧 <output data-out="frame"></output></span>
-      <input data-key="frame" aria-label="时间抖动帧"
+      <input class="kc-range" data-key="frame" aria-label="时间抖动帧"
         type="range" min="0" max="63" step="1" value="0">
     </label>
   </div>
@@ -835,7 +833,7 @@ Froxel 体积雾技术最早在 2013 年被使用：
 
   root.querySelector("[data-next]").addEventListener("click", () => {
     fields.frame.value = (Number(fields.frame.value) + 1) % 64;
-    schedule();
+    fields.frame.dispatchEvent(new Event("input", { bubbles: true }));
   });
 
   root.querySelector("[data-reset]").addEventListener("click", () => {

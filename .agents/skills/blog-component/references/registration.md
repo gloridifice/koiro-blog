@@ -7,7 +7,7 @@
 ```kotlin
 val registered = ComponentAssetManifest(
     css = listOf("component.css", "image-compare.css"),
-    js = listOf("image-compare.js"),
+    js = listOf("image-compare.js", "range.js"),
 )
 ```
 

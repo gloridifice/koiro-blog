@@ -9,6 +9,7 @@ description: 为本博客编写 html component 交互组件，复用宿主预设
 
 1. 读取 [设计约定](references/design.md)，再按任务选择：
    - 面板、计算器、图解：读取 [公共样式](../../../assets/component/component.css)，参考 [折射示例](examples/refraction.html)。
+   - 参数滑杆：读取 [滑杆用法](references/range.md) 和 [独立示例](examples/range.html)，使用 `input.kc-range[type="range"]`；不复制轨道和拖拽代码。
    - 图片对比：读取 [用法](references/image-compare.md) 和 [示例](examples/image-compare.html)。通常只写 figure、两张图片和 caption，不再复制滑杆 CSS/JS。
    - 新增公共样式或行为：读取 [注册步骤](references/registration.md)，检查 [Kotlin 注册表](../../../src/main/kotlin/htmlgen/component/ComponentAssets.kt)。
 2. 沿用用户的图片、caption、公式、变量名、语言、默认值和精度。不要把示意素材当作用户内容。
@@ -51,7 +52,7 @@ description: 为本博客编写 html component 交互组件，复用宿主预设
 - **唯一自动注入清单**是 `ComponentAssets.kt` 中的 `registered.css` / `registered.js`。放入目录不等于注册，禁止目录遍历、glob 或按扩展名自动收集全部文件。
 - 博客对每个组件 iframe 注入已注册 CSS/JS；Obsidian 构建导出同一 Kotlin 清单，将这些资源打包为离线 data URL。普通 HTML 代码块及外站 iframe 不参与。
 - CSS 按注册顺序放在作者样式之前；JS 按注册顺序加载，行为只对明确标记的 DOM 初始化。CSS 必须限定在 `.kc-*` 作用域内，不用全局选择器给任意组件加样式。
-- 面板使用 `.kc-root` / `.kc-panel`，图片对比使用 `.kc-compare`。不要为了使用图片对比而套面板。
+- 面板使用 `.kc-root` / `.kc-panel`，参数滑杆使用 `input.kc-range[type="range"]`，图片对比使用 `.kc-compare`。不要为了使用图片对比而套面板。
 - 已注册 CSS/JS 不需要在文章里再次 link、script 或内联。组件特有的计算、绘图和局部样式仍在围栏中编写。
 - Skill 示例的 link/script 仅用于浏览器直接预览。交付到支持预设的博客/插件时省略它们；脱离这些宿主的独立 HTML 才需要显式加载或内联公共文件。
 - 样式是项目近似采样，不是宿主主题或字体的动态继承。字体使用系统无衬线和 JetBrains Mono 的本地回退，不默认加载网络字体。

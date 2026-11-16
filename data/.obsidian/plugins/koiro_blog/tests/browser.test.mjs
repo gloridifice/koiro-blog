@@ -80,15 +80,24 @@ try { parent.document.body.dataset.escaped='yes'; } catch { document.body.datase
       const container = document.createElement('div');
       container.id = 'preset'; document.body.append(container);
       const source = '<style>.kc-compare { --compare-caption-color: rgb(0,128,0); }</style>' +
-        '<figure class="kc-compare"><img data-side="a" src="a.svg" alt="A"><img data-side="b" src="b.svg" alt="B"><figcaption>Comparison</figcaption></figure>';
+        '<figure class="kc-compare"><img data-side="a" src="a.svg" alt="A"><img data-side="b" src="b.svg" alt="B"><figcaption>Comparison</figcaption></figure>' +
+        '<label>Progress<input class="kc-range" type="range" value="42"></label>';
       window.stopPreset = fixture.mountComponent(container, source, async url => 'data:image/svg+xml,' + encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="${url === 'a.svg' ? 'red' : 'blue'}"/></svg>`));
     });
     const preset = page.locator('#preset iframe').contentFrame();
     await preset.locator('[data-state="ready"]').waitFor();
-    await preset.getByRole('slider').focus();
-    await preset.getByRole('slider').press('End');
-    assert.equal(await preset.getByRole('slider').inputValue(), '100');
+    const compareSlider = preset.locator('.kc-compare').getByRole('slider');
+    await compareSlider.focus();
+    await compareSlider.press('End');
+    assert.equal(await compareSlider.inputValue(), '100');
+    const progress = preset.getByRole('slider', { name: 'Progress', exact: true });
+    await progress.scrollIntoViewIfNeeded();
+    const progressBox = await progress.boundingBox();
+    await page.mouse.click(progressBox.x + progressBox.width * .75, progressBox.y + progressBox.height / 2);
+    assert.equal(await progress.inputValue(), '75');
+    await page.waitForTimeout(250);
+    assert.equal(await preset.locator('.kc-slider-track').evaluate(el => el.getBoundingClientRect().height), 6);
     assert.equal(await preset.locator('figcaption').evaluate(el => getComputedStyle(el).color), 'rgb(0, 128, 0)');
     assert.equal(await preset.locator('html').getAttribute('data-unregistered-preset'), null);
     assert.equal(await preset.locator('html').evaluate(el => getComputedStyle(el).getPropertyValue('--unregistered-preset')), '');

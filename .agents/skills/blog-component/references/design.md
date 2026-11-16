@@ -27,7 +27,7 @@
 | 模式标签 | `kc-badge` | 显示当前模式、介质、数量等实际信息 |
 | 图示区 | `kc-figure`、`kc-caption` | SVG / Canvas 及单位、图例；坐标和绘图逻辑不属于共享样式 |
 | 参数区 | `kc-controls`、`kc-field` | 一组输入；需要较宽滑杆时加 `kc-controls--weighted` |
-| 输入控件 | `kc-range`、`kc-input`、`kc-select` | 原生输入；滑杆通过 `--value` 设置已选比例 |
+| 输入控件 | `kc-range`、`kc-input`、`kc-select` | 原生输入；滑杆由公共脚本自绘为 3/6/8px 轨道，参见 [滑杆用法](range.md) |
 | 开关 | `kc-switch` | 单一布尔选项；原生 checkbox，带 label |
 | 操作区 | `kc-toolbar`、`kc-actions` | 控件与按钮组合，允许换行 |
 | 按钮 | `kc-button`、`kc-button--primary` | 每组最多一个主操作；保留 hover、active、focus、disabled |
@@ -78,7 +78,7 @@
 
 ## 示例与交付
 
-[refraction.html](../examples/refraction.html) 可在仓库内直接打开，只有面板本体。[image-compare.html](../examples/image-compare.html) 只有 A/B 图片、滑杆和 caption。
+[refraction.html](../examples/refraction.html) 可在仓库内直接打开，只有面板本体。[image-compare.html](../examples/image-compare.html) 只有 A/B 图片、滑杆和 caption。[range.html](../examples/range.html) 是独立参数滑杆。
 
 示例的共享 CSS/JS 链接仅供直接浏览器预览。交付到文章时省略已注册资源的 link/script 和复制的公共代码；宿主会提供这些预设。保留组件特有的样式、公式和绘图代码，图片改为相对于目标文章的路径。不复制风格比较页或额外说明区域。
 

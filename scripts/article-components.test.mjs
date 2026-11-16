@@ -18,6 +18,7 @@ test('articles render responsive math and media with isolated interactive compon
     writeFileSync(`${unregistered}.js`, 'document.documentElement.dataset.unregisteredPreset="yes";');
     writeFileSync(`${unregistered}.css`, 'html { --unregistered-preset: yes !important; }');
     for (const kind of ['blogs', 'devlogs', 'actives', 'portfolio']) mkdirSync(path.join(root, 'data', kind), { recursive: true });
+    writeFileSync(path.join(root, 'data/friends.toml'), 'friends = []\n');
     const post = path.join(root, 'data/blogs/demo');
     mkdirSync(post);
     writeFileSync(path.join(post, 'meta.toml'), 'id = "demo"\npublished = true\nclass = "Dev"\ndate = "2025-01-01"\n');
@@ -36,13 +37,28 @@ try { parent.document.body.dataset.escaped = 'yes'; } catch { document.body.data
       writeFileSync(path.join(post, `${name}.svg`), `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="${color}"/></svg>`);
     }
     const comparison = `<figure class="kc-compare"><img data-side="a" src="a.svg" alt="A"><img data-side="b" src="b.svg" alt="B"><figcaption>Comparison</figcaption></figure>`;
+    const ranges = `<div class="kc-root" style="padding:20px"><label>Amount<input id="amount" class="kc-range" type="range" min="-8" max="8" step=".1" value="-3"></label>
+<label>Other<input id="other" class="kc-range" type="range" value="42"></label>
+<label>Disabled<input class="kc-range" type="range" value="25" disabled></label>
+<output id="amount-value">-3</output><output id="committed">-3</output>
+<button id="set-value" type="button">Set value</button></div>
+<script>
+const amount = document.querySelector('#amount');
+amount.addEventListener('input', () => document.querySelector('#amount-value').value = amount.value);
+amount.addEventListener('change', () => document.querySelector('#committed').value = amount.value);
+document.querySelector('#set-value').onclick = () => {
+  amount.max = '24'; amount.value = '12';
+  amount.dispatchEvent(new Event('input', {bubbles:true}));
+};
+</script>`;
     const article = '\n# Article rendering and component layout\n\n浓度 $N_i$。\n\n' +
       '$$ N_{new} = N_{previous} e^{-a\\Delta t} + \\frac{S}{a}(1-e^{-a\\Delta t}) + ' +
       '\\frac{fa}{a-b}(e^{-b\\Delta t}-e^{-a\\Delta t}) $$\n\n' +
       '![Captioned](a.svg)\nFigure caption.\n\n`$literal$`\n';
     writeFileSync(path.join(post, 'zh-CN.md'), '```toml\ntitle = "Browser fixture"\nsummary = "Summary only"\n```\n' + article +
       `\n\`\`\`html component\n${component}\n\`\`\`\n\n\`\`\`html component\n${component}\n\`\`\`\n` +
-      `\n\`\`\`html component\n<style>.kc-compare { --compare-caption-color: rgb(0,128,0); }</style>${comparison}${comparison}\n\`\`\`\n`);
+      `\n\`\`\`html component\n<style>.kc-compare { --compare-caption-color: rgb(0,128,0); }</style>${comparison}${comparison}\n\`\`\`\n` +
+      `\n\`\`\`html component\n${ranges}\n\`\`\`\n`);
     const relative = path.relative(ROOT, root).replaceAll('\\', '/');
     const args = `${relative}/data ${relative}/output i18n`;
     await completed(start(path.join(ROOT, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew'),
@@ -162,9 +178,53 @@ try { parent.document.body.dataset.escaped = 'yes'; } catch { document.body.data
     assert.ok(await frames.nth(0).evaluate(el => el.getBoundingClientRect().width <= innerWidth));
     await compare.locator('.kc-compare-stage').first().scrollIntoViewIfNeeded();
     const stage = await compare.locator('.kc-compare-stage').first().boundingBox();
-    await page.mouse.click(stage.x + stage.width / 4, stage.y + stage.height / 2);
+    await compare.locator('.kc-compare-stage').first().click({ position: { x: stage.width / 4, y: stage.height / 2 } });
     assert.ok(Math.abs(Number(await sliders.first().inputValue()) - 25) <= 1);
     assert.equal(await compare.locator('body').evaluate(el => el.scrollWidth <= innerWidth), true);
+
+    // Public parameter-slider behavior, through the real sandbox and injected registry.
+    await frames.nth(3).scrollIntoViewIfNeeded();
+    const controls = frames.nth(3).contentFrame();
+    const amount = controls.getByRole('slider', { name: 'Amount', exact: true });
+    const track = controls.locator('.kc-slider-track').first();
+    const fill = controls.locator('.kc-slider-fill').first();
+    await controls.locator('.kc-slider').first().scrollIntoViewIfNeeded();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(250);
+    assert.equal(await track.evaluate(el => el.getBoundingClientRect().height), 3);
+    await amount.hover();
+    await page.waitForTimeout(250);
+    assert.equal(await track.evaluate(el => el.getBoundingClientRect().height), 6);
+    const rangeBox = await amount.boundingBox();
+    await page.mouse.click(rangeBox.x + rangeBox.width * .25, rangeBox.y + rangeBox.height / 2);
+    assert.equal(await controls.locator('#amount-value').textContent(), '-4');
+    assert.equal(await controls.locator('#committed').textContent(), '-4');
+    assert.equal(await amount.evaluate(el => getComputedStyle(el.parentElement).outlineStyle), 'none');
+    await page.mouse.down();
+    await page.waitForTimeout(250);
+    assert.equal(await track.evaluate(el => el.getBoundingClientRect().height), 8);
+    await page.mouse.move(rangeBox.x - 10, rangeBox.y + rangeBox.height / 2, { steps: 5 });
+    assert.equal(await amount.inputValue(), '-8');
+    await page.mouse.up();
+    assert.equal(await controls.locator('#committed').textContent(), '-8');
+    assert.equal(await controls.locator('#other').inputValue(), '42');
+    await amount.press('Home');
+    await amount.press('ArrowRight');
+    assert.equal(await amount.inputValue(), '-7.9');
+    assert.equal(await amount.evaluate(el => getComputedStyle(el.parentElement).outlineStyle), 'solid');
+    await controls.locator('#set-value').click();
+    assert.equal(await amount.inputValue(), '12');
+    await page.waitForTimeout(250);
+    const fraction = await fill.evaluate(el => el.getBoundingClientRect().width / el.parentElement.getBoundingClientRect().width);
+    assert.ok(Math.abs(fraction - .625) < .01, 'programmatic value and limits update the visual progress');
+    const disabled = controls.getByRole('slider', { name: 'Disabled', exact: true });
+    const disabledBox = await disabled.boundingBox();
+    await page.mouse.click(disabledBox.x + disabledBox.width * .8, disabledBox.y + disabledBox.height / 2);
+    assert.equal(await disabled.inputValue(), '25');
+    for (const width of [740, 375, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await controls.locator('body').evaluate(el => el.scrollWidth <= innerWidth), true, `${width}px slider overflow`);
+    }
   } finally {
     await browser?.close();
     if (server) {

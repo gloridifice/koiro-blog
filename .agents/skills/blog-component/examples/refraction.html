@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>折射实验</title>
-<!-- Standalone preview only; html component hosts inject the registered stylesheet. -->
+<!-- Standalone preview only; html component hosts inject the registered presets. -->
 <link rel="stylesheet" href="../../../../assets/component/component.css">
+<script defer src="../../../../assets/component/range.js"></script>
 <style>
   body { margin: 0; display: flow-root; background: transparent; }
   .refraction svg text { fill: var(--kc-muted); font: 12px var(--kc-mono); }
@@ -145,7 +146,6 @@
     attributes('landing-label', { x: Q.x + 9, y: Q.y + 17 });
 
     $('angle-value').textContent = degrees.toFixed(1) + '°';
-    $('angle').style.setProperty('--value', (degrees / 85 * 100) + '%');
     $('angle').setAttribute('aria-valuetext', degrees.toFixed(1) + ' 度');
     $('ref-value').textContent = (ref / rad).toFixed(1);
     $('distance-value').textContent = (validDepth / dy).toFixed(2);
@@ -199,6 +199,7 @@
   $('guides').addEventListener('change', showGuides);
   $('reset').addEventListener('click', () => {
     $('angle').value = '40'; $('medium').value = '1.333'; $('depth').value = '10'; $('guides').checked = true;
+    $('angle').dispatchEvent(new Event('input', { bubbles: true }));
     showGuides(); update(); status('✓ 已恢复默认参数，采样记录保留。');
   });
   $('record').addEventListener('click', () => {

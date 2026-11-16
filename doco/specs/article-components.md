@@ -46,7 +46,7 @@ iframe 默认宽度 100%、高度 150px、无边框。内部 ResizeObserver、�
 
 CSS 按清单顺序放在作者样式之前，作者可正常覆盖；经典 JS 按清单顺序以 defer 加载。公共样式限定在 `.kc-*` 内，不给任意 HTML 加面板或主题。脚本只初始化明确标记的组件，不开放额外沙箱权限。普通代码块、正文原始 HTML 和外站 iframe 不注入预设。
 
-当前预设包括 `.kc-root` 面板样式，以及无边框的图片对比：
+当前预设包括 `.kc-root` 面板样式、自绘参数滑杆，以及无边框的图片对比：
 
 ````markdown
 ```html component
@@ -59,6 +59,8 @@ CSS 按清单顺序放在作者样式之前，作者可正常覆盖；经典 JS 
 ````
 
 图片对比在文档就绪后补齐滑杆，左 A、右 B、初始 50%，支持鼠标、触摸和键盘。各实例独立、初始化幂等；不自动发现 DOMContentLoaded 后插入的实例。两侧按完整尺寸裁剪，不缩放单侧或透出另一图的透明区域；按 A 的自然比例展示，B 居中 cover。只有图片、滑杆和 caption，无边框、卡片或标题。原始图片和 caption 在禁用 JS 时保留。
+
+参数滑杆使用原生 `<input class="kc-range" type="range" min="0" max="100" step="1" value="42">` 并提供 label 或 aria-label。已注册的 `range.js` 在文档就绪时保留原输入，添加 `.kc-slider` 外壳和自绘轨道；不自动发现后插入的输入，重复初始化不重复绑定。原生输入继续负责标签、范围与步进、键盘、禁用和表单值，禁用 JS 时保留原生外观。底色 bg2 `#212121`、进度 accent `#ce4623`，可由 `--kc-input-bg` / `--kc-accent` 覆盖；无滑块和描边，常态/悬浮/拖拽厚度分别为 3/6/8px，点击区域始终 40px。鼠标、触摸支持点击和捕获拖拽，边界钳制；厚度 180ms、普通进度 160ms、拖拽进度 45ms 过渡，减少动态时关闭。点击和拖拽不显示焦点描边，键盘保留焦点提示，禁用时不可调整且不增厚。业务监听原输入的 input/change；程序修改 value 后发出冒泡 input 事件同步轨道和业务，范围属性变化及表单 reset 也同步轨道，不再手动维护旧的 `--value`。图片对比和未标记的 range 不受影响。最小示例见 `.agents/skills/blog-component/examples/range.html`。
 
 新增预设先创建文件，再手动登记 Kotlin 清单并验证两个宿主。`exportComponentAssets` 导出并验证清单为 `build/generated/component-assets.json`，供插件打包；不维护第二份注册配置。作者自己的公式、数据和绘图逻辑仍可写在围栏里，不必全部注册为公共脚本。用法和维护步骤见 `.agents/skills/blog-component/`。
 

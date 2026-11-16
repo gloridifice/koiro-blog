@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>滑杆预设</title>
+<!-- Standalone preview only; component hosts inject these registered resources. -->
+<link rel="stylesheet" href="../../../../assets/component/component.css">
+<script defer src="../../../../assets/component/range.js"></script>
+<style>body { margin: 0; background: #0d0d0d; }</style>
+<div class="kc-root kc-controls">
+  <div class="kc-field">
+    <label for="progress">进度 <output id="value" for="progress">42%</output></label>
+    <input class="kc-range" id="progress" type="range" min="0" max="100" step="1" value="42">
+  </div>
+</div>
+<script>
+(() => {
+  const input = document.querySelector('#progress');
+  const output = document.querySelector('#value');
+  input.addEventListener('input', () => { output.value = `${input.value}%`; });
+})();
+</script>
+</html>

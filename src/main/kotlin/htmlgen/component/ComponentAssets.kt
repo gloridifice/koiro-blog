@@ -19,6 +19,7 @@ object ComponentAssets {
         ),
         js = listOf(
             "image-compare.js",
+            "range.js",
         ),
     )
 
