@@ -643,6 +643,7 @@ Froxel 体积雾技术最早在 2013 年被使用：
   const tanX = tanY * 4 / 3;
   const orange = "#ff996c", teal = "#76d8cf";
   let width = 0, height = 0, scale = 1;
+  let center = [0, 0];
   let orbit = -0.65, tilt = 0.32;
   let drag = null, pending = 0;
 
@@ -676,12 +677,34 @@ Froxel 体积雾技术最早在 2013 年被使用：
   }
 
   // 示意图观察相机，与当前／历史渲染相机无关。
-  function project([x, y, z]) {
+  function view([x, y, z]) {
     z -= far / 2;
     const rx = Math.cos(orbit) * x + Math.sin(orbit) * z;
     const rz = -Math.sin(orbit) * x + Math.cos(orbit) * z;
-    const ry = Math.cos(tilt) * y - Math.sin(tilt) * rz;
-    return [width / 2 + rx * scale, height / 2 - ry * scale];
+    return [rx, Math.cos(tilt) * y - Math.sin(tilt) * rz];
+  }
+
+  function project(p) {
+    const [x, y] = view(p);
+    return [width / 2 + (x - center[0]) * scale,
+            height / 2 - (y - center[1]) * scale];
+  }
+
+  function fitView(cameras) {
+    const points = cameras.flatMap(camera => [
+      toWorld([0, 0, 0], camera),
+      ...[near, far].flatMap(z => [
+        sample(0, 0, z), sample(1, 0, z),
+        sample(1, 1, z), sample(0, 1, z)
+      ].map(p => toWorld(p, camera)))
+    ]).map(view);
+    const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+    const left = Math.min(...xs), right = Math.max(...xs);
+    const bottom = Math.min(...ys), top = Math.max(...ys);
+    center = [(left + right) / 2, (bottom + top) / 2];
+    // 按实际投影边界铺满画布，预留点标记和文字空间；不改变画布尺寸。
+    scale = Math.min(Math.max(1, width - 128) / Math.max(1, right - left),
+                     Math.max(1, height - 64) / Math.max(1, top - bottom));
   }
 
   function path(points, closed = false) {
@@ -768,8 +791,7 @@ Froxel 体积雾技术最早在 2013 年被使用：
     const valid = inFront && hz >= near && hz <= far &&
       hu >= 0 && hu <= 1 && hv >= 0 && hv <= 1;
 
-    // 保留统一缩放范围，参数变化不会触发自动缩放。
-    scale = Math.min(width - 40, height - 40) / 64;
+    fitView([current, history]);
 
     frustum(history, teal, true);
     frustum(current, orange, false);
