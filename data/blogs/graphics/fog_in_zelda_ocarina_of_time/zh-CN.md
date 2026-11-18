@@ -474,7 +474,7 @@ Froxel 体积雾技术最早在 2013 年被使用：
 
 [Bart Wronski，SIGGRAPH 2014](https://www.advances.realtimerendering.com/s2014/wronski/bwronski_volumetric_fog_siggraph2014.pdf) 提出了复用过去帧结果的方案。也就是时间重投影技术（Temporal Reprojection）。
 
-简单来说，就是找上一帧的 Froxel 与这一帧 Froxel 重合的部分，对这部分采样，进行加权混合。
+简单来说，就是找上一帧的 Froxel 与这一帧 Froxel 重合的部分，三线性采样上一帧数据，然后进行加权混合。
 
 ```html component
 <title>时间重投影：两个相机视锥</title>

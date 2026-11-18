@@ -52,6 +52,73 @@ class IncrementalBuildTest {
     }
 
     @Test
+    fun `deleted content rebuilds indexes and prunes pages attachments and legacy aliases across builds`() = withSiteFixture { data, output, locales ->
+        val removed = writeBundle(data, "blogs/removed", blogMeta("removed"), "[attachment](attachment.txt)", "title = \"Removed\"")
+        removed.resolveSibling("attachment.txt").writeText("Deleted attachment")
+        val kept = writeBundle(data, "blogs/kept", blogMeta("kept"), "Kept body", "title = \"Kept\"")
+        data.resolve("migration-map.toml").writeText("""
+            [[contents]]
+            kind = "blog"
+            old-source = "blogs/Old.md"
+            directory = "blogs/removed"
+            id = "removed"
+            old-url = "/pages/blogs/Old.html"
+            [[assets]]
+            old-url = "/images/old-attachment.txt"
+            source = "blogs/removed/attachment.txt"
+        """.trimIndent())
+        fun generate() = KoiroCatCafe(data, output.toString(), homePageSize = 1, i18nPath = locales).generateAll()
+        generate()
+        val obsolete = listOf("pages/blogs/Old.html", "images/old-attachment.txt", "images/content/blogs/removed/attachment.txt") +
+            listOf("en-US", "zh-CN").flatMap { listOf("$it/pages/blogs/removed.html", "$it/home-2.html") } + "home-2.html"
+        assertTrue(obsolete.all { output.resolve(it).isRegularFile() })
+        val handwritten = output.resolve("handwritten.txt").apply { writeText("Keep me") }
+        val history = output.resolve(".generated-site-files.json").readText()
+        // Missing dependencies of an existing article remain errors, not deletions.
+        val attachment = removed.resolveSibling("attachment.txt")
+        attachment.deleteExisting()
+        assertFailsWith<IllegalArgumentException> { generate() }
+        assertEquals(history, output.resolve(".generated-site-files.json").readText())
+        assertTrue(obsolete.all { output.resolve(it).isRegularFile() })
+        attachment.writeText("Deleted attachment")
+        assertTrue(removed.parent.toFile().deleteRecursively())
+
+        // Use fresh generators to exercise the persisted history, including a second build
+        // where the removed content is no longer present in the previous cache either.
+        repeat(2) {
+            generate()
+            for (relative in obsolete) assertFalse(output.resolve(relative).exists(), relative)
+            assertEquals("Keep me", handwritten.readText())
+            for (locale in listOf("en-US", "zh-CN")) {
+                val home = Jsoup.parse(output.resolve("$locale/home.html").readText())
+                assertEquals(listOf("/$locale/pages/blogs/kept.html"), home.select(".post_preview[href]").map { it.attr("href") })
+                assertTrue(home.select("a[href=/$locale/home-2.html]").isEmpty())
+                val blogs = Jsoup.parse(output.resolve("$locale/blogs.html").readText())
+                assertTrue(blogs.select("a[href=/$locale/pages/blogs/kept.html]").isNotEmpty())
+                assertTrue(blogs.select("a[href=/$locale/pages/blogs/removed.html]").isEmpty())
+                val feed = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.resolve("$locale/rss.xml").toFile())
+                assertEquals(1, feed.getElementsByTagName("item").length)
+                assertEquals("Kept", feed.getElementsByTagName("item").item(0).firstChild.textContent)
+            }
+            assertContentEquals(output.resolve("zh-CN/rss.xml").readBytes(), output.resolve("rss.xml").readBytes())
+        }
+        assertTrue(kept.parent.toFile().deleteRecursively())
+        generate()
+        for (locale in listOf("en-US", "zh-CN")) {
+            assertFalse(output.resolve("$locale/pages/blogs/kept.html").exists())
+            assertTrue(Jsoup.parse(output.resolve("$locale/home.html").readText()).select(".post_preview[href]").isEmpty())
+            val feed = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.resolve("$locale/rss.xml").toFile())
+            assertEquals(0, feed.getElementsByTagName("item").length)
+        }
+        val migration = data.resolve("migration-map.toml")
+        val mapping = migration.readText()
+        for ((original, unsafe) in listOf("/images/old-attachment.txt" to "/images/../outside.txt", "blogs/removed" to "../removed")) {
+            migration.writeText(mapping.replace(original, unsafe))
+            assertFailsWith<IllegalArgumentException>("Deleted sources must not bypass path validation: $unsafe") { generate() }
+        }
+    }
+
+    @Test
     fun `cached articles retain and repair their attachments and backward source timestamps update aliases`() = withSiteFixture { data, output, locales ->
         val image = data.resolve("image.gif")
         val gif = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")

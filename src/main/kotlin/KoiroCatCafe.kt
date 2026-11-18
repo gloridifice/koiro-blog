@@ -174,7 +174,15 @@ class KoiroCatCafe(private val databasePath: Path, outputPath: String,
             require(asset.oldUrl.startsWith("/images/") && !asset.oldUrl.lowercase().startsWith("/images/content/")) {
                 "Legacy asset conflicts with the shared content namespace: ${asset.oldUrl}"
             }
-            val source = images.copySource(routes.legacyAssetSource(asset))
+            // Validate even retired mappings so missing sources cannot bypass path safety.
+            resources.source(asset.source)
+            resources.checkedOutput(asset.oldUrl.trimStart('/'))
+            val sourcePath = routes.legacyAssetSource(asset)
+            if (sourcePath == null) {
+                System.err.println("Warning: $migrationFile: skipping legacy asset ${asset.oldUrl} for missing or skipped content and deleted source: ${asset.source}")
+                continue
+            }
+            val source = images.copySource(sourcePath)
             images.alias(source, asset.oldUrl.trimStart('/'))
         }
         resources.finish()

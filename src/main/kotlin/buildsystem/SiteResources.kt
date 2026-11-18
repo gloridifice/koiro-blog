@@ -149,7 +149,8 @@ class SiteResources(outputPath: Path, sourcePath: Path) {
         planned += relative
     }
 
-    private fun checkedOutput(relative: String) = checkedPath(root, relative, "output")
+    /** Validate optional outputs too, even when their source has been deleted. */
+    fun checkedOutput(relative: String): Path = checkedPath(root, relative, "output")
 
     private fun writeOutput(relative: String, bytes: ByteArray) {
         val target = checkedOutput(relative)

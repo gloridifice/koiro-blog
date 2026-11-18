@@ -68,6 +68,28 @@ class ArticleContentTest {
     }
 
     @Test
+    fun `angle bracket local image destinations resolve filenames with spaces`() {
+        val root = Files.createTempDirectory("article-image-destinations")
+        try {
+            val svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2\" height=\"2\"/>"
+            Files.writeString(root.resolve("image with spaces.svg"), svg)
+            val cases = listOf(
+                "![local](<image with spaces.svg>)",
+                "Before ![local](<image with spaces.svg>) after",
+                "![local](image%20with%20spaces.svg)",
+                "![local][image]\n\n[image]: <image%20with%20spaces.svg>"
+            )
+            for (markdown in cases) {
+                val doc = Jsoup.parseBodyFragment(renderHtml(markdown, root))
+                val image = kotlin.test.assertNotNull(doc.selectFirst("img"), "$markdown: ${doc.body().html()}")
+                assertEquals("/images/content/image with spaces.svg", image.attr("src"), markdown)
+                assertEquals("local", image.attr("alt"), markdown)
+                assertEquals(svg, Files.readString(root.resolve("output/images/content/image with spaces.svg")))
+            }
+        } finally { root.toFile().deleteRecursively() }
+    }
+
+    @Test
     fun `text links select icons by URL host without changing their content`() {
         val destinations = listOf(
             "https://github.com/user/repo" to "github",

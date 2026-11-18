@@ -77,12 +77,14 @@ class LocalizedRoutes(private val config: SiteConfig, private val bundles: List<
             ContentKind.PORTFOLIO -> ServerPath("${page(locale, PageKey.Portfolio).relativePath}#project-${key.id}")
         }
     }
-    fun legacyAssetSource(asset: LegacyAsset): Path {
+    fun legacyAssetSource(asset: LegacyAsset): Path? {
         val owner = migration.contents.filter { asset.source.startsWith(it.directory + "/") }.maxByOrNull { it.directory.length }
             ?: return root.resolve(asset.source)
         val kind = ContentKind.entries.single { it.name.lowercase() == owner.kind }
-        // A skipped article may still have historical attachment URLs to preserve.
-        val bundle = byKey[ContentKey(kind, owner.id)] ?: return root.resolve(asset.source)
+        // Preserve skipped articles' surviving attachments, but retire aliases whose
+        // owner and source are both gone. The migration map can outlive a deletion.
+        val bundle = byKey[ContentKey(kind, owner.id)]
+            ?: return root.resolve(asset.source).takeUnless { it.notExists() }
         return bundle.directory.resolve(asset.source.removePrefix(owner.directory + "/"))
     }
 

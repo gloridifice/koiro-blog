@@ -453,7 +453,8 @@ class ArticleContent(
             it.type == MarkdownElementTypes.FULL_REFERENCE_LINK || it.type == MarkdownElementTypes.SHORT_REFERENCE_LINK }
         if (link == null) { +node.getTextInNode(markdownText).toString(); return }
         val alt = link.findChildOfType(MarkdownElementTypes.LINK_TEXT)?.let { extractText(it) } ?: ""
-        val src = link.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.let { extractText(it) }
+        val src = link.findChildOfType(MarkdownElementTypes.LINK_DESTINATION)?.getTextInNode(markdownText)
+            ?.toString()?.removeSurrounding("<", ">")
             ?: references[referenceKey(link.findChildOfType(MarkdownElementTypes.LINK_LABEL)?.getTextInNode(markdownText)?.toString() ?: alt)]
         if (src.isNullOrEmpty()) { +node.getTextInNode(markdownText).toString(); return }
         if (src.startsWith('/') || Regex("^[A-Za-z][A-Za-z0-9+.-]*:").containsMatchIn(src)) {

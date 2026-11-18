@@ -30,7 +30,7 @@ data/migration-map.toml ─→ routing/LocalizedRoutes   PageContext + ResolvedC
 - Markdown 的 `html component` 围栏由 ArticleContent 生成仅允许脚本的沙箱 iframe/srcdoc；独立的 `article-components.js` 与 `article-component-frame.js` 通过校验来源的 postMessage 同步高度，不依赖 Wasm。公共 CSS/JS 位于 `assets/component/`，由 `htmlgen/component/ComponentAssets.kt` 显式注册后注入，禁止扫描目录自动加载；预设只作用于标记组件，作者可覆盖样式或编写自己的逻辑。`range.js` 为标记的原生 range 添加自绘参数滑杆，保留标签、范围、键盘及 input/change 业务接口；图片对比独立运行。组件 HTML 资源沿用内容包附件解析，CSS/JS 字符串中的依赖不自动重写。
 - `src/main/stylesheet/`：Dart Sass 编译的全局样式；language.scss 维护语言控件及翻译提示，颜色使用 CSS 自定义属性。正文 Markdown 文字链接在构建期标记图标类型，page_content.scss 用空伪元素和本地 SVG mask 显示前置图标，不插入可复制字符或图片节点；默认链条图标，仅 HTTP/HTTPS（含协议相对地址）的 github.com、www.github.com 使用 GitHub 图标，域名不区分大小写。普通、引用式及自动链接一致处理；GFM 识别的裸 HTTP/HTTPS URL 自动输出为行内链接，跳过代码及已有链接文字，不为裸域名或邮箱补协议。纯图片链接、原始 HTML 链接、导航及组件 iframe 不参与图标处理。
 
-生成器先加载并验证输入，按构建模式确定统一内容集合和页面计划，再按语言选择译本、复用原子资源并渲染其余页面。文章指纹覆盖全部译本、公共 metadata、字典、路由计划及生成代码，保守处理共享依赖变化；RSS 条目指纹仅覆盖其实际字段及生成配置。HTML/RSS 在全部页面生成成功后写出；附件复制可能先发生。生成文件清单包含附件并限制增量删除范围，不删除无关手写文件。npm 构建保留登记产物和缓存，静态图片按源/输出时间与大小复用，其余静态文件重拷；清除未登记的旧文件，Kotlin 成功生成后清理不再需要的登记产物。
+生成器先加载并验证输入，按构建模式确定统一内容集合和页面计划，再按语言选择译本、复用原子资源并渲染其余页面。文章指纹覆盖全部译本、公共 metadata、字典、路由计划及生成代码，保守处理共享依赖变化；RSS 条目指纹仅覆盖其实际字段及生成配置。HTML/RSS 在全部页面生成成功后写出；附件复制可能先发生。生成文件清单持久化于输出目录，包含附件；成功构建时对比历史与本次计划，清理已删除内容的详情、兼容跳转、不再引用的附件和多余分页，不删除无关手写文件。迁移映射所属内容缺失或被跳过且源附件已删除时，警告并跳过该图片别名，避免旧映射阻断首页、列表、RSS 更新及过期产物清理；源仍存在则继续保留别名。npm 构建保留登记产物和缓存，静态图片按源/输出时间与大小复用，其余静态文件重拷；清除未登记的旧文件，Kotlin 成功生成后清理不再需要的登记产物。
 
 ## 输入与输出
 
