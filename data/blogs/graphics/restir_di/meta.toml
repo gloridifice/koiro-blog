@@ -1,0 +1,6 @@
+id = "restir_di"
+icon = "todo"
+published = false
+class = "graphics"
+date = "2026-11-24"
+tags = ["Graphics", "Godot"]
